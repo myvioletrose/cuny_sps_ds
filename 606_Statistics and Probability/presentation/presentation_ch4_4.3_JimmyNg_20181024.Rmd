@@ -1,0 +1,96 @@
+---
+title: "presentation_ch4_4.3_JimmyNg_20181024"
+author: "Jimmy Ng"
+date: "10/24/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Question 4.3  College credits
+A college counselor is interested in estimating how many credits a student typically enrolls in each semester. The counselor decides to randomly sample 100 students by using the registrar's database of students. The histogram below shows the distribution of the number of credits taken by these students.
+Sample statistics for this distribution are also provided.
+
+```{r eval = T, echo = T}
+min <- 8
+q1 <- 13
+median <- 14
+mean <- 13.65
+sd <- 1.91
+q3 <- 15
+max <- 18
+
+set.seed(12345)
+simulation <- rnorm(100, mean = mean, sd = sd)  
+hist(simulation, main = "Number of credits", breaks = 10)
+```
+
+# (a) What is the point estimate for the average number of credits taken per semester by students at this college? What about the median?
+The point estimate would be the mean and that is equal to 13.65, whereas the median is 14.
+
+# (b) What is the point estimate for the standard deviation of the number of credits taken per semester by students at this college? What about the IQR?
+The sd is 1.91, whereas the IQR is equal to q3 - q1 = (15 - 13) = 2. 
+
+# (c) Is a load of 16 credits unusually high for this college? What about 18 credits? Explain your reasoning. Hint: Observations farther than two standard deviations from the mean are usually considered to be unusual. 
+```{r eval = T, echo = T}
+# simulation
+set.seed(12345)
+plot(density(x = rnorm(10000, mean, sd)), 
+     main = "simulation of number of college credits per semester", 
+     xlab = "college credits")
+abline(v = mean, col = "black", lty = 2)  # mean
+abline(v = 16, col = "blue", lty = 2)  # 16-credit
+abline(v = 18, col = "red", lty = 2)  # 18-credit
+
+# 16-credit
+print(paste("percent of area on the right of 16 credits (beyond blue line) is approximately ",
+            round(100 * pnorm(16, mean, sd, lower.tail = F), 1),
+            "%",
+            sep = ""))
+
+# 18-credit
+print(paste("percent of area on the right of 18 credits (beyond red line) is approximately ",
+            round(100 * pnorm(18, mean, sd, lower.tail = F), 1),
+            "%",
+            sep = ""))
+```
+
+# (d) The college counselor takes another random sample of 100 students and this time finds a sample mean of 14.02 units. Should she be surprised that this sample statistic is slightly different than the one from the original sample? Explain your reasoning.
+```{r, eval = T, echo = T}
+margin_of_error <- 1.96 * (sd / sqrt(100))
+confidence_intervals <- round( c(mean - margin_of_error,
+                                mean + margin_of_error), 2 )
+confidence_intervals
+```
+She should not be too surprised. There's data variation within each sampling; however, the true mean should be covered within range suggested by the confidence intervals. In above case, we set up the alpha level to be 5% (meaning the chance of making a type 1 error), we are 95% confident that the mean would be included between 13.28 and 14.02. Therefore, her number is still within range. 
+
+# (e) The sample means given above are point estimates for the mean number of credits taken by all students at that college. What measures do we use to quantify the variability of this estimate (Hint: recall that SD¯x = ! pn )? Compute this quantity using the data from the original sample.
+```{r, eval = T, echo = T}
+# 95% confidence intervals
+margin_of_error <- 1.96 * (sd / sqrt(100))
+confidence_intervals <- round( c(mean - margin_of_error,
+                                mean + margin_of_error), 2 )
+confidence_intervals
+
+# 99% confidence intervals
+margin_of_error99 <- 2.58 * (sd / sqrt(100))
+confidence_intervals99 <- round( c(mean - margin_of_error99,
+                                mean + margin_of_error99), 2 )
+confidence_intervals99
+```
+We can quantify the variability of the mean by setting up a confidence interval. Above shows two examples of using 95% and 99% confidence intervals respectively.
+
+
+
+
+
+
+
+
+
+
+
+
+

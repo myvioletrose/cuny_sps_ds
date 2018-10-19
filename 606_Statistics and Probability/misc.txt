@@ -1,0 +1,6 @@
+url: http://data606.net/
+
+
+ Getting Started with R
+
+To get started with the labs, you will need to install R and other supporting applications. Links to download all the software is on the Software page at http://data606.net/software which is available on the Misc menu. Once you are in RStudio, you will need to install a number of R packages using the following two commands: install.packages(c('openintro','OIdata','devtools','ggplot2','psych','reshape2', 'knitr','markdown','shiny')) devtools::install_github("jbryer/DATA606") Note that this course used to be listed as IS 606, hence the different package name.
