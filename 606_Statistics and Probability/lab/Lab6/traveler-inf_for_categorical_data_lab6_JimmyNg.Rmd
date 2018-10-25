@@ -2,11 +2,11 @@
 title: 'Inference for categorical data'
 author: 'Jimmy Ng'
 output:
+  pdf_document: default
   html_document:
     css: ./lab.css
     highlight: pygments
     theme: cerulean
-  pdf_document: default
 ---
 
 In August of 2012, news outlets ranging from the [Washington
@@ -128,7 +128,7 @@ inference(hk12$response, est = "proportion", type = "ci", method = "theoretical"
 inference(j12$response, est = "proportion", type = "ci", method = "theoretical", 
           success = "atheist")
 ```
-# JN: both countries have met the two conditions. First, their sampling were independent and the sample size for both were way less than (10% of) their population (Hong Kong had over 7 million, whereas Japan had over 100 million as of 2012); second, the "success-failure" condition also checked out. For Hong Kong, 500 * 0.09 and 500 * (1 - 0.09), both were easily greater than 10; for Japan, 1200 * 0.31 and 1200 * (1 - 0.31), both were also easily greater than 10. Therefore, the conditions checked out and we can move on to calculate the margin of error. For Hong Kong, the 95% confidence interval is equal to (0.0649, 0.1151) and the margin of error is 1.96 * 0.0128 = 0.025088. For Japan, the 95% confidence interval is equal to (0.281, 0.03329) and the margin of error is 1.96 * 0.0132 = 0.025872.
+# JN: both countries have met the two conditions. First, their sampling were independent and the sample size for both were way less than (10% of) their population (Hong Kong had over 7 million, whereas Japan had over 100 million as of 2012); second, the "success-failure" condition also checked out. For Hong Kong, 500 * 0.09 and 500 * (1 - 0.09), both were easily greater than 10; for Japan, 1200 * 0.31 and 1200 * (1 - 0.31), both were also easily greater than 10. Therefore, the conditions checked out and we can move on to calculate the margin of error. For Hong Kong, the 95% confidence interval is equal to (0.0649, 0.1151) and the margin of error is 1.96 * 0.0128 = 0.025088. For Japan, the 95% confidence interval is equal to (0.281, 0.3329) and the margin of error is 1.96 * 0.0132 = 0.025872.
 
 ## How does the proportion affect the margin of error?
 
@@ -159,6 +159,7 @@ plot(me ~ p, ylab = "Margin of Error", xlab = "Population Proportion")
 ```
 
 8.  Describe the relationship between `p` and `me`.
+# JN: The size of ME reaches its peak when the proportion reaches half. The size of ME rises along with the increase of p from 0, and then it reaches its peak when p is about half (p = 0.5). After that, it goes down hill and mirrors a symmetrical relationship as the first half. Essentially, it's a parabola. 
 
 ## Success-failure condition
 
@@ -207,6 +208,7 @@ distribution.
     $p = 0.1$. Be sure to note the center, spread, and shape.\
     *Hint:* Remember that R has functions such as `mean` to calculate summary
     statistics.
+# JN: the sampling distribution of the sample proportion (0.1) resembles a bell curve - a sign of normal distribution. The center is at 0.1 and the curve looks symmetrical with equal spread on both sides. This distribution visually presents a collection of the mean of 5000 samples (each has n = 1040). The probability of "atheist" is constant throughout the 5000 samples and the sampling distribution can reflect that (as the center is equal to the constant, i.e. 0.1). 
 
 10. Repeat the above simulation three more times but with modified sample
     sizes and proportions: for $n = 400$ and $p = 0.1$, $n = 1040$ and 
@@ -216,6 +218,40 @@ distribution.
     larger two-by-two plot. Describe the three new sampling distributions. 
     Based on these limited plots, how does $n$ appear to affect the 
     distribution of $\hat{p}$? How does $p$ affect the sampling distribution?
+
+```{r, eval = T, echo = T}
+simulation <- function(n, p, iteration = 5000, seed = 1234){
+        if(!require(purrr)){install.packages("purrr"); require(purrr)}
+        if(!require(plyr)){install.packages("plyr"); require(plyr)}
+        
+        set.seed(seed)
+        sim <- as.vector(rep(NA, iteration))        
+        sim <- map(1:iteration, function(x) sim[x] <- mean( sample(
+                c(1, 0), 
+                n, 
+                replace = TRUE, 
+                prob = c(p, 1-p)) )
+        )
+        sim <- sim %>% 
+                plyr::ldply(., data.frame)
+        sim <- as.vector(sim[,1])
+}
+
+n1 = 1040; p1 = 0.1
+n2 = 400; p2 = 0.1
+n3 = 1040; p3 = 0.02
+n4 = 400; p4 = 0.02
+
+parameters <- list(n = c(n1, n2, n3, n4), p = c(p1, p2, p3, p4))
+output <- purrr::map2(parameters$n, parameters$p, 
+                     simulation)
+par(mfrow = c(2, 2))
+hist(output[[1]], main = "p = 0.1, n = 1040", xlim = c(0, 0.18), freq = F); lines(density(output[[1]]), lwd = 2)
+hist(output[[2]], main = "p = 0.1, n = 400", xlim = c(0, 0.18), freq = F); lines(density(output[[2]]), lwd = 2)
+hist(output[[3]], main = "p = 0.02, n = 1040", xlim = c(0, 0.06), freq = F); lines(density(output[[3]]), lwd = 2)
+hist(output[[4]], main = "p = 0.02, n = 400", xlim = c(0, 0.06), freq = F); lines(density(output[[4]]), lwd = 2)
+```
+# JN: The sampling distribution is affected by n; larger the n would better approximate the data toward a normal distribution. Smaller the n would fatten the distribution. The center of each sampling distribution would be the corresponding p value. Each sampling distribution is based off 5000 iterations varied by the size of n and proportion value. Seed is set to a constant of 1234 for each sampling.
 
 Once you're done, you can reset the layout of the plotting window by using the 
 command `par(mfrow = c(1, 1))` command or clicking on "Clear All" above the 
@@ -228,6 +264,7 @@ your previous plots.
     these point estimates are actually the truth. Then given the shape of 
     their respective sampling distributions, do you think it is sensible to 
     proceed with inference and report margin of errors, as the reports does?
+# JN: Yes, because in both cases they meet the "independence" and "success-failure" conditions.
 
 * * *
 ## On your own
@@ -246,14 +283,47 @@ from 2005 and 2012 for 39 countries.
     *Hint:* Create a new data set for respondents from Spain. Form
     confidence intervals for the true proportion of athiests in both
     years, and determine whether they overlap.
+```{r, eval = T, echo = T}
+spain <- atheism %>%
+        dplyr::filter(nationality == 'Spain') 
+spain$response <- ifelse(spain$response == "non-atheist", 0, 1)
+spain2005 <- spain$response[spain$year == 2005]
+spain2012 <- spain$response[spain$year == 2012]
+        
+inference(y = spain2005, est = "mean", type = "ci", null = 0, 
+          alternative = "twosided", method = "theoretical",
+          conflevel = 0.95)
+
+inference(y = spain2012, est = "mean", type = "ci", null = 0, 
+          alternative = "twosided", method = "theoretical",
+          conflevel = 0.95)
+```
+# JN: yes they do overlap. This overlap of the confidence intervals of 2005 and 2012 signals that the survey result in these two years are not significantly different.
 
     **b.** Is there convincing evidence that the United States has seen a
     change in its atheism index between 2005 and 2012?
+```{r, eval = T, echo = T}
+us <- atheism %>%
+        dplyr::filter(nationality == 'United States') 
+us$response <- ifelse(us$response == "non-atheist", 0, 1)
+us2005 <- us$response[us$year == 2005]
+us2012 <- us$response[us$year == 2012]
+        
+inference(y = us2005, est = "mean", type = "ci", null = 0, 
+          alternative = "twosided", method = "theoretical",
+          conflevel = 0.95)
+
+inference(y = us2012, est = "mean", type = "ci", null = 0, 
+          alternative = "twosided", method = "theoretical",
+          conflevel = 0.95)
+```    
+# JN: no the confidence intervals do not overlap. It indicates that there's a significant change in the percent of self-identified atheists in the US in 2012. A significant jump from 1% in 2005 to 5% in 2012. 
 
 -   If in fact there has been no change in the atheism index in the countries 
     listed in Table 4, in how many of those countries would you expect to 
     detect a change (at a significance level of 0.05) simply by chance?\
     *Hint:* Look in the textbook index under Type 1 error.
+# JN: If indeed there's no change for all countries, we would still expect to find "significant" difference in about 5% of the countries due to chance. This "5%" is the alpha level (% of making type 1 error) that we have chosen, i.e. that's the percent of rejecting the null hypothesis when we actually shouldn't (type 1 error). The reason for why we should not reject the null hypothesis is because the observed difference is due to chance only.
 
 -   Suppose you're hired by the local government to estimate the proportion of 
     residents that attend a religious service on a weekly basis. According to 
@@ -263,7 +333,18 @@ from 2005 and 2012 for 39 countries.
     guidelines?\
     *Hint:* Refer to your plot of the relationship between $p$ and margin of 
     error. Do not use the data set to answer this question.
+# JN: In this case, we don't know p but we want to maximize the certainty of our margin of error. So, let's assume that our p is equal to 0.5. Since we want to have our margin of error less than 1% with 95% confidence, we can do reverse engineering to figure out the size of n by plugging in the numbers,
 
+# p = 0.5
+# critical value = 1.96 (for 95% confidence)
+# standard error (se) = sqrt((p * (1-p)) / n)
+# margin of error (me) = 1.96 * se
+
+# me = 1.96 * sqrt((p * (1-p)) / n)
+# 0.01 = 1.96 * sqrt((0.5 * (1-0.5)) / n)
+# n = 9604
+
+# as a result, we should expect to get at least 9604+1 samples (make sure the me < 1%) to fulfill the required guidelines, i.e 1.96 * (sqrt((0.5)*(0.5)) / sqrt(9605)) = 0.009999479
 
 <div id="license">
 This is a product of OpenIntro that is released under a [Creative Commons 

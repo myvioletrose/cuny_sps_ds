@@ -1,0 +1,34 @@
+---
+title: "homework_ch6_JimmyNg"
+author: "Jimmy Ng"
+date: "October 25, 2018"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Question 6.6
+(a) False. The confidence intervals (CI) is not describing this sample; the CI should be used to address the population, not the sample. In this case, the proportion is already found/calculated for this particular sample, which is 46%. 
+(b) True. That is the 95% confidence intervals. We are 95% confident that the true proportion (from the population) would fall between these intervals, given the sampling methodology met the criteria, e.g. random sampling, independence, etc. 
+(c) True. If we created a sampling distribution using 1012 in each sample, we should expect to see that the point estimate fall between these intervals 95% of the time.
+(d) False. Since the critical value of 90% is less than 95% (1.64 < 1.96), and the margin of error is equal to the critical value multiplied by the standard error (SE), we should expect to see that the margin of error decreases with 90% confidence when the SE remains constant.
+
+## Question 6.12
+(a) It's a sample statistics. It is derived from the 1259 samples, but we can use this sample statistics to generate a meaningful parameter for (estimating) the population. 
+(b) The SE is equal to sqrt((0.48)*(1 - 0.48)) / sqrt(1259) = 0.01408022. The margin of error (ME) for 95% CI is equal to 1.96 multiplied by SE, i.e. 0.02759723. Putting them together, we have the 95% CI [45.2%, 50.8%]. The result indicated that we are 95% confident that roughly 45% to 51% of the population is in support of legalizing marijuana in the US. 
+(c) As long as the observations are independent and less than 10% of the population, e.g. each data point collected is independent, meaning the individuals' opinion in this survey are not influenced by other survey-takers, and we can meet the "success-failure" condition (in this case, np >= 10 and n(1 -p) >= 10), we can approximate the data using normal distribution. 
+(d) It's hard to justify this claim when the intervals is crossing 50, i.e. between 45.2% and 50.8%. We cannot say for sure that majority of Americans are supporting it. 
+
+## Question 6.20
+We can set this up as following,
+
+0.02 = 1.96 * ( sqrt( (p)(1-p) ) / sqrt(n) )
+0.02 = 1.96 * ( sqrt( (0.48)*(0.52) ) / sqrt(n) )
+0.02 = 1.96 * ( 0.4995998 / sqrt(n) )
+0.01020408 = 0.4995998 / sqrt(n)
+sqrt(n) = 48.96079
+n = 2397.159
+
+We need at least 2398 participants for the survey in order to achieve the result.
