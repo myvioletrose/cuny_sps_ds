@@ -11,8 +11,21 @@ output:
 
 ### Data Preparation
 
-```{r setup, echo=TRUE, results='hide', warning=FALSE, message=FALSE}
+```{r setup, eval = T, echo = TRUE, results = 'hide', warning = FALSE, message = FALSE}
+# load packages
+library(plyr)
+library(lubridate)
+library(tidyverse)
+
 # load data
+myfile <- "https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2018-10-23/movie_profit.csv"
+df <- readr::read_csv(myfile)
+
+#
+df %>%
+        mutate(release_date = as.Date(release_date, "%m/%d/%Y")) %>%
+        arrange(release_date) %>%
+        View
 
 ```
 
