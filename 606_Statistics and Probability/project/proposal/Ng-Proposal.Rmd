@@ -1,82 +1,251 @@
 ---
-title: 'XYZ'
+title: 'What makes a Hollywood movie profitable?'
+date: "October 29, 2018"
 author: 'Jimmy Ng'
 output:
         pdf_document: default
-        html_document:
+        html_document: 
                 css: ./lab.css
                 highlight: pygments
                 theme: cerulean
 ---
 
 ### Data Preparation
-
-```{r setup, eval = T, echo = TRUE, results = 'hide', warning = FALSE, message = FALSE}
+```{r setup, eval = T, echo = TRUE, collapse = TRUE, warning = FALSE, message = FALSE, prompt = TRUE, tidy = TRUE, tidy.opts = list(width.cutoff = 80)}
 # load packages
 library(plyr)
 library(lubridate)
 library(tidyverse)
 
-# load data
-myfile <- "https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2018-10-23/movie_profit.csv"
+# load file from github
+# source from tidytuesday - they have a new dataset coming out every Tuesday
+github <- "https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data"
+date <- "2018-10-23"
+csv <- "movie_profit.csv"
+myfile <- paste(github, date, csv, sep = "/")
 df <- readr::read_csv(myfile)
 
-#
-df %>%
-        mutate(release_date = as.Date(release_date, "%m/%d/%Y")) %>%
-        arrange(release_date) %>%
-        View
+###################
+### have a look ###
+###################
+# head, dim, str
+head(df)
+dim(df)  # [1] 3401    9 
+str(df)
 
+############
+# clean-up #
+############
+# check duplication: is there any movie that's duplicated in this data set?
+plyr::count(df, "movie") %>%
+        filter(freq >1)
+
+# what is this movie?         
+df %>%
+        filter(movie == "Tau ming chong") %>%
+        print
+# id == 2974, 2975
+
+# let's remove either one of these identical rows
+df <- df %>%
+        filter(X1 != 2974)
+
+# is there any movie that has 0 or even negative domestic/worldwide gross?
+df %>%
+        filter(domestic_gross <=0 | worldwide_gross <= 0)
+# there are 66 of these in this data set (as of Oct 29) 
+# some of them have not been released yet, like the Aquaman!
+
+# let's not remove them but create a flag for each of these variables
+df$domestic_flag <- ifelse(df$domestic_gross <=0, 0, 1); sum(df$domestic_flag)
+df$worldwide_flag <- ifelse(df$worldwide_gross <=0, 0, 1); sum(df$worldwide_flag)
+
+# let's rename the X1 column and rename it as a movie id column
+names(df)[1] <- "movie_id"
+
+# change "date": turn the release_date column as date data type; add release day, month, year
+df <- df %>%
+        mutate(release_date = lubridate::mdy(release_date),
+               release_day = lubridate::wday(release_date, 
+                                             week_start = getOption("lubridate.week.start", 1)),
+               release_month = lubridate::month(release_date),
+               release_year = lubridate::year(release_date))
+
+# rescale the production_budget, domestic_gross & worldwide_gross (by dividing 1 million)
+# so that they are easier to read and visualize
+df <- df %>%
+        mutate(production_budget = production_budget / 1000000,
+               domestic_gross = domestic_gross / 1000000,
+               worldwide_gross = worldwide_gross / 1000000)
+               
+# change mpaa_rating & genre data type from character to factor
+df <- df %>%
+        mutate(mpaa_rating = factor(mpaa_rating, 
+                                    levels = c("G", "PG", "PG-13", "R")),
+               genre = as.factor(genre))
+
+# complete.cases - remove all NA's
+dfComplete <- df[complete.cases(df), ]
+
+# let's look at the clean data set
+head(dfComplete)
+dim(dfComplete)  # [1] 3230   14
+str(dfComplete)
 ```
 
 
 ### Research question 
-
-**You should phrase your research question in a way that matches up with the scope of inference your dataset allows for.**
-
+This is a movie data set that provides various categorical and numerical variables about any major Hollywood released movie since 1936. Our main goal is to answer, "what makes a Hollywood movie profitable?" For example, do genre, mpaa rating, production budget and/or release month(s) contribute to a successful/useful multiple-regression formula in terms of predicting a movie worldwide revenue gross? Box office revenue and production budget are reported in USD and scaled to current monetary value.
 
 
 ### Cases 
-
-**What are the cases, and how many are there?**
-
+After removing a single duplicated case, we are left with 3400 cases from the original data set; however, we need to filter out movies that are not yet released as of this moment (such as the Aquaman won't be released until December 14, 2018). In addition, we need to remove cases that have missing values. Finally, we are left with 3202 cases. 
 
 
 ### Data collection 
-
-**Describe the method of data collection.**
-
+The data set (csv) is cloned from github, and it is complied from a social science project "tidytuesday" - a weekly social data project in R. As the name described, "tidytuesday" would post a data set on github every Tuesday. This movie data set is from Oct 23, 2018 and the original data is come from numbers.com - a movie industry data website that tracks box office revenue in a systematic, algorithmic way.
 
 
 ### Type of study 
-
-**What type of study is this (observational/experiment)?**
-
+This is an observational study with no interference of the box office. 
 
 
 ### Data Source 
+Please see the links,
 
-**If you collected the data, state self-collected. If not, provide a citation/link.**
-
+https://github.com/rfordatascience/tidytuesday/tree/master/data/2018-10-23
+https://thomasmock.netlify.com/post/tidytuesday-a-weekly-social-data-project-in-r/
+https://www.the-numbers.com/research-analysis
 
 
 ### Dependent Variable
-
-**What is the response variable? Is it quantitative or qualitative?**
-
+The "worldwide_gross" would be the dependent variable. It is quantitative. However, in the final project, we will likely transform and come up with a different dependent variable, e.g. "worldwide_gross / production_budget" in order to better capture the ROI of a movie.
 
 
 ### Independent Variable
+We have the following from the data set, such as
 
-**You should have two independent variables, one quantitative and one qualitative.**
-
+ - "production_budget" (quantitative)
+ - "mpaa_rating" (qualitative)
+ - "genre" (qualitative)
+ - "release_month" (qualitative - we should treat it as a seasonal factor)
 
 
 ### Relevant summary statistics 
+Below is some summary statistics and visualization for some of the variables discussed above.
 
-**Provide summary statistics for each the variables. Also include appropriate visualizations related to your research question (e.g. scatter plot, boxplots, etc). This step requires the use of R, hence a code chunk is provided below. Insert more code chunks as needed.**
 
-```{r}
+```{r relevant summary, eval = T, echo = TRUE, collapse = TRUE, warning = FALSE, message = FALSE, prompt = TRUE, tidy = TRUE, tidy.opts = list(width.cutoff = 80)}
 
+######################################################################################
+# production_budget
+dfComplete %>%
+        filter(worldwide_flag == 1) %>%
+        select(production_budget) %>%
+        summary
+
+dfComplete %>%
+        filter(worldwide_flag == 1) %>%
+        ggplot(data = ., aes(y = production_budget)) +
+        geom_boxplot() +
+        ggtitle("Production Budget") + 
+        theme_bw() + 
+        labs(x = "", y = "production budget (in millions, USD)")
+
+# worldwide_gross
+dfComplete %>%
+        filter(worldwide_flag == 1) %>%
+        select(worldwide_gross) %>%
+        summary
+
+dfComplete %>%
+        filter(worldwide_flag == 1) %>%
+        ggplot(data = ., aes(y = worldwide_gross)) +
+        geom_boxplot() +
+        ggtitle("Worldwide Gross") + 
+        theme_bw() + 
+        labs(x = "", y = "worldwide gross (in millions, USD)")
+
+######################################################################################
+# table for categorical variables
+# it would be interesting to create a 2 x 2 contingency table 
+# or an array, in order to look at the data from a multi-dimensional perspective
+# alternatively, we can do an ANOVA test on any of these with worldwide_gross
+dfComplete %>%
+        filter(worldwide_flag == 1) %>%
+        select(mpaa_rating) %>%
+        ftable
+
+dfComplete %>%
+        filter(worldwide_flag == 1) %>%
+        select(genre) %>%
+        ftable
+
+dfComplete %>%
+        filter(worldwide_flag == 1) %>%
+        select(release_month) %>%
+        ftable
+
+######################################################################################
+# in general, it seems reasonable to believe that there's a positive correlation 
+# between production budget and worldwide gross
+
+# PG, PG-13 generate the most revenue
+# Action, Adventure are the most profitable movie genre 
+# summer (May, June & July) is always the best time to roll out blockbuster movies!
+
+# production_budget x worldwide_gross by mpaa_rating
+dfComplete %>%
+        filter(worldwide_flag == 1) %>%
+        ggplot(data = ., aes(x = production_budget, y = worldwide_gross)) + 
+        geom_point() +
+        scale_y_continuous(labels = scales::dollar) +
+        geom_smooth(method = "lm", col = "blue") + 
+        facet_wrap(~mpaa_rating) +
+        ggtitle("Worldwide Gross") + 
+        labs(x = "production budget (in millions, USD)", y = "worldwide gross (in millions, USD)") +
+        theme_bw() 
+
+# production_budget x worldwide_gross by genre
+dfComplete %>%
+        filter(worldwide_flag == 1) %>%
+        ggplot(data = ., aes(x = production_budget, y = worldwide_gross)) + 
+        geom_point() +
+        scale_y_continuous(labels = scales::dollar) +
+        geom_smooth(method = "lm", col = "green") + 
+        facet_wrap(~genre) +
+        ggtitle("Worldwide Gross") + 
+        labs(x = "production budget (in millions, USD)", y = "worldwide gross (in millions, USD)") +
+        theme_bw()
+
+# production_budget x worldwide_gross by release_month
+dfComplete %>%
+        filter(worldwide_flag == 1) %>%
+        ggplot(data = ., aes(x = production_budget, y = worldwide_gross)) + 
+        geom_point() +
+        scale_y_continuous(labels = scales::dollar) +
+        geom_smooth(method = "lm", col = "red") + 
+        facet_wrap(~release_month) +
+        ggtitle("Worldwide Gross") + 
+        labs(x = "production budget (in millions, USD)", y = "worldwide gross (in millions, USD)") +
+        theme_bw() 
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

@@ -84,8 +84,99 @@ df_lm <- lm(worldwide_gross ~ production_budget + mpaa_rating + genre + release_
 summary(df_lm)
 
 
+##########################################################
+################# summary, visualization ################# 
+##########################################################
 
+######################################################################################
+# production_budget
+dfComplete %>%
+        filter(worldwide_flag == 1) %>%
+        select(production_budget) %>%
+        summary
 
+dfComplete %>%
+        filter(worldwide_flag == 1) %>%
+        ggplot(data = ., aes(y = production_budget)) +
+        geom_boxplot() +
+        ggtitle("Production Budget") + 
+        theme_bw() + 
+        labs(x = "", y = "production budget (in millions, USD)")
 
+# worldwide_gross
+dfComplete %>%
+        filter(worldwide_flag == 1) %>%
+        select(worldwide_gross) %>%
+        summary
 
+dfComplete %>%
+        filter(worldwide_flag == 1) %>%
+        ggplot(data = ., aes(y = worldwide_gross)) +
+        geom_boxplot() +
+        ggtitle("Worldwide Gross") + 
+        theme_bw() + 
+        labs(x = "", y = "worldwide gross (in millions, USD)")
 
+######################################################################################
+# table for categorical variables
+# it would be interesting to create a 2 x 2 contingency table or an array
+# in order to look at it from a multi-dimensional perspective
+# alternatively, it would be interesting to do an ANOVA test on any of these with worldwide_gross
+dfComplete %>%
+        filter(worldwide_flag == 1) %>%
+        select(mpaa_rating) %>%
+        ftable
+
+dfComplete %>%
+        filter(worldwide_flag == 1) %>%
+        select(genre) %>%
+        ftable
+
+dfComplete %>%
+        filter(worldwide_flag == 1) %>%
+        select(release_month) %>%
+        ftable
+
+######################################################################################
+# in general, it seems reasonable to believe that there's a positive correlation 
+# between production budget and worldwide gross
+
+# PG, PG-13 generate the most revenue
+# Action, Adventure movies generate the most revenue
+# summer (May, June & July) is always the best time to roll out blockbuster movies!
+
+# production_budget x worldwide_gross by mpaa_rating
+dfComplete %>%
+        filter(worldwide_flag == 1) %>%
+        ggplot(data = ., aes(x = production_budget, y = worldwide_gross)) + 
+        geom_point() +
+        scale_y_continuous(labels = scales::dollar) +
+        geom_smooth(method = "lm", col = "blue") + 
+        facet_wrap(~mpaa_rating) +
+        ggtitle("Worldwide Gross") + 
+        labs(x = "production budget (in millions, USD)", y = "worldwide gross (in millions, USD)") +
+        theme_bw() 
+
+# production_budget x worldwide_gross by genre
+dfComplete %>%
+        filter(worldwide_flag == 1) %>%
+        ggplot(data = ., aes(x = production_budget, y = worldwide_gross)) + 
+        geom_point() +
+        scale_y_continuous(labels = scales::dollar) +
+        geom_smooth(method = "lm", col = "green") + 
+        facet_wrap(~genre) +
+        ggtitle("Worldwide Gross") + 
+        labs(x = "production budget (in millions, USD)", y = "worldwide gross (in millions, USD)") +
+        theme_bw()
+
+# production_budget x worldwide_gross by release_month
+dfComplete %>%
+        filter(worldwide_flag == 1) %>%
+        ggplot(data = ., aes(x = production_budget, y = worldwide_gross)) + 
+        geom_point() +
+        scale_y_continuous(labels = scales::dollar) +
+        geom_smooth(method = "lm", col = "red") + 
+        facet_wrap(~release_month) +
+        ggtitle("Worldwide Gross") + 
+        labs(x = "production budget (in millions, USD)", y = "worldwide gross (in millions, USD)") +
+        theme_bw() 
