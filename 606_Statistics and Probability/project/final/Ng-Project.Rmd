@@ -1,0 +1,325 @@
+---
+title: 'What makes a Hollywood movie profitable?'
+date: "November 9, 2018"
+author: 'Jimmy Ng'
+output:
+        html_document: 
+        pdf_document: default
+        css: ./lab.css
+highlight: pygments
+theme: cerulean
+---
+        
+
+### Data Preparation        
+```{r setup, eval = T, echo = TRUE, collapse = TRUE, warning = FALSE, message = FALSE, prompt = TRUE, tidy = TRUE, warnings = F, tidy.opts = list(width.cutoff = 80)}
+# load packages
+library(plyr)
+library(lubridate)
+library(tidyverse)
+
+# load file from github
+# source from tidytuesday - they have a new dataset coming out every Tuesday
+github <- "https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data"
+date <- "2018-10-23"
+csv <- "movie_profit.csv"
+myfile <- paste(github, date, csv, sep = "/")
+df <- readr::read_csv(myfile)
+
+###################
+### have a look ###
+###################
+head(df)
+dim(df)  # [1] 3401    9 
+str(df)
+
+############
+# clean-up #
+############
+# check duplication: is there any movie that's duplicated in this data set?
+plyr::count(df, "movie") %>%
+        filter(freq >1)
+
+# what is this movie?         
+df %>%
+        filter(movie == "Tau ming chong") %>%
+        print
+# id == 2974, 2975
+
+# let's remove either one of these identical rows
+df <- df %>%
+        filter(X1 != 2974)
+
+# is there any movie that has 0 or even negative domestic/worldwide gross?
+df %>%
+        filter(domestic_gross <=0 | worldwide_gross <= 0)
+# there are 66 of these in this data set (as of Nov 7) 
+# some of them have not been released yet, like the Aquaman!
+
+# let's not remove them but create a flag for each of these variables
+df$domestic_flag <- ifelse(df$domestic_gross <=0, 0, 1); sum(df$domestic_flag)
+df$worldwide_flag <- ifelse(df$worldwide_gross <=0, 0, 1); sum(df$worldwide_flag)
+
+# let's rename the X1 column and rename it as a movie id column
+names(df)[1] <- "movie_id"
+
+# change "date": turn the release_date column as date data type; add release day, month, year
+df <- df %>%
+        mutate(release_date = lubridate::mdy(release_date),
+               release_day = lubridate::wday(release_date, 
+                                             week_start = getOption("lubridate.week.start", 1)),
+               release_month = lubridate::month(release_date),
+               release_year = lubridate::year(release_date))
+
+# rescale the production_budget, domestic_gross & worldwide_gross (by dividing 1 million)
+# so that they are easier to read and/or visualize
+df <- df %>%
+        mutate(production_budget = production_budget / 1000000,
+               domestic_gross = domestic_gross / 1000000,
+               worldwide_gross = worldwide_gross / 1000000)
+
+# change mpaa_rating & genre data type from character to factor
+df <- df %>%
+        mutate(mpaa_rating = factor(mpaa_rating, 
+                                    levels = c("G", "PG", "PG-13", "R")),
+               genre = as.factor(genre))
+
+# complete.cases - remove all NA's
+dfComplete <- df[complete.cases(df), ]
+
+# let's look at the clean data set
+head(dfComplete)
+dim(dfComplete)  # [1] 3230   14
+str(dfComplete)
+```
+
+
+### Part 1 - Introduction
+The Hollywood movie industry is a multi-billion dollar industry that is so popular and influential worldwide. The industry makes a long-lasting contribution to our pop culture. A successful movie possesses the ability to capture and reshape the audiences' imagination and identities for years. It can effectively carry its messages to its audiences across time and space without restricting to any language or cultural relevancy. It's such an extraordinary industry; however, like all other industries, it is also driven by monetary gains and financial risks. 
+
+Essentially, what makes a movie profitable? Set aside creativity and aesthetic quality, can we predict a movie's box office success purely based on quantitative variables? If so, such equation can have significant impact to transform one of the most lucrative businesses in the world.
+
+
+### Part 2 - Data
+Data collection: the data set (csv) is cloned from github, and it is complied from a social science project "tidytuesday" - a weekly social data project in R. As the name described, "tidytuesday" would post a data set on github every Tuesday. This movie data set is from Oct 23, 2018 and the original data is come from numbers.com - a movie industry data website that tracks box office revenue in a systematic, algorithmic way. This movie data set provides various categorical and numerical variables about any major Hollywood released movie since 1936 to present. Box office revenue and production budget are reported in USD and scaled to current monetary value.
+
+Sources of data: 
+https://github.com/rfordatascience/tidytuesday/tree/master/data/2018-10-23
+https://thomasmock.netlify.com/post/tidytuesday-a-weekly-social-data-project-in-r/
+https://www.the-numbers.com/research-analysis
+
+Cases: each case in this data set represents a movie. After removing one movie that has a duplicated entry, we are left with 3400 cases from the original data set; however, we need to filter out movies that are not yet released as of this moment (such as the Aquaman won't be released until December 14, 2018). In addition, we need to remove cases that have missing values. Finally, we are left with 3230 complete cases (movies).
+
+Variables: primarily, we want to predict worldwide_gross from production_budget (numeric), mpaa_rating (factor), genre (factor) and release_month (we should treat it as factor).
+```{r variables, eval = T, echo = T, collapse = T}
+library(plyr)
+variable <- lapply(dfComplete, class) %>%
+        plyr::ldply(., data.frame)
+variable
+```
+
+Type of study: this is an observational study with no interference of the box office. 
+
+Scope of inference: generalizability / causality - the data is collected through historical record and this is not an experimental design. We can establish correlation, but it is not suitable to justify a causal relation in this observational study (as we do not control the production budget, genre or release momnth of these movies). However, the result can generate important insights for the industry. For instance, our regression model can explain how much variance certain variables are held responsible for the box office, while holding everything else constant. We can distill from the data and figure out whether there's anything of significant interest that can impact the box office. 
+    
+
+### Part 3 - Exploratory data analysis
+```{r EDA, eval = T, echo = T, collapse = T, warnings = F}
+################################################
+# we are interested in the following variables, 
+
+# dependent/predicted variable: worldwide_gross
+# independent/predicting variables: production_budget, mpaa_rating, genre, release_month, release_year
+
+###################################################
+# let's first look at profit and production_budget
+# summary of profit, production_budget
+# profit
+dfComplete %>%
+        filter(worldwide_flag == 1) %>%
+        select(worldwide_gross) %>%
+        summary
+
+# production_budget
+dfComplete %>%
+        filter(worldwide_flag == 1) %>%
+        select(production_budget) %>%
+        summary
+
+#################################################################################
+# there are many outliners in both profit and production_budget (not surprising)
+# let's do "log" transformation for both variables
+dfComplete <- dfComplete %>%
+        mutate(wg.log = log(worldwide_gross),
+               pb.log = log(production_budget))
+
+###########################################
+# take a look of them after transformation
+# boxplot, histogram of profit.log, pb.log
+library(gridExtra)
+
+## worldwide_gross ##
+box.wg <- dfComplete %>% 
+        filter(worldwide_flag == 1) %>%
+        ggplot(data = ., aes(y = wg.log)) +
+        geom_boxplot() +
+        ggtitle("log(Worldwide Gross)") + 
+        theme_bw() + 
+        labs(x = "", y = "")
+
+hist.wg <- dfComplete %>% 
+        filter(worldwide_flag == 1) %>%
+        ggplot(data = ., aes(x = wg.log, stat(density))) +
+        geom_histogram() +
+        ggtitle("log(Worldwide Gross)") + 
+        theme_bw() + 
+        labs(x = "", y = "")
+
+## production_budget ##
+box.pb <- dfComplete %>% 
+        filter(worldwide_flag == 1) %>%
+        ggplot(data = ., aes(y = pb.log)) +
+        geom_boxplot() +
+        ggtitle("log(Production Budget)") + 
+        theme_bw() + 
+        labs(x = "", y = "")
+
+hist.pb <- dfComplete %>% 
+        filter(worldwide_flag == 1) %>%
+        ggplot(data = ., aes(x = pb.log, stat(density))) +
+        geom_histogram() +
+        ggtitle("log(Production Budget)") + 
+        theme_bw() + 
+        labs(x = "", y = "")
+
+gridExtra::grid.arrange(box.wg, 
+                        hist.wg, 
+                        box.pb,
+                        hist.pb,
+                        ncol = 2)
+
+##########################################
+# let's look at the categorical variables
+dfComplete %>%
+        filter(worldwide_flag == 1) %>%
+        select(mpaa_rating, genre, release_month, release_year) %>%
+        lapply(., ftable)
+
+# we already transformed mpaa_rating and genre from character to factor
+# now let's do the same for release_month and release_year, and let's call it release_decade
+dfComplete <- dfComplete %>%
+        mutate(release_month = as.factor(release_month),
+               release_decade = 
+                       if_else(release_year < 1980, "1970s or earlier", 
+                               if_else(release_year >= 1980 & release_year < 1990, "1980s", 
+                                       if_else(release_year >= 1990 & release_year < 2000, "1990s", 
+                                               if_else(release_year >= 2000 & release_year < 2010, "2000s", 
+                                                       if_else(release_year >= 2010, "2010s", "n/a"))))),
+               release_decade = as.factor(release_decade))
+
+# let's look at these categorical variables again
+dfComplete %>%
+        filter(worldwide_flag == 1) %>%
+        select(mpaa_rating, genre, release_month, release_decade) %>%
+        lapply(., ftable)
+
+###########################
+# let's visualize the data - worldwide_gross ~ production_budget
+# wg.log (y-axis) vs pb.log (x-axis) by different categorical variables
+
+# wg.log vs pb.log by mpaa_rating
+dfComplete %>%
+        filter(worldwide_flag == 1) %>%
+        ggplot(data = ., aes(x = pb.log, y = wg.log)) + 
+        # ggplot(data = ., aes(x = production_budget, y = worldwide_gross)) + 
+        geom_point() +
+        geom_smooth(method = "lm", col = "blue") + 
+        facet_wrap(~mpaa_rating) +
+        ggtitle("MPAA Rating") + 
+        labs(x = "log(Production Budget)", y = "log(Worldwide Gross)") +
+        theme_bw() 
+
+# wg.log vs pb.log by genre
+dfComplete %>%
+        filter(worldwide_flag == 1) %>%
+        ggplot(data = ., aes(x = pb.log, y = wg.log)) + 
+        geom_point() +
+        geom_smooth(method = "lm", col = "green") + 
+        facet_wrap(~genre) +
+        ggtitle("Genre") + 
+        labs(x = "log(Production Budget)", y = "log(Worldwide Gross)") +
+        theme_bw()
+
+# wg.log vs pb.log by release_month
+dfComplete %>%
+        filter(worldwide_flag == 1) %>%
+        ggplot(data = ., aes(x = pb.log, y = wg.log)) + 
+        geom_point() +
+        geom_smooth(method = "lm", col = "red") + 
+        facet_wrap(~release_month) +
+        ggtitle("Release Month") + 
+        labs(x = "log(Production Budget)", y = "log(Worldwide Gross)") +
+        theme_bw()
+
+# wg.log vs pb.log  by release_decade
+dfComplete %>%
+        filter(worldwide_flag == 1) %>%
+        ggplot(data = ., aes(x = pb.log, y = wg.log)) + 
+        geom_point() +
+        geom_smooth(method = "lm", col = "orange") + 
+        facet_wrap(~release_decade) +
+        ggtitle("Release Period") + 
+        labs(x = "log(Production Budget)", y = "log(Worldwide Gross)") +
+        theme_bw()
+```
+
+### Part 4 - Inference
+
+###############################################################
+#################### regression model #########################
+###############################################################
+
+# build model
+# AIC
+# regression diagnostic
+
+
+### Part 5 - Conclusion
+
+
+### References
+
+
+### Appendix (optional) - Remove this section if you don't have an appendix
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

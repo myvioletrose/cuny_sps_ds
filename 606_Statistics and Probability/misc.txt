@@ -10,8 +10,8 @@ To get started with the labs, you will need to install R and other supporting ap
 ### note to self ###
 ####################
 
-as of November 6, 2018,
+as of November 7, 2018,
 
-- slides : did not collect or attend classes since November
-- openIntro : collected all already
+- slides : did not collect, read or attend classes since November
+- openIntro : collected all already; did not read 07, 08
 - final chapter : Bayesian Analysis - require readings & videos

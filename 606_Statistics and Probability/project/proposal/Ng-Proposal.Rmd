@@ -3,11 +3,11 @@ title: 'What makes a Hollywood movie profitable?'
 date: "October 29, 2018"
 author: 'Jimmy Ng'
 output:
-        pdf_document: default
         html_document: 
                 css: ./lab.css
                 highlight: pygments
                 theme: cerulean
+        pdf_document: default
 ---
 
 ### Data Preparation
