@@ -1,10 +1,10 @@
 ---
 title: 'What makes a Hollywood movie profitable?'
-date: "November 9, 2018"
+date: "November 14, 2018"
 author: 'Jimmy Ng'
 output:
-        html_document: 
         pdf_document: default
+        html_document: 
         css: ./lab.css
 highlight: pygments
 theme: cerulean
@@ -12,7 +12,7 @@ theme: cerulean
         
 
 ### Data Preparation        
-```{r setup, eval = T, echo = TRUE, collapse = TRUE, warning = FALSE, message = FALSE, prompt = TRUE, tidy = TRUE, warnings = F, tidy.opts = list(width.cutoff = 80)}
+```{r Data Preparation, eval = T, echo = TRUE, collapse = TRUE, warning = FALSE, message = FALSE, prompt = TRUE, tidy = TRUE, warnings = F, tidy.opts = list(width.cutoff = 80)}
 # load packages
 library(plyr)
 library(lubridate)
@@ -38,21 +38,21 @@ str(df)
 ############
 # check duplication: is there any movie that's duplicated in this data set?
 plyr::count(df, "movie") %>%
-        filter(freq >1)
+        dplyr::filter(freq >1)
 
 # what is this movie?         
 df %>%
-        filter(movie == "Tau ming chong") %>%
+        dplyr::filter(movie == "Tau ming chong") %>%
         print
 # id == 2974, 2975
 
 # let's remove either one of these identical rows
 df <- df %>%
-        filter(X1 != 2974)
+        dplyr::filter(X1 != 2974)
 
 # is there any movie that has 0 or even negative domestic/worldwide gross?
 df %>%
-        filter(domestic_gross <=0 | worldwide_gross <= 0)
+        dplyr::filter(domestic_gross <=0 | worldwide_gross <= 0)
 # there are 66 of these in this data set (as of Nov 7) 
 # some of them have not been released yet, like the Aquaman!
 
@@ -108,9 +108,9 @@ https://github.com/rfordatascience/tidytuesday/tree/master/data/2018-10-23
 https://thomasmock.netlify.com/post/tidytuesday-a-weekly-social-data-project-in-r/
 https://www.the-numbers.com/research-analysis
 
-Cases: each case in this data set represents a movie. After removing one movie that has a duplicated entry, we are left with 3400 cases from the original data set; however, we need to filter out movies that are not yet released as of this moment (such as the Aquaman won't be released until December 14, 2018). In addition, we need to remove cases that have missing values. Finally, we are left with 3230 complete cases (movies).
+Cases: each case in this data set represents a movie. After removing one duplicated entry, we are left with 3400 cases from the original data set; however, we need to filter out movies that are not yet released as of this moment (such as the Aquaman won't be released until December 14, 2018 in the United States). In addition, we need to remove cases that have missing values. Finally, we are left with 3230 complete cases (movies) and we are going to split it into "train" and "test" data sets.
 
-Variables: primarily, we want to predict worldwide_gross from production_budget (numeric), mpaa_rating (factor), genre (factor) and release_month (we should treat it as factor).
+Variables: primarily, we want to predict worldwide_gross from production_budget (numeric), mpaa_rating (factor), genre (factor), release_month (we should treat it as factor), and release_year (will group release years and transform the variable as factor).
 ```{r variables, eval = T, echo = T, collapse = T}
 library(plyr)
 variable <- lapply(dfComplete, class) %>%
@@ -120,7 +120,7 @@ variable
 
 Type of study: this is an observational study with no interference of the box office. 
 
-Scope of inference: generalizability / causality - the data is collected through historical record and this is not an experimental design. We can establish correlation, but it is not suitable to justify a causal relation in this observational study (as we do not control the production budget, genre or release momnth of these movies). However, the result can generate important insights for the industry. For instance, our regression model can explain how much variance certain variables are held responsible for the box office, while holding everything else constant. We can distill from the data and figure out whether there's anything of significant interest that can impact the box office. 
+Scope of inference: generalizability / causality - the data is collected through historical record and this is not an experimental design. We can establish correlation, but it is not suitable to justify a causal relation in this observational study (as we do not control the production budget, genre or release month of these movies). However, the result can generate important insights for the industry. For instance, our regression model can explain how much variance that certain variables are held accountable for the box office, while holding everything else constant. We can distill from the data and figure out whether there's anything of significant interest that can impact the box office. 
     
 
 ### Part 3 - Exploratory data analysis
@@ -133,17 +133,16 @@ Scope of inference: generalizability / causality - the data is collected through
 
 ###################################################
 # let's first look at profit and production_budget
-# summary of profit, production_budget
 # profit
 dfComplete %>%
-        filter(worldwide_flag == 1) %>%
-        select(worldwide_gross) %>%
+        dplyr::filter(worldwide_flag == 1) %>%
+        dplyr::select(worldwide_gross) %>%
         summary
 
 # production_budget
 dfComplete %>%
-        filter(worldwide_flag == 1) %>%
-        select(production_budget) %>%
+        dplyr::filter(worldwide_flag == 1) %>%
+        dplyr::select(production_budget) %>%
         summary
 
 #################################################################################
@@ -155,12 +154,11 @@ dfComplete <- dfComplete %>%
 
 ###########################################
 # take a look of them after transformation
-# boxplot, histogram of profit.log, pb.log
 library(gridExtra)
 
 ## worldwide_gross ##
 box.wg <- dfComplete %>% 
-        filter(worldwide_flag == 1) %>%
+        dplyr::filter(worldwide_flag == 1) %>%
         ggplot(data = ., aes(y = wg.log)) +
         geom_boxplot() +
         ggtitle("log(Worldwide Gross)") + 
@@ -168,7 +166,7 @@ box.wg <- dfComplete %>%
         labs(x = "", y = "")
 
 hist.wg <- dfComplete %>% 
-        filter(worldwide_flag == 1) %>%
+        dplyr::filter(worldwide_flag == 1) %>%
         ggplot(data = ., aes(x = wg.log, stat(density))) +
         geom_histogram() +
         ggtitle("log(Worldwide Gross)") + 
@@ -177,7 +175,7 @@ hist.wg <- dfComplete %>%
 
 ## production_budget ##
 box.pb <- dfComplete %>% 
-        filter(worldwide_flag == 1) %>%
+        dplyr::filter(worldwide_flag == 1) %>%
         ggplot(data = ., aes(y = pb.log)) +
         geom_boxplot() +
         ggtitle("log(Production Budget)") + 
@@ -185,7 +183,7 @@ box.pb <- dfComplete %>%
         labs(x = "", y = "")
 
 hist.pb <- dfComplete %>% 
-        filter(worldwide_flag == 1) %>%
+        dplyr::filter(worldwide_flag == 1) %>%
         ggplot(data = ., aes(x = pb.log, stat(density))) +
         geom_histogram() +
         ggtitle("log(Production Budget)") + 
@@ -201,8 +199,8 @@ gridExtra::grid.arrange(box.wg,
 ##########################################
 # let's look at the categorical variables
 dfComplete %>%
-        filter(worldwide_flag == 1) %>%
-        select(mpaa_rating, genre, release_month, release_year) %>%
+        dplyr::filter(worldwide_flag == 1) %>%
+        dplyr::select(mpaa_rating, genre, release_month, release_year) %>%
         lapply(., ftable)
 
 # we already transformed mpaa_rating and genre from character to factor
@@ -219,21 +217,31 @@ dfComplete <- dfComplete %>%
 
 # let's look at these categorical variables again
 dfComplete %>%
-        filter(worldwide_flag == 1) %>%
-        select(mpaa_rating, genre, release_month, release_decade) %>%
+        dplyr::filter(worldwide_flag == 1) %>%
+        dplyr::select(mpaa_rating, genre, release_month, release_decade) %>%
         lapply(., ftable)
 
-###########################
+#################################################################
 # let's visualize the data - worldwide_gross ~ production_budget
-# wg.log (y-axis) vs pb.log (x-axis) by different categorical variables
+# let's focus more on wg.log (y-axis) vs pb.log (x-axis) by different categorical variables
+
+# wg.log vs pb.log
+dfComplete %>%
+    dplyr::filter(worldwide_flag == 1) %>%
+    ggplot(data = ., aes(x = pb.log, y = wg.log)) + 
+    geom_point() +
+    geom_smooth(method = "lm", col = "grey", se = T) +
+    ggtitle("log(Worldwide Gross) by log(Production Budget)") + 
+    labs(x = "log(Production Budget)", y = "log(Worldwide Gross)") + 
+    theme_bw()
 
 # wg.log vs pb.log by mpaa_rating
 dfComplete %>%
-        filter(worldwide_flag == 1) %>%
+        dplyr::filter(worldwide_flag == 1) %>%
         ggplot(data = ., aes(x = pb.log, y = wg.log)) + 
         # ggplot(data = ., aes(x = production_budget, y = worldwide_gross)) + 
         geom_point() +
-        geom_smooth(method = "lm", col = "blue") + 
+        geom_smooth(method = "lm", col = "blue", se = T) + 
         facet_wrap(~mpaa_rating) +
         ggtitle("MPAA Rating") + 
         labs(x = "log(Production Budget)", y = "log(Worldwide Gross)") +
@@ -241,10 +249,10 @@ dfComplete %>%
 
 # wg.log vs pb.log by genre
 dfComplete %>%
-        filter(worldwide_flag == 1) %>%
+        dplyr::filter(worldwide_flag == 1) %>%
         ggplot(data = ., aes(x = pb.log, y = wg.log)) + 
         geom_point() +
-        geom_smooth(method = "lm", col = "green") + 
+        geom_smooth(method = "lm", col = "green", se = T) + 
         facet_wrap(~genre) +
         ggtitle("Genre") + 
         labs(x = "log(Production Budget)", y = "log(Worldwide Gross)") +
@@ -252,10 +260,10 @@ dfComplete %>%
 
 # wg.log vs pb.log by release_month
 dfComplete %>%
-        filter(worldwide_flag == 1) %>%
+        dplyr::filter(worldwide_flag == 1) %>%
         ggplot(data = ., aes(x = pb.log, y = wg.log)) + 
         geom_point() +
-        geom_smooth(method = "lm", col = "red") + 
+        geom_smooth(method = "lm", col = "red", se = T) + 
         facet_wrap(~release_month) +
         ggtitle("Release Month") + 
         labs(x = "log(Production Budget)", y = "log(Worldwide Gross)") +
@@ -263,63 +271,207 @@ dfComplete %>%
 
 # wg.log vs pb.log  by release_decade
 dfComplete %>%
-        filter(worldwide_flag == 1) %>%
+        dplyr::filter(worldwide_flag == 1) %>%
         ggplot(data = ., aes(x = pb.log, y = wg.log)) + 
         geom_point() +
-        geom_smooth(method = "lm", col = "orange") + 
+        geom_smooth(method = "lm", col = "orange", se = T) + 
         facet_wrap(~release_decade) +
         ggtitle("Release Period") + 
         labs(x = "log(Production Budget)", y = "log(Worldwide Gross)") +
         theme_bw()
 ```
 
-### Part 4 - Inference
 
+### Part 4 - Inference
+```{r Inference, eval = T, echo = T, collapse = T, warnings = F}
 ###############################################################
 #################### regression model #########################
 ###############################################################
 
-# build model
-# AIC
-# regression diagnostic
+###############################
+# split the data, train + test
+set.seed(1234)
+dfCompleteFlag <- dfComplete %>%
+        dplyr::filter(worldwide_flag == 1)
+partition <- sample(x = nrow(dfCompleteFlag), 
+                    size = nrow(dfCompleteFlag) * 0.7)
+train <- dfCompleteFlag[partition, ]  
+test <- dfCompleteFlag[-partition, ]  
+
+###################
+# build full model
+# build interaction between log(production_budget) with everything else
+library(broom)
+fullModel <- lm(wg.log ~ pb.log * (mpaa_rating + genre + release_month + release_decade),
+                data = train)
+broom::tidy(fullModel) %>% 
+        dplyr::filter(p.value < .05) %>% 
+        dplyr::arrange(p.value) 
+        
+# try backward stepwise regression 
+# calculate AIC
+library(MASS)
+backwardModel <- MASS::stepAIC(fullModel, direction = "backward")
+summary(backwardModel)
+
+########################
+# (1) linearity, (2) nearly normal residuals, (3) homoscedasticity
+
+# linear scatter plot (checked already from above EDA)
+# a strong positive correlation between production budget and worldwide gross
+# however, there are patterns hidden underneath the two variables
+# for examples,
+# PG, PG-13 generate the most revenue
+# Action, Adventure draw the biggest box office, but
+# Horror is the most profitable movie genre 
+# summer (May, June & July) is always the best time to roll out blockbuster movies!
+# therefore, we are building interaction between log(production_budget) with everything else
+
+par(mfrow = c(1, 3))
+# hist of residuals 
+hist(backwardModel$residuals, main = "Histogram of residuals")
+                        
+# qqplot
+qqnorm(backwardModel$residuals, main = "QQplot")
+qqline(backwardModel$residuals)
+
+# residual plot
+plot(backwardModel$residuals ~ train$pb.log, main = "Residual chart")
+
+par(mfrow = c(1, 1))
+
+######################
+# prediction accuracy
+# apply model to test data set
+testModel <- predict(backwardModel, test)
+
+# convert back to original value
+testModel <- exp(testModel)
+test$predicted <- testModel
+
+# visualize the prediction
+plot(test$predicted ~ test$worldwide_gross, 
+     main = "Prediction Model of Box Office Revenue\n -- dashline is only a reference line for perfect correlation",
+     xlab = "actual (in USD millions)",
+     ylab = "predicted (in USD millions)")
+abline(a = 0, b = 1, col = "red", lty = 2)                        
+
+# calculate RMSE (Root Mean Square Error)
+library(Metrics)
+rmse(actual = test$worldwide_gross, predicted = test$predicted)
+
+####################
+##### comments #####
+####################
+# residuals heavily skewed to the left from the histogram 
+# qqplot does not support normality of the residuals either
+# the final plot (actual vs. predicted) shows majority of the movies are underestimated!
+# the RMSE - it is interpreted as how far on an average, the residuals are from zero
+# It nullifies squared effect of MSE and provides the result in original units as data
+# Let's try to minimize it!
+
+
+
+#######################################################################
+#################### rebuild regression model #########################
+#######################################################################
+
+##########################
+# let's rebuild the model 
+# by first removing all the outliners from the lower end of the sprectum
+
+# recall from above EDA,
+gridExtra::grid.arrange(box.wg, box.pb, ncol = 2)
+
+# dplyr::filter outliners
+wg.log.out <- boxplot(dfCompleteFlag$wg.log)$out 
+pb.log.out <- boxplot(dfCompleteFlag$pb.log)$out 
+
+dfCompleteFlag2 <- dfCompleteFlag %>%
+        dplyr::filter(!(wg.log %in% wg.log.out) & !(pb.log %in% pb.log.out))
+dim(dfCompleteFlag2)
+
+#####################################
+# split the data, train + test again
+set.seed(1234)
+
+partition2 <- sample(x = nrow(dfCompleteFlag2), 
+                    size = nrow(dfCompleteFlag2) * 0.7)
+train2 <- dfCompleteFlag2[partition2, ]  
+test2 <- dfCompleteFlag2[-partition2, ]  
+
+#########################
+# build full model again
+# build interaction between log(production_budget) with everything else
+library(broom)
+fullModel2 <- lm(wg.log ~ pb.log * (mpaa_rating + genre + release_month + release_decade),
+                data = train2)
+broom::tidy(fullModel2) %>% 
+        dplyr::filter(p.value < .05) %>% 
+        dplyr::arrange(p.value) 
+
+# try backward stepwise regression 
+# calculate AIC
+library(MASS)
+backwardModel2 <- MASS::stepAIC(fullModel2, direction = "backward")
+summary(backwardModel2)
+
+########################################
+# regression diagnostic - check again!!
+# (1) linearity, (2) nearly normal residuals, (3) homoscedasticity
+
+# linear scatter plot (checked already)
+
+par(mfrow = c(1, 3))
+
+# hist of residuals 
+hist(backwardModel2$residuals, main = "Histogram of residuals (ver 2)")
+
+# qqplot
+qqnorm(backwardModel2$residuals, main = "QQplot (ver 2)")
+qqline(backwardModel2$residuals)
+
+# residual plot
+plot(backwardModel2$residuals ~ train2$pb.log, main = "Residual chart (ver 2)")
+
+par(mfrow = c(1, 1))
+
+######################
+# prediction accuracy
+# apply model to test data set
+testModel2 <- predict(backwardModel2, test2)
+
+# convert back to original value
+testModel2 <- exp(testModel2)
+test2$predicted <- testModel2
+
+# visualize the prediction
+plot(test2$predicted ~ test2$worldwide_gross, 
+     main = "Prediction Model of Box Office Revenue (ver 2)\n -- dashline is only a reference line for perfect correlation",
+     xlab = "actual (in USD millions)",
+     ylab = "predicted (in USD millions)")
+abline(a = 0, b = 1, col = "red", lty = 2)                        
+
+# calculate RMSE (Root Mean Square Error)
+library(Metrics)
+rmse(actual = test2$worldwide_gross, predicted = test2$predicted)
+```
 
 
 ### Part 5 - Conclusion
+```{r conclusion, eval = T, echo = T, collapse = T, warnings = F}
+summary(backwardModel2)
 
+broom::tidy(backwardModel2) %>% 
+        dplyr::filter(p.value < .05) %>% 
+        dplyr::arrange(p.value) 
+```
 
-### References
+In conclusion, there's a very strong evidence that there's a positive correlation between production budget and worldwide gross. However, we must put it into the right context. It's always about an interaction between production budget AND release month or genre or release decade. Overall, the model is capable of predicting about 50% of the variance (adjusted R-squared: 0.489) with only a handful of predictors. However, after log-transformation and removing outliners, the principle of homoscedasticity still does not seem to sustain. Although ver2 of the linear model looks much better (by comparing the three diagnostic charts with the first attempt), and the AIC as well as RMSE are reduced to smaller numbers, there are still many noises in the data set that cripple the usefulness of the model. Perhaps applying a different type of GLM methodology will be better fit for this data set. In addition, we should have included more movies from the 70s and earlier, as well as 80s and 90s. The data set does not seem to be generated by a random sampling of all historically released movies. Perhaps there's a bias in data collection, i.e. including only high-profile or more well-known (but not necessarily financially successful) movies in this data set, and that skews the result and prevents us from building a useful model that can apply to the general population. A more comprehensive data set will provide tremendous help in building a better model. For example, cast list, directors, number of theatres, movie reviews, etc. 
 
+Nevertheless, the result is still interesting and pointing to some unexpected insights. For example, we all think that summer (especially in May and June) is the best time for box office success. However, it is true only for big budget movie. In other words, releaseing a small budget movie in the summer most likely does not guarantee anything (if not resulting in box office flop). That's most likely due to the fact that audiences are more willing to go see movies in the summer, but they only rather spend their money on big budget movies (assuming better quality and CGI effects). Timing AND buget together mean everything. In addition, a surprising insight is movie genre. The most profitable genre turns out to be "Horror". Small budget horror movie is so profitable and that's why Hollywood keeps producing them! It's much safer to bet on a small budget horror movie than a small or big budget comedy or drama.
 
-### Appendix (optional) - Remove this section if you don't have an appendix
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+Finally, since both production budget and worldwide gross are log-transformed, that adds difficulty in interpreting the result. We must remember to convert the number after applying the model to the original data.
 
 
 
