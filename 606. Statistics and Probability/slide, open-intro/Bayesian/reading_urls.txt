@@ -1,0 +1,5 @@
+https://datawookie.netlify.com/blog/2013/08/fitting-a-model-by-maximum-likelihood/
+https://sites.google.com/site/doingbayesiandataanalysis/
+http://doingbayesiandataanalysis.blogspot.com/
+https://andrewgelman.com/
+https://andrewgelman.com/category/bayesian-statistics/
