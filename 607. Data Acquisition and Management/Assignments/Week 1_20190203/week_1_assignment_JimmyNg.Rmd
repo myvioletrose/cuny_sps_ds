@@ -1,0 +1,75 @@
+---
+title: "Data_607_Week_1_Assignment"
+author: "Jimmy Ng"
+date: "1/29/2019"
+output:
+  word_document: default
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r eval = T, echo = T}
+# load packages
+library(tidyverse)
+```
+
+```{r eval = T, echo = T}
+# download, read data
+url <- "https://archive.ics.uci.edu/ml/machine-learning-databases/mushroom/agaricus-lepiota.data"
+download.file(url, "mushroom.txt", method = "wininet", quiet = FALSE, mode = "w", cacheOK = TRUE)
+```
+
+```{r eval = T, echo = T}
+# read, extract & transform data
+df <- read.table("mushroom.txt", header = F, sep = ",") %>%
+        # select 4 columns only
+        dplyr::select(V1, V2, V3, V4) %>%
+        dplyr::rename("classes" = V1, "cap-shape" = V2, "cap-surface" = V3, "cap-color" = V4) %>%
+        dplyr::mutate(classes = dplyr::case_when(classes == "e" ~ "edible",
+                                                 classes == "p" ~ "poisonous",
+                                                 TRUE ~ "others"),
+                      `cap-shape` = dplyr::case_when(`cap-shape` == "b" ~ "bell",
+                                                     `cap-shape` == "c" ~ "conical",
+                                                     `cap-shape` == "x" ~ "convex",
+                                                     `cap-shape` == "f" ~ "flat",
+                                                     `cap-shape` == "k" ~ "knobbed",
+                                                     `cap-shape` == "s" ~ "sunken",
+                                                     TRUE ~ "others"),
+                      `cap-surface` = dplyr::case_when(`cap-surface` == "f" ~ "fibrous",
+                                                       `cap-surface` == "g" ~ "grooves", 
+                                                       `cap-surface` == "y" ~ "scaly",
+                                                       `cap-surface` == "s" ~ "smooth",
+                                                       TRUE ~ "others"),
+                      `cap-color` = dplyr::case_when(`cap-color` == "n" ~ "brown",
+                                                     `cap-color` == "b" ~ "buff",
+                                                     `cap-color` == "c" ~ "cinnamon",
+                                                     `cap-color` == "g" ~ "gray",
+                                                     `cap-color` == "r" ~ "green",
+                                                     `cap-color` == "p" ~ "pink",
+                                                     `cap-color` == "u" ~ "purple",
+                                                     `cap-color` == "e" ~ "red",
+                                                     `cap-color` == "w" ~ "white",
+                                                     `cap-color` == "y" ~ "yellow",
+                                                     TRUE ~ "others"))
+```
+
+```{r eval = T, echo = T, collapse = T}
+# check summary, missing value & unique values by column
+purrr::map(list(summary, 
+                function(x) {colSums(is.na(x))},
+                function(x) {sapply(x, unique)}), 
+           function(x){x(df)})
+```
+
+```{r eval = T, echo = T}
+# print & plot distribution by column
+par(mfrow = c(2, 2))
+sapply(df, function(x) round(prop.table(ftable(x)), 2)) %>%
+        print %>%
+lapply(., barplot) %>%
+        invisible
+```
