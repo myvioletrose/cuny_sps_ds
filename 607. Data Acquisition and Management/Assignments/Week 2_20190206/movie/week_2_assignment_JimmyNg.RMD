@@ -1,0 +1,79 @@
+---
+title: "week_2_assignment_JimmyNg"
+author: "Jimmy Ng"
+date: "2/8/2019"
+output: html_document
+---
+
+```{r setup, include = F}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r load_packages, message = F}
+library(tidyverse)
+library(RMySQL)
+```
+
+```{r load_data_fr_MySql, eval = T, echo = T}
+# source('pwd.R')  # load password from a separate script
+# open connection
+mydb = dbConnect(MySQL(), user = 'root', password = pwd, dbname = 'movie', host = "localhost")
+
+# list table(s)
+dbListTables(mydb)
+
+# load the movie table into R
+df <- dbGetQuery(mydb, 'select * from movie'); df
+```
+
+```{r EDA, eval = T, echo = T}
+# Which one is the best rated movie? 
+aggregate(rating ~ movie, data = df, FUN = mean) %>% arrange(desc(rating))
+
+# Let's look at each person rating of individual movie
+ggplot(df, aes(x = reorder(movie, desc(rating)), y = rating)) +
+        geom_bar(stat = "identity", aes(fill = friend)) +
+        labs(x = "", y = "") +
+        theme(legend.position = "none") +
+        facet_wrap(~friend, ncol = 3, scales = "free_x") +
+        theme(plot.title = element_text(hjust = 0.5),
+              axis.text.x = element_text(angle = 15, vjust = .5, hjust = .5)) +
+        ggtitle("friends rating individual movie")
+
+# Let's look at each movie rating by friends
+ggplot(df, aes(x = reorder(friend, desc(rating)), y = rating)) +
+        geom_bar(stat = "identity", aes(fill = movie)) +
+        labs(x = "", y = "") +
+        theme(legend.position = "none") +
+        facet_wrap(~movie, ncol = 3, scales = "free_x") +
+        theme(plot.title = element_text(hjust = 0.5),
+              axis.text.x = element_text(angle = 15, vjust = .5, hjust = .5)) +
+        ggtitle("movie rating by friends")
+```
+
+Thor seems to be liked by all and have a much higher rating than others!
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
