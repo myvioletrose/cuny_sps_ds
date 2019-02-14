@@ -1,0 +1,21 @@
+---
+title: "week_3_assignment_JimmyNg"
+author: "Jimmy Ng"
+date: "2/11/2019"
+output: word_document
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r load_packages, message = F}
+library(tidyverse)
+```
+
+3.1) Use the tools of this chapter to rearrange the vector so that all elements conform to the standard first_name last_name.
+```{r Question_3.1, eval = T, echo = T}
+
+
+
+```
