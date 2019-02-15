@@ -1,7 +1,7 @@
 ---
 title: "week_3_assignment_JimmyNg"
 author: "Jimmy Ng"
-date: "2/11/2019"
+date: "2/15/2019"
 output: word_document
 ---
 
@@ -13,9 +13,130 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 ```
 
-3.1) Use the tools of this chapter to rearrange the vector so that all elements conform to the standard first_name last_name.
+
+# 3.1) Use the tools of this chapter to rearrange the vector so that all elements conform to the standard first_name last_name.
 ```{r Question_3.1, eval = T, echo = T}
+# raw.data
+raw.data <- "555-1239Moe Szyslak(636) 555-0113Burns, C. Montgomery555-6542Rev. Timothy Lovejoy555 8904Ned Flanders636-555-3226Simpson, Homer5553642Dr. Julius Hibbert"
 
+# name.transform1 : extract all the names (no numbers)
+raw.data %>%
+        str_extract_all(., pattern = "[[:alpha:]., ]{2,}") %>%
+        unlist -> name.transform1
 
+# remove titles manually : where are these "Rev." or "Dr."
+# which(str_detect(name.transform1, "Rev."))  
+# which(str_detect(name.transform1, "Dr."))  
 
+# name.transform2 : remove titles, then split the names into "first" and "last" and lastly convert it into a data.frame
+name.transform1 %>% gsub("(Rev\\. )|(Dr\\. )", replace = "", .) %>%
+        str_split(., pattern = ", | ", n = 2) %>%
+        plyr::ldply(., rbind) -> name.transform2
+
+# change column names, and data type
+names(name.transform2) <- c("first", "last")
+name.transform2 <- name.transform2 %>%
+        dplyr::mutate(first = as.character(first),
+                      last = as.character(last))
+
+# name.transform3 : manually arrange first and last name in correct order
+name.transform3 <- name.transform2 
+name.transform3[2, 1] <- name.transform2[2, 2]
+name.transform3[2, 2] <- name.transform2[2, 1]
+name.transform3[5, 1] <- name.transform2[5, 2]
+name.transform3[5, 2] <- name.transform2[5, 1]
+
+# create title column, then insert it back to the data.frame
+title <- c(rep("na", nrow(name.transform3)))
+title[which(str_detect(name.transform1, "Rev."))] <- "Rev."
+title[which(str_detect(name.transform1, "Dr."))] <- "Dr."
+
+name.transform3 <- name.transform3 %>%
+        dplyr::mutate(title = title) %>%
+        select(title, first, last)
+
+# final data.frame
+name.transform3
 ```
+
+A little fun fact: although "C. Montgomery" is treated as first name in above data.frame, "Montgomery" is actually a middle name. "C" is the first name and it represents "Charles".
+
+
+# 3.2) Construct a logical vector indicating whether a character has a title (i.e., Rev. and Dr.).
+```{r Question_3.2, eval = T, echo = T}
+name.transform4 <- name.transform3 %>%
+        dplyr::mutate(full = ifelse(title == "na", "", title) %>%
+                                    paste(., first, last, sep = " "),
+                      title_flag = str_detect(full, 
+                                              pattern = "(Rev\\.|Dr\\.)"))
+name.transform4
+```
+
+
+# 3.3) Construct a logical vector indicating whether a character has a second name. 
+```{r Question_3.3, eval = T, echo = T}
+name.transform5 <- name.transform4 %>%
+        dplyr::mutate( middle_flag = ifelse(
+                str_count(first, pattern = "\\S+") >1,  # counting all sequences on non-space characters 
+                TRUE, FALSE) )
+name.transform5
+```
+
+I am guessing the question is asking which character is having a middle name. In this case, that's Mr. Burns.
+
+
+# 4) Describe the types of strings that conform to the following regular expressions and construct an example that is matched by the regular expression.
+```{r Question_4, eval = T, echo = T, collapse = F}
+# 1. [0-9]+\\$
+# this is referred to 1 or more digits followed by a dollar sign
+str_extract_all(c("44$", "4j$"), 
+           pattern = "[0-9]+\\$") %>% unlist
+
+# 2. \\b[a-z]{1,4}\\b
+# this is referred to any word (in lower case) inside a string that has a boundary (word edge)
+# AND it must be at least 1 and up to 4 letters
+str_extract_all(c("good", "not so good", "hi goodbye",
+             "heyheyhey", "NOT SO GOOD", "88lu"), 
+           pattern = "\\b[a-z]{1,4}\\b") %>% unlist       
+
+# 3. .*?\\.txt$
+# this is referred to anything that ends with .txt
+# before .txt, anything can be optional, including nothing (.*?)
+str_extract_all(c("not so good.txt", ".txt",
+             "homework.txt.csv", "assignment_txt"), 
+           pattern = ".*?\\.txt$") %>% unlist
+
+# 4. \\d{2}/\\d{2}/\\d{4}
+# this is referred to a combo of digits separated by a slash /
+# specifically 2 digits separated by slash and then 2 digits, separated by slash again and followed by 4 digits
+# however, the beginning don't necessarily to be just 2 digits, e.g. 1111/88/9999 would still return true
+# likewise, the end can be more than 4, e.g. 1111/88/999999999 would still return true
+str_extract_all(c("haha 11/12/2001 oh yes", "06/14/9999", "1111/88/999999999", 
+             "h9/88/9800", "randombirthdaywishes!:-)", "11/17a/2018"),
+           pattern = "\\d{2}/\\d{2}/\\d{4}") %>% unlist
+           
+# 5. <(.+?)>.+?</\\1>
+# this is referred to something similar in html format, something may look like this
+# <SomethingInBetween>followedBySomethingInBetween</RepeatedWhatIsShowedatFirst>
+# \\1 is backreferencing, whereas .+? means optional appearance
+str_extract_all(c("<hihi>dllm</hihi>", "<hihi> </hihi>", "< > </ >",
+             "<hi>dllm</hihi>", "</hihi> </hihi>", "<> </>"),
+           pattern = "<(.+?)>.+?</\\1>") %>% unlist
+```
+
+
+# 9) Bonus Question
+```{r Question_9, eval = T, echo = T}
+secret_code <- "clcopCow1zmstc0d87wnkig7OvdicpNuggvhryn92Gjuwczi8hqrfpRxs5Aj5dwpn0TanwoUwisdij7Lj8kpf03AT5Idr3coc0bt7yczjatOaootj55t3Nj3ne6c4Sfek.r1w1YwwojigOd6vrfUrbz2.2bkAnbhzgv4R9i05zEcrop.wAgnb.SqoU65fPa1otfb7wEm24k6t3sR9zqe5fy89n6Nd5t9kc4fE905gmc4Rgxo5nhDk!gr"
+
+secret_code %>%
+        str_extract_all(., pattern = "[[A-Z]|[:punct:]]") %>% unlist %>%
+        cat
+```
+
+
+
+
+
+
+
