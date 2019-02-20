@@ -1,0 +1,29 @@
+---
+title: "Project_1_JimmyNg"
+author: "Jimmy Ng"
+date: "2/22/2019"
+output: html
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r load_packages, message = F}
+library(tidyverse)
+```
+
+
+```{r XYZ, eval = T, echo = T}
+```
+
+
+
+
+
+
+
+
+
+
+
