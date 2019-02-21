@@ -126,9 +126,9 @@ group by 1, 2, 3, 4
 output
 
 # save output in csv
-setwd("../")
-setwd("data")
-write.csv(output, "tidy_data_output.csv", append = F, row.names = F)
+# setwd("../")
+# setwd("data")
+# write.csv(output, "tidy_data_output.csv", append = F, row.names = F)
 ```
 
 
