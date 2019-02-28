@@ -17,14 +17,14 @@ library(gridExtra)
 ```
 
 
-```{r load_data, include = T, eval = T, echo = T, message = F, warning = F}
+```{r load_data, include = F, eval = T, echo = T, message = F, warning = F}
 setwd("../"); setwd("data")
 raw <- readit::readit("raw_data.csv")
 raw
 ```
 
 
-```{r tidy, include = T, eval = T, echo = T, message = F, warning = F}
+```{r tidy, include = F, eval = T, echo = T, message = F, warning = F}
 df <- raw[-3, ] %>% rename("airline" = X1, "status" = X2)
 df[2, 1] <- "ALASKA"
 df[4, 1] <- "AM WEST"
@@ -41,7 +41,7 @@ dfTidy
 ```
 
 
-```{r visualization, include = T, eval = T, echo = T, message = F, warning = F}
+```{r visualization, include = F, eval = T, echo = T, message = F, warning = F}
 plot1 <- ggplot(dfTidy, aes(x = airline, y = flights, fill = status)) +
         geom_bar(stat = "identity", position = "dodge") +
         # coord_flip() + 
@@ -67,7 +67,7 @@ grid.arrange(plot1, plot2, ncol = 1)
 ```
 
 
-In conclusion, the top flight destination for ALASKA airline is Seattle; on the other hand, it is Phoenix for AM WEST. For ALASKA airline, close to 95% of arrival to Phoenix is on time, and that's the highest on-time percentage by destinations. For AM WEST, the highest percentage is also Phoenix, but it is only 92%. The worst delayed arrival for ALASKA is San Francisco, which is close to 17% of its flights to the destination. Similarly, San Francisco is also the worst for AM WEST, and the percentage of delayed flights is a lot worse, i.e. close to 29% delayed. It seems that passengers flying to San Francisco on either airline should expect high chance of delay, and they should reserve more time if they need to get on a connecting flight. Overall, ALASKA seems to do slightly better than AM WEST flying to all five destinations. It seems that people flying to Seattle prefer ALASKA airline, while most would prefer AM WEST when flying to Phoenix.
+## In conclusion, the top flight destination for ALASKA airline is Seattle; on the other hand, it is Phoenix for AM WEST. For ALASKA airline, close to 95% of arrival to Phoenix is on time, and that's the highest on-time percentage by destinations. For AM WEST, the highest percentage is also Phoenix, but it is only 92%. The worst delayed arrival for ALASKA is San Francisco, which is close to 17% of its flights to the destination. Similarly, San Francisco is also the worst for AM WEST, and the percentage of delayed flights is a lot worse, i.e. close to 29% delayed. It seems that passengers flying to San Francisco on either airline should expect high chance of delay, and they should reserve more time if they need to get on a connecting flight. Overall, ALASKA seems to do slightly better than AM WEST flying to all five destinations. It seems that people flying to Seattle prefer ALASKA airline, while most would prefer AM WEST when flying to Phoenix.
 
 
 
