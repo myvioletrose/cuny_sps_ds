@@ -1,0 +1,16 @@
+---
+title: "Data_607_Project_2"
+author: "Jimmy Ng"
+date: "3/4/2019"
+output: html_document
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r load_packages, include = F}
+library(tidyverse)
+```
+
