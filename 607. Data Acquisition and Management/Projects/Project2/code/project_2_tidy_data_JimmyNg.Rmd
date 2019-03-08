@@ -1,16 +1,480 @@
 ---
 title: "Data_607_Project_2"
 author: "Jimmy Ng"
-date: "3/4/2019"
-output: html_document
+date: "3/8/2019"
+runtime: shiny
+output:
+  html_document: default
 ---
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+Load packages.
 
-```{r load_packages, include = F}
-library(tidyverse)
+```{r load_packages, include = T, message = F, warning = F}
+library(sf)  # must load first 
+library(tidyverse)  # then load this one before choroplethr
+# library(dplyr)
+# library(stringr)
+# library(ggplot2)
+library(choroplethrMaps)
+library(choroplethr)
+library(knitr)
+library(RCurl)
+library(ggrepel)
+library(gridExtra)
+library(sqldf)
+library(shiny)
+library(kableExtra)
 ```
+
+
+## **Data set 1**, Sunny Mehta: Zillow data on 2018 Median Rental Price/sqft by State
+
+```{r data_1_tidy, eval = T, echo = T}
+# load file for data set 1
+data1_url <- "https://raw.githubusercontent.com/myvioletrose/school_of_professional_studies/master/607.%20Data%20Acquisition%20and%20Management/Projects/Project2/data/State_MedianRentalPricePerSqft_AllHomes.csv"
+
+data1 <- data1_url %>% RCurl::getURL(.) %>% textConnection(.) %>% 
+        read.csv(., stringsAsFactors = F, header = T)
+
+# before tidying
+head(data1) %>% kable %>% 
+        kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F)
+
+d1Tidy <- data1 %>%
+        tidyr::gather(., key = "year", value = "price_per_sqft", -c("RegionName", "SizeRank")) %>%
+        tidyr::separate(., col = "year", into = c("year", "month"), sep = "\\.") %>%
+        dplyr::mutate(year = str_extract(year, "[[:digit:]]{4}") %>% as.integer,
+                      month = month %>% as.integer)
+
+# after tidying
+head(d1Tidy) %>% kable %>% 
+        kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F)
+```
+
+
+```{r data_1_visualize, eval = T, echo = T, fig.width = 12, fig.height = 16}
+d1Tidy %>%
+        ggplot(., aes(x = month, y = round(price_per_sqft, 1))) +
+        geom_bar(stat = "identity", aes(fill = RegionName)) +
+        geom_hline(yintercept = median(round(d1Tidy$price_per_sqft, 1)), color = "red", linetype = "dashed") +
+        labs(x = "month", y = "price/sqft ($)") +
+        scale_x_continuous(breaks = 1:12) +
+        ggtitle("Zillow data on 2018 Median Rental Price/sqft by State") +
+        theme_bw() +
+        theme(legend.position = "none",
+              axis.text.x = element_text(angle = 30, hjust = 1),
+              plot.title = element_text(hjust = 0.5)) +
+        facet_wrap(~ RegionName, ncol = 6)
+```
+
+
+We tidied the file by gathering all "months" columns (from wide to long format). We extracted (or separated) each month from a column that is "string" and that contained both year and month by using regular expression. Then, we visualized the result in ggplot by region and month. We added a horizontal red dash line, which indicated the national average (in median). In this case, we saw that New York was way above average and ahead of all regions, but rental price seemed to drop by quarter, i.e. highest in January and then steadily dropping quarter over quarter with the lowest in November, and then it seemed to pick up again in December. California, Distsrict of Columbia, Massachusetts and Hawaii also seem to be way above national average. 
+
+
+## **Data set 2**, Suma Gopal: College Majors
+
+```{r data_2_tidy, eval = T, echo = T}
+# load file for data set 2
+data2_url <- "https://raw.githubusercontent.com/myvioletrose/school_of_professional_studies/master/607.%20Data%20Acquisition%20and%20Management/Projects/Project2/data/grad-students.csv"
+
+data2 <- data2_url %>% RCurl::getURL(.) %>% textConnection(.) %>% 
+        read.csv(., stringsAsFactors = F, header = T)
+
+# before tidying
+head(data2) %>% kable %>% 
+        kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F)
+
+# let's just extract the median salary and unemployment rate columns to look at
+d2Tidy <- data2 %>%
+        dplyr::select(Major, Major_category, Grad_unemployment_rate, Grad_median) %>%
+        tidyr::gather(., kpi, value, -c(Major, Major_category)) %>%
+        dplyr::mutate(kpi = dplyr::case_when(kpi == "Grad_unemployment_rate" ~ "unemployment rate",
+                                             kpi == "Grad_median" ~ "median salary"))
+
+# after tidying
+head(d2Tidy) %>% kable %>% 
+        kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F)
+```
+
+
+```{r data_2_EDA, eval = T, echo = T, error = T}
+# is there any correlation between unemployment rate and median salary? 
+df.cor <- sqldf(
+        "select u.Major_category as category
+        , u.value as unemployment
+        , m.value as medianSalary
+        from d2Tidy u 
+        join d2Tidy m on u.Major = m.Major
+        where u.kpi = 'unemployment rate'
+        and m.kpi = 'median salary'"
+        )
+
+# overall correlation between salary and unemployment
+cor.test(df.cor$unemployment, df.cor$medianSalary)  
+
+# there's no general correlation between unemployment rate and salary
+# what about within each Major category?
+sapply(split(df.cor, df.cor$category)[-12],  # remove Interdisciplinary because it has only one major
+       function(x) cor.test(x$unemployment, x$medianSalary)$p.value) %>%
+        as.data.frame %>%
+        rename(., "p-value" = ".") %>% 
+        # dplyr::mutate(`p-value` = ifelse(`p-value` < .05,
+        #           cell_spec(`p-value`, color = "red", bold = T), 
+        #           cell_spec(`p-value`, color = "green"))) %>%
+        kable %>% 
+        kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), 
+                      full_width = F)  # none of the p.value (except Engineering) is significant
+
+# let's look at average unemployment rate, median salary by category
+ur <- aggregate(value ~ Major_category, d2Tidy %>% dplyr::filter(kpi == "unemployment rate"), mean)
+sa <- aggregate(value ~ Major_category, d2Tidy %>% dplyr::filter(kpi == "median salary"), mean)
+
+merge(ur, sa, by = "Major_category") %>% arrange(desc(value.y)) %>% 
+        dplyr::rename("avg unemployment rate" = value.x, "avg median salary" = value.y) %>%
+        kable %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F)
+```
+
+
+There is no overall correlation between unemployment rate and salary, neither is any correlation between the two within each category, except "Engineering", which has a weak negative correlation of -0.4 (not shown above), i.e. higher the salary associated with the major, less likely to be unemployed. However, art-related categories, i.e. "Humanities & Liberal Arts", "Industrial Arts & Consumer Services", and "Arts" seem to have higher unemployment rate and lower salary. "Engineering" and "Physical Sciences" majors always have high salary and low unemployment rate - great for job security! Below is a shiny dashboard that allows us to look at individual category and see how each major stands compares to each other wihtin the same cateogry. 
+
+
+```{r data2_shiny, echo = F}
+# split
+d2Split <- d2Tidy %>% tidyr::spread(., kpi, value) %>% split(., .$Major_category)
+# not a good idea to assign each subset to a global environment, but it wouldn't work if I did't do it in my old laptop
+# I was forced to create these variables in order to pass them to "reactive"
+assign_global_vars <- purrr::map2(letters[1:length(d2Split)], 1:length(d2Split), 
+                                  function(x, y) {assign(x, d2Split[[y]], envir = .GlobalEnv)})  # next time, use list2env()
+
+# Define UI for miles per gallon app ----
+ui <- fluidPage(
+        
+        # App title ----
+        titlePanel("College Major Category"),
+        
+        # Sidebar layout with input and output definitions ----
+        verticalLayout(
+                
+                # Sidebar panel for inputs ----
+                sidebarPanel(
+                        
+                        # Input: Selector for variable to plot ----
+                        selectInput("category", 
+                                    "Category:",
+                                    c(names(d2Split))
+                        )
+                        
+                ),
+                
+                # Main panel for displaying outputs ----
+                mainPanel(
+                        # add tabs
+                        tabsetPanel(
+                        # Outputs: ----
+                        tabPanel("Salary by Major - plot", plotOutput("salaryPlot")),
+                        tabPanel("Salary & Unemployment Rate - table", tableOutput("salary"))
+                        )
+                )
+        )
+)
+
+# Define server logic to plot various variables ----
+server <- function(input, output) {
+        
+        datasetInput <- reactive({
+                switch(input$category,
+                       'Agriculture & Natural Resources' = a,
+                       'Arts' = b,
+                       'Biology & Life Science' = c,
+                       'Business' = d,
+                       'Communications & Journalism' = e,
+                       'Computers & Mathematics' = f,
+                       'Education' = g,
+                       'Engineering' = h,
+                       'Health' = i,
+                       'Humanities & Liberal Arts' = j,
+                       'Industrial Arts & Consumer Services' = k,
+                       'Interdisciplinary' = l,
+                       'Law & Public Policy' = m,
+                       'Physical Sciences' = n,
+                       'Psychology & Social Work' = o,
+                       'Social Science' = p
+                       )
+        })
+        
+        
+        # Generate a plot of the requested variable ----
+        output$salaryPlot <- renderPlot({
+
+                ggplot(datasetInput(),
+                       aes(x = reorder(Major, `median salary`), y = `median salary`)) +
+                        labs(x = "College Major", y = "Median Salary ($)") +
+                        # labs(x = "", y = "Median Salary ($)") +
+                        geom_point(stat = "identity", color = "grey",
+                                   aes(fill = factor(`median salary`))) +
+                        coord_flip() +
+                        geom_label_repel(aes(Major, `median salary`, fill = factor(`median salary`),
+                                             # size = `unemployment rate`
+                                             label = Major),
+                                         size = 2.5, fontface = 'bold', color = 'white',
+                                         box.padding = unit(0.1, "lines"),
+                                         point.padding = unit(0.1, "lines"),
+                                         segment.color = 'grey50', segment.size = 3,
+                                         force = 5) +
+                        geom_text_repel(aes(label = `median salary`),
+                                # label = ifelse(`median salary` > median(`median salary`), `median salary`, '')),
+                                        size = 3, color = 'red',
+                                        force = 33) +
+                        theme(legend.position = "none",
+                              axis.text.x = element_text(angle = 0, hjust = 1),
+                              plot.title = element_text(hjust = 0.5)) +
+                        # theme(aspect.ratio = 12/9) +
+                        ggtitle(input$category)
+
+        })
+        
+        # print table output
+        output$salary <- renderTable({
+                datasetInput() %>% dplyr::select(-Major_category) %>%
+                        dplyr::mutate(`median salary` = round(`median salary`, 0),
+                                      `unemployment rate` = round(`unemployment rate`, 4)) %>%
+                        dplyr::arrange(desc(`median salary`))
+        })
+        
+}
+
+# Create Shiny app ----
+shinyApp(ui, server, options = list(height = 800, width = 1200))
+```
+
+
+## **Data set 3**, Jithendra Seneviratne: Unemployment Data
+
+```{r data_3_tidy, eval = T, echo = T}
+# load file for data set 3
+data3_url <- "https://raw.githubusercontent.com/myvioletrose/school_of_professional_studies/master/607.%20Data%20Acquisition%20and%20Management/Projects/Project2/data/unemployment.csv"
+
+data3 <- data3_url %>% RCurl::getURL(.) %>% textConnection(.) %>% 
+        read.csv(., stringsAsFactors = F, header = T)
+
+# before tidying
+head(data3) %>% kable %>% 
+        kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), 
+                      full_width = F, latex_options = "scale_down")
+
+# let's just extract the FIPS, state, area name and all unemployment rates
+# names(data3) %>% data.frame %>% arrange((.))
+colKeep <- c("FIPStxt", "State", "Area_name", names(data3) %>% grep("Unemployment_rate_", x = ., value = T))
+d3Tidy <- data3 %>%
+        dplyr::select(colKeep) %>%
+        # create a county_flag and remove state abbreviation from the Area_name
+        dplyr::mutate(county_flag = ifelse( str_detect(Area_name, ", "), 1, 0 ), 
+                      area_name = str_replace_all(Area_name, ", [[:upper:]]{2}", "")) %>%
+        dplyr::select(FIPStxt, State, county_flag, area_name, starts_with("Unemployment")) %>%
+        # gather the unemployment rate columns
+        tidyr::gather(., year, unemployment_rate, 
+                      starts_with("Unemployment")) %>%
+        # extract year
+        dplyr::mutate(year = str_extract(year, "[[:digit:]]{4}") %>% as.integer)
+
+names(d3Tidy) <- tolower(names(d3Tidy))
+
+# after tidying
+head(d3Tidy) %>% kable %>% 
+        kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F)
+
+# let's look at the average unemployment rate by county throughout the decade (2007 - 2017)
+agg <- d3Tidy %>% 
+        # select only US counties (Puerto Rico is included)
+        dplyr::filter(county_flag == 1 & !is.na(unemployment_rate)) %>%  
+        dplyr::select(state, area_name, year, unemployment_rate) %>%
+        group_by(state, area_name) %>%
+        summarise(`avg_unemployment_rate in (%)` = round(mean(unemployment_rate), 2)) %>%
+        ungroup %>%
+        arrange(desc(`avg_unemployment_rate in (%)`))
+
+agg %>% kable %>% 
+        kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F) %>%
+        scroll_box(width = "100%", height = "500px")
+```
+
+
+Below we can look at unemployment rate by state/county throughout the decade (2007 to 2017). The first map displays the unemployment rate of the entire US for a chosen year; the second displays it in the specific state level; and finally the third output displays the unemployment rate for a selected state and year on county level. We avoid to calculate the unemployment rate by rolling up the counties and/or years together to the state level because that will likely result in a Simpsons' Paradox. Therefore, it's better to just look at unemployment rate by county and year. Below is a fun toy example of how we can visualize it.
+
+
+```{r data_3_shiny, echo = F}
+d3Map <- d3Tidy %>% 
+        dplyr::filter(county_flag == 1 & state != "PR") %>%
+        dplyr::select(year, state, fipstxt, unemployment_rate) %>%
+        dplyr::rename("region" = fipstxt, "value" = unemployment_rate) %>%
+        dplyr::filter(!is.na(value))
+
+# Define UI for miles per gallon app ----
+ui <- fluidPage(
+        
+        # App title ----
+        titlePanel("US Unemployment Rate, 2007 - 2017"),
+        
+        # Sidebar layout with input and output definitions ----
+        sidebarLayout(
+                
+                # Sidebar panel for inputs ----
+                sidebarPanel(
+                        
+                        # Input: Selector for variable to plot ----
+                        selectInput("year", 
+                                    "Year:",
+                                    c(unique(d3Map$year)),
+                                    selected = 2017
+                        ), 
+                        
+                        selectInput("state", 
+                                    "State:",
+                                    c(unique(d3Map$state)),
+                                    selected = "NY"
+                        )
+                        
+                ),
+                
+                # Main panel for displaying outputs ----
+                mainPanel(
+                        # add tabs
+                        tabsetPanel(
+                                # Outputs: ----
+                                tabPanel("US Unemployment Rate (%)", plotOutput("USMap")),
+                                tabPanel("State Unemployment Rate (%)", plotOutput("StateMap")),
+                                tabPanel("State Unemployment Rate (%) - table", tableOutput("StateMapTable"))
+                        )
+                )
+        )
+)
+
+# Define server logic to plot various variables ----
+server <- function(input, output) {
+
+        stateInput <- reactive({
+                switch(input$state,
+                       'AL' = 'alabama',
+                       'AK' = 'alaska',
+                       'AZ' = 'arizona',
+                       'AR' = 'arkansas',
+                       'CA' = 'california',
+                       'Co' = 'colorado',
+                       'CT' = 'connecticut',
+                       'DE' = 'delaware',
+                       'DC' = 'district of columbia',
+                       'FL' = 'florida',
+                       'GA' = 'georgia',
+                       'HI' = 'hawaii',
+                       'ID' = 'idaho',
+                       'IL' = 'illinois',
+                       'IN' = 'indiana',
+                       'IA' = 'iowa',
+                       'KS' = 'kansas',
+                       'KY' = 'kentucky',
+                       'LA' = 'louisiana',
+                       'ME' = 'maine',
+                       'MD' = 'maryland',
+                       'MA' = 'massachusetts',
+                       'MI' = 'michigan',
+                       'MN' = 'minnesota',
+                       'MS' = 'mississippi',
+                       'MO' = 'missouri',
+                       'MT' = 'montana',
+                       'NE' = 'nebraska',
+                       'NV' = 'nevada',
+                       'NH' = 'new hampshire',
+                       'NJ' = 'new jersey',
+                       'NM' = 'new mexico',
+                       'NY' = 'new york',
+                       'NC' = 'north carolina',
+                       'ND' = 'north dakota',
+                       'OH' = 'ohio',
+                       'OK' = 'oklahoma',
+                       'OR' = 'oregon',
+                       'PA' = 'pennsylvania',
+                       'RI' = 'rhode island',
+                       'SC' = 'south carolina',
+                       'SD' = 'south dakota',
+                       'TN' = 'tennessee',
+                       'TX' = 'texas',
+                       'UT' = 'utah',
+                       'VT' = 'vermont',
+                       'VA' = 'virginia',
+                       'WA' = 'washington',
+                       'WV' = 'west virginia',
+                       'WI' = 'wisconsin',
+                       'WY' = 'wyoming'
+                )
+        })
+
+        US_data_Input <- reactive({
+                d3Map %>% 
+                        dplyr::filter(year == input$year) %>%
+                        dplyr::select(region, value)
+                })
+        
+        State_data_Input <- reactive({
+                d3Map %>% 
+                        dplyr::filter(year == input$year & state == input$state) %>%
+                        dplyr::select(region, value)
+        })
+        
+        # Generate plots of the requested variable ----
+        # US Map
+        output$USMap <- renderPlot({
+                county_choropleth(US_data_Input(),
+                                  title = paste("United States", input$year),
+                                  legend = "%",
+                                  num_colors = 1)
+                })
+
+        # State Map
+        output$StateMap <- renderPlot({
+                county_choropleth(State_data_Input(),
+                                  title = paste(stringr::str_to_title(stateInput()), input$year),
+                                  legend = "%",
+                                  state_zoom = stateInput(),
+                                  num_colors = 1)
+                })
+
+        # print table output
+        output$StateMapTable <- renderTable({
+                d3Tidy %>%
+                        dplyr::filter(county_flag == 1 & state != "PR" &
+                                              year == input$year & state == input$state) %>%
+                        dplyr::select(area_name, unemployment_rate) %>%
+                        dplyr::rename("county" = area_name) %>%
+                        dplyr::filter(!is.na(unemployment_rate)) %>%
+                        arrange(desc(unemployment_rate))
+                })
+
+}
+
+# Create Shiny app ----
+shinyApp(ui, server, options = list(height = 1200, width = 1500))
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
