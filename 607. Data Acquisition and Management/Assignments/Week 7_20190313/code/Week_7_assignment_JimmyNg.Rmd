@@ -12,10 +12,55 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r load_packages, include = T, message = F, warning = F}
 library(tidyverse)
+library(wrapr)
+library(httr)
+library(XML)
+library(jsonlite)
+library(RCurl)
 ```
 
 
-```{r read_files, eval = T, echo = T}
+```{r html, eval = T, echo = T}
+html_url <- "https://raw.githubusercontent.com/myvioletrose/school_of_professional_studies/master/607.%20Data%20Acquisition%20and%20Management/Assignments/Week%207_20190313/data/books.html"
 
+html <- GET(html_url) %.>% 
+        rawToChar(.$content) %>%
+        htmlParse(.) %>%
+        readHTMLTable %>%
+        data.frame
+
+names(html) <- c("Title", "Author", "Genre", "Year", "ISBN")
+html
 ```
+
+
+```{r xml, eval = T, echo = T}
+xml_url <- "https://raw.githubusercontent.com/myvioletrose/school_of_professional_studies/master/607.%20Data%20Acquisition%20and%20Management/Assignments/Week%207_20190313/data/books.xml"
+
+xml <- GET(xml_url) %.>%
+        rawToChar(.$content) %>%
+        xmlParse %>%
+        xmlToDataFrame
+        
+xml
+```
+
+
+```{r json, eval = T, echo = T}
+json_url <- "https://raw.githubusercontent.com/myvioletrose/school_of_professional_studies/master/607.%20Data%20Acquisition%20and%20Management/Assignments/Week%207_20190313/data/books.json"
+
+json <- GET(json_url) %.>% 
+        rawToChar(.$content) %>%
+        fromJSON %>%
+        data.frame
+json
+```
+
+
+```{r comparison, eval = T, echo = T}
+all(html == xml, xml == json, json == html)
+```
+
+### All three input files (**books.html**, **books.xml** & **books.json**) produce an idenical output. 
+
 
