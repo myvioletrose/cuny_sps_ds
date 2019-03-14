@@ -1,30 +1,23 @@
 [
  {
-   "title": "Title",
-   "author": "Author",
-   "genre": "Genre",
-   "year": "Year",
-   "isbn": "ISBN"
+   "Title": "On the Origin of Species",
+   "Author": "Charles Darwin",
+   "Genre": "Anti-Religious Study",
+   "Year": "1859",
+   "ISBN": "9781515383284"
  },
  {
-   "title": "On the Origin of Species",
-   "author": "Charles Darwin",
-   "genre": "Anti-Religious Study",
-   "year": "1859",
-   "isbn": "9781515383284"
+   "Title": "The Communist Manifesto",
+   "Author": "Karl Marx, Friedrich Engels",
+   "Genre": "Political Thriller, Satire",
+   "Year": "1848",
+   "ISBN": "9780140447576"
  },
  {
-   "title": "The Communist Manifesto",
-   "author": "Karl Marx, Friedrich Engels",
-   "genre": "Political Thriller, Satire",
-   "year": "1848",
-   "isbn": "9780140447576"
- },
- {
-   "title": "Civilization and Its Discontents",
-   "author": "Sigmund Freud",
-   "genre": "Clinical History of the West",
-   "year": "1930",
-   "isbn": "9781453833896"
+   "Title": "Civilization and Its Discontents",
+   "Author": "Sigmund Freud",
+   "Genre": "Clinical History of the West",
+   "Year": "1930",
+   "ISBN": "9781453833896"
  }
 ]
