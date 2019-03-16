@@ -3,9 +3,9 @@ title: "Data_607_Week_1_Assignment"
 author: "Jimmy Ng"
 date: "1/29/2019"
 output:
-  word_document: default
   html_document:
     df_print: paged
+  word_document: default
 ---
 
 ```{r setup, include=FALSE}
