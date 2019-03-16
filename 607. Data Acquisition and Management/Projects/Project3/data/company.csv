@@ -1,0 +1,2233 @@
+"company_id","company","company_revenue","company_employees","company_industry","no_of_stars","no_of_reviews"
+"c_1","","","","",4,14988
+"c_3","14 West","","","",3.5,2
+"c_4","1st Solution USA","","","",NA,NA
+"c_5","23andMe","","Less than 10,000","Health Care",4,4
+"c_6","2DA Analytics","","","",NA,NA
+"c_7","2K Games","","","",3.70000004768372,22
+"c_8","2U","","","",NA,NA
+"c_10","3M","More than $10B (USD)","10,000+","Industrial Manufacturing",4.099999905,2837
+"c_11","3Q Digital","","","",4.19999980926514,10
+"c_9","3coast","","","Human Resources and Staffing",4.5,2
+"c_12","7-Eleven","More than $10B (USD)","","Retail",NA,NA
+"c_13","7Park Data","","","",NA,NA
+"c_14","8-Koi","","","",NA,NA
+"c_15","8X8 INC.","","","",3.599999905,51
+"c_16","A Could Guru","","","",NA,NA
+"c_18","A+E Networks","","Less than 10,000","Media, News and Publishing",3.900000095,103
+"c_17","A. H. Belo Corporation","","","",3.29999995231628,3
+"c_26","ABSc","","Less than 10,000","Consulting and Business Services",3.40000009536743,27
+"c_32","ACCION","","","",4.300000191,25
+"c_39","ACI Worldwide","Less than $1B (USD)","Less than 10,000","Internet and Software",3.5,165
+"c_41","ACN","","","",3.70000004768372,265
+"c_43","ACS","","","",3.40000009536743,4497
+"c_44","ACT, Inc.","","","",3.900000095,54
+"c_51","ADT Corporation","$1B to $5B (USD)","10,000+","",3.40000009536743,3947
+"c_52","ADT Security Services","$1B to $5B (USD)","10,000+","",3.40000009536743,3947
+"c_61","AECOM","More than $10B (USD)","10,000+","",3.70000004768372,3457
+"c_65","AF Group","","","",3.79999995231628,10
+"c_67","AG Grace Inc","","","",NA,NA
+"c_70","AHMC Healthcare Inc","","","",NA,NA
+"c_71","AIDS Foundation of Chicago","","","",4.59999990463257,9
+"c_72","AIG","More than $10B (USD)","10,000+","Insurance",3.79999995231628,2807
+"c_76","AKRAYA INC.","","","Human Resources and Staffing",3.599999905,9
+"c_81","ALC","","","",3.29999995231628,18
+"c_133","ANB Bank","","","Banks and Financial Services",3.5,41
+"c_142","ANTHEM MARKETING","","","",NA,NA
+"c_159","AQR","","","",NA,NA
+"c_164","ARC Solutions USA","","Less than 10,000","Internet and Software",3.09999990463257,12
+"c_189","ASET Partners","","","",NA,NA
+"c_191","ASML","$5B to $10B (USD)","10,000+","Computers and Electronics",4,189
+"c_200","AT&T","More than $10B (USD)","10,000+","Telecommunications",3.79999995231628,31970
+"c_205","ATN International","Less than $1B (USD)","Less than 10,000","Telecommunications",3.299999952,30
+"c_213","AUSL Chicago","","","",NA,NA
+"c_215","AUTHENTIX INC","","","",NA,NA
+"c_223","AVID CENTER STAFF","","","",NA,NA
+"c_226","AXA","","","",3.900000095,1341
+"c_227","AXA General Insurance","","","",3.900000095,1341
+"c_231","AXIS Insurance","","Less than 10,000","Insurance",4.09999990463257,22
+"c_19","Aaptiv","","","",NA,NA
+"c_20","Abacus Data Systems","Less than $1B (USD)","Less than 10,000","Internet and Software",2.90000009536743,17
+"c_22","AbbVie","More than $10B (USD)","10,000+","Pharmaceuticals",4,650
+"c_21","Abbott Laboratories","More than $10B (USD)","10,000+","Health Care",4.099999905,3285
+"c_23","Abilene Christian University","","","Education and Schools",4.30000019073486,55
+"c_24","Abiomed","Less than $1B (USD)","Less than 10,000","",3.90000009536743,33
+"c_25","AbleVets LLC","","","",3.70000004768372,7
+"c_27","Academia.edu","","","",NA,NA
+"c_28","Academy for Urban School Leadership","","Less than 10,000","Education and Schools",3.29999995231628,9
+"c_29","Accenture","More than $10B (USD)","10,000+","Consulting and Business Services",4,14988
+"c_30","AccessCNY, INC","","","",NA,NA
+"c_31","Accident Fund Holdings, Inc.","","","",4.5,2
+"c_33","Accion in Arizona, Colorado, Nevada, New Mexico and Texas","","","",NA,NA
+"c_34","Accolite Software India","","","",NA,NA
+"c_35","Accolite, Inc.","","","",NA,NA
+"c_36","Accountants One, Inc","","","",4.40000009536743,9
+"c_37","Ace Technologies","","","Internet and Software",4.09999990463257,16
+"c_38","Achievement Network (ANet)","","","",NA,NA
+"c_40","Aclara","","Less than 10,000","Energy and Utilities",2.90000009536743,67
+"c_42","Acquisition Life Cycle Management","","","",5,5
+"c_45","ActiveCampaign","","","",5,2
+"c_46","Acuity, Inc.","","","",NA,NA
+"c_47","Acumen Solutions","","","",3.70000004768372,14
+"c_48","Acustream","","","",NA,NA
+"c_49","Adaptive Management","","Less than 10,000","Internet and Software",5,2
+"c_50","Adobe","$5B to $10B (USD)","10,000+","Internet and Software",4.300000191,484
+"c_53","Advance Auto Parts","$5B to $10B (USD)","10,000+","Auto",3.5,5042
+"c_54","Advance Financial","Less than $1B (USD)","Less than 10,000","Banks and Financial Services",3.90000009536743,468
+"c_55","Advanced ICU Care","","","",2.59999990463257,20
+"c_56","Advanced Micro Devices, Inc.","$5B to $10B (USD)","Less than 10,000","Computers and Electronics",3.79999995231628,401
+"c_57","Advanced Technology Group Inc","","","",NA,NA
+"c_58","Advantage SCI","","Less than 10,000","Aerospace and Defense",4.09999990463257,14
+"c_59","Advantage Solutions","More than $10B (USD)","10,000+","Retail",3.5,1985
+"c_60","Adventist Health System","","","Health Care",3.79999995231628,1048
+"c_62","Aegon","","","Insurance",3.900000095,305
+"c_63","Aera Technology","","","",NA,NA
+"c_64","Aetna","More than $10B (USD)","10,000+","Insurance",3.79999995231628,3656
+"c_66","Affirm","","Less than 10,000","Internet and Software",3.5,4
+"c_68","Agent IQ","","","",NA,NA
+"c_69","Agilent","$1B to $5B (USD)","10,000+","Health Care",4.19999980926514,522
+"c_73","AirPR","","","",NA,NA
+"c_74","Akili Interactive","","","",NA,NA
+"c_75","Akima, LLC","","Less than 10,000","Aerospace and Defense",3.599999905,219
+"c_77","Alaka`ina Foundation Family of Companies","","","",NA,NA
+"c_78","Alameda Health Consortium/Community Health Center Network","","","",NA,NA
+"c_79","Alarm.com","","Less than 10,000","Consumer Goods and Services",4.40000009536743,13
+"c_80","Albemarle Corporation","","","",3.29999995231628,76
+"c_82","Aledade, Inc.","","","",NA,NA
+"c_83","Alegeus Technologies","","","",3.09999990463257,14
+"c_84","Alere","","","",3.5,427
+"c_85","Alibaba","","","",4.40000009536743,16
+"c_86","Alion Science and Technology","Less than $1B (USD)","Less than 10,000","Internet and Software",3.59999990463257,192
+"c_87","All-In Analytics","","","",NA,NA
+"c_88","Allegheny Health Network","","","Health Care",3.59999990463257,505
+"c_89","Allegro MicroSystems, LLC","","","",4.19999980926514,54
+"c_90","Allergan","$1B to $5B (USD)","10,000+","Pharmaceuticals",3.79999995231628,1078
+"c_91","Alliance Data - Retail","$1B to $5B (USD)","Less than 10,000","Banks and Financial Services",3.79999995231628,988
+"c_92","Alliance Health Professionals","","","",4,3
+"c_93","AllianceData","$1B to $5B (USD)","Less than 10,000","Banks and Financial Services",3.79999995231628,988
+"c_94","Alliant Credit Union","More than $10B (USD)","Less than 10,000","Banks and Financial Services",3.70000004768372,43
+"c_96","Alloy","","","",4.099999905,7
+"c_97","Allstate","More than $10B (USD)","10,000+","Insurance",3.79999995231628,5671
+"c_98","Alltran","","Less than 10,000","Banks and Financial Services",2.70000004768372,96
+"c_99","Ally Financial","$1B to $5B (USD)","Less than 10,000","Banks and Financial Services",3.70000004768372,649
+"c_100","Alnylam","","","",4.59999990463257,14
+"c_101","Alqimi","","","",NA,NA
+"c_103","AltaMed","","","Health Care",3.70000004768372,233
+"c_105","AltaSource Group","","","",NA,NA
+"c_102","Altair Engineering","","","",4.19999980926514,62
+"c_104","Altamira Technologies Corporation","","","",3.79999995231628,6
+"c_106","Alteryx, Inc.","","Less than 10,000","Internet and Software",5,5
+"c_107","Altice USA","$5B to $10B (USD)","10,000+","Media, News and Publishing",3.599999905,1394
+"c_127","AmTrust Financial Services","","","Banks and Financial Services",2.90000009536743,158
+"c_108","Amches, Inc.","","","",NA,NA
+"c_109","Amdocs","$1B to $5B (USD)","10,000+","Internet and Software",3.900000095,911
+"c_118","AmeriCorps","","","Government",4.40000009536743,2094
+"c_119","AmeriHealth Caritas","","Less than 10,000","Insurance",3.40000009536743,373
+"c_120","AmeriSourceBergen","More than $10B (USD)","10,000+","Health Care",3.5,1265
+"c_110","American Axle & Manufacturing, Inc.","","10,000+","Auto",3.79999995231628,504
+"c_111","American Chemical Society","","","",3.90000009536743,71
+"c_112","American Express","More than $10B (USD)","10,000+","Banks and Financial Services",4.19999980926514,6037
+"c_113","American Family Insurance","$5B to $10B (USD)","Less than 10,000","Insurance",3.79999995231628,982
+"c_114","American Institutes for Research","","","",3.79999995231628,169
+"c_115","American Merchandising Specialists","","","",3.29999995231628,18
+"c_116","American Modern Insurance Group, Inc.","","","Insurance",3.799999952,66
+"c_117","American Specialty Health","Less than $1B (USD)","Less than 10,000","Health Care",3.599999905,158
+"c_121","Ameritas","","Less than 10,000","Insurance",3.20000004768372,101
+"c_122","Amgen","More than $10B (USD)","10,000+","Health Care",4.09999990463257,1086
+"c_123","Amica Insurance Company","","Less than 10,000","Insurance",3.90000009536743,198
+"c_124","Amne","","","",NA,NA
+"c_125","Amplify Education, Inc.","","","",4.199999809,5
+"c_126","Amplitude","","","",NA,NA
+"c_132","AnaVation, LLC","","","",NA,NA
+"c_128","Anadarko Petroleum Corporation","More than $10B (USD)","Less than 10,000","Energy and Utilities",4.400000095,260
+"c_129","AnalogFolk","","","",NA,NA
+"c_130","Analysis Group","","","",4.30000019073486,10
+"c_131","Analytic Recruiting","","","Human Resources and Staffing",4,2
+"c_134","AncestryDNA","","","",NA,NA
+"c_135","Anchorage Consultants LLC","","","",NA,NA
+"c_136","Andersen Corporation","","","",3.59999990463257,190
+"c_137","Anheuser-Busch","","","",NA,NA
+"c_138","Animoto","","","",NA,NA
+"c_139","Annalect","","","",3,8
+"c_140","Anne Arundel Medical Center","","","Health Care",4,258
+"c_141","AnswerRocket","","","",NA,NA
+"c_143","Anthem, Inc.","More than $10B (USD)","10,000+","Health Care",3.79999995231628,3348
+"c_144","Apeel Sciences","","","",NA,NA
+"c_145","Apkudo","","","",NA,NA
+"c_146","Apogee Integration, LLC","","","",NA,NA
+"c_148","AppDynamics","Less than $1B (USD)","Less than 10,000","Internet and Software",3.400000095,14
+"c_149","AppFolio","","Less than 10,000","Internet and Software",4,23
+"c_155","AppNexus","","Less than 10,000","Internet and Software",4.5,10
+"c_157","AppZen","","","",NA,NA
+"c_147","Appalachian Regional Healthcare","","Less than 10,000","Health Care",3.59999990463257,114
+"c_150","Applause","","","",4.09999990463257,21
+"c_151","Applied Materials Inc.","$5B to $10B (USD)","10,000+","Computers and Electronics",4,679
+"c_152","Applied Memetics LLC","Less than $1B (USD)","Less than 10,000","Aerospace and Defense",4.80000019073486,22
+"c_153","Applied Systems Inc.","","Less than 10,000","Internet and Software",3.09999990463257,75
+"c_154","Applied Thought","","","",NA,NA
+"c_156","Apptentive","","","",NA,NA
+"c_158","Aptiv","More than $10B (USD)","10,000+","Computers and Electronics",3.90000009536743,65
+"c_160","Arable Labs, Inc.","","","",NA,NA
+"c_161","Aramark","More than $10B (USD)","10,000+","Food and BeveragesConsulting and Business Services",3.59999990463257,13098
+"c_162","Arbella Insurance Group","","","Insurance",3.79999995231628,13
+"c_163","Arc Aspicio","","Less than 10,000","Consulting and Business Services",3.29999995231628,12
+"c_165","Arcadis","$1B to $5B (USD)","Less than 10,000","Real Estate",3.59999990463257,275
+"c_166","Arch Capital Group Ltd.","","","",4.19999980926514,35
+"c_167","Archer Daniels Midland Company","More than $10B (USD)","10,000+","Agriculture and Extraction",3.70000004768372,733
+"c_168","Arconic","","10,000+","Industrial Manufacturing",2.79999995231628,192
+"c_169","Areté Associates","","","",4,15
+"c_170","Argonne National Laboratory","","10,000+","Government",4.30000019073486,156
+"c_171","Arkansas Blue Cross and Blue Shield","More than $10B (USD)","Less than 10,000","Insurance",4.09999990463257,180
+"c_172","Arkatechture","","","",NA,NA
+"c_173","Armor","","","",NA,NA
+"c_174","Aroghia Group","","","",5,2
+"c_175","Arrayo","","","",NA,NA
+"c_176","Arrow Electronics, Inc.","More than $10B (USD)","10,000+","Computers and Electronics",3.599999905,757
+"c_177","Arrowpoint Corporation","","Less than 10,000","Computers and Electronics",3.29999995231628,10
+"c_178","Arthrex","","Less than 10,000","Industrial Manufacturing",3.79999995231628,93
+"c_179","Arthur Lawrence","","","Human Resources and Staffing",4,25
+"c_180","Aruba Networks","Less than $1B (USD)","Less than 10,000","Telecommunications",4.09999990463257,54
+"c_181","Ascena Retail Group, Inc.","","","",3.70000004768372,20
+"c_182","Ascend Performance Materials","$1B to $5B (USD)","Less than 10,000","Industrial Manufacturing",3.29999995231628,77
+"c_183","Ascensia Diabetes Care","","","",NA,NA
+"c_184","Ascension Healthcare","","","Health Care",3.29999995231628,457
+"c_185","Ascensus","","Less than 10,000","Banks and Financial Services",3.09999990463257,79
+"c_186","Ascent Services Group","","","Human Resources and Staffing",3.5,13
+"c_187","Asembia LLC","","Less than 10,000","Pharmaceuticals",2.40000009536743,27
+"c_188","Asendia Management SAS","","","",NA,NA
+"c_190","Asics Digital","","","",NA,NA
+"c_192","Aspen Technology","","","",3,41
+"c_193","Association of Universities for Research in Astronomy","","","",5,2
+"c_194","Assurant","More than $10B (USD)","10,000+","Insurance",3.59999990463257,2056
+"c_195","Assured Consulting Solutions","","","",NA,NA
+"c_196","AssuredPartners","","","Insurance",2.79999995231628,13
+"c_197","Astor Services For Children & Families","","Less than 10,000","",2.70000004768372,26
+"c_198","Astronics","","","",3.09999990463257,17
+"c_199","Asurion","","10,000+","Telecommunications",3.70000004768372,1905
+"c_203","Atlantic Health System","","","Health Care",3.900000095,268
+"c_204","Atlassian","","Less than 10,000","Internet and Software",4.5,11
+"c_206","Atos","","","Internet and Software",3.59999990463257,1869
+"c_207","Audi Canada","","","",3.599999905,5
+"c_208","Audley Travel","","","",4.5,4
+"c_209","Augmedix Inc.","","","",NA,NA
+"c_210","Aultman Health Foundation","","","",3.70000004768372,21
+"c_211","Aultman Hospital","Less than $1B (USD)","Less than 10,000","Health Care",3.79999995231628,127
+"c_212","Aunalytics","","","",NA,NA
+"c_214","Auth0","","","",NA,NA
+"c_217","Auto Club Group","","","Insurance",3.299999952,179
+"c_216","Auto-Owners Insurance","$5B to $10B (USD)","Less than 10,000","Insurance",3.70000004768372,154
+"c_218","Autodesk","$1B to $5B (USD)","Less than 10,000","Internet and Software",4.09999990463257,333
+"c_219","Availity, LLC.","","","",NA,NA
+"c_220","AvalonBay Communities","$1B to $5B (USD)","Less than 10,000","Real Estate",3.90000009536743,294
+"c_221","Avanade","$1B to $5B (USD)","10,000+","Consulting and Business Services",3.700000048,201
+"c_222","Averity","","","",NA,NA
+"c_224","Avkare Inc","","","",NA,NA
+"c_225","Avvo","","","",3.799999952,16
+"c_228","Axelon Services Corporation","","","Human Resources and Staffing",3.40000009536743,51
+"c_229","Axiologic Solutions","","","",3.79999995231628,5
+"c_230","Axis Group","","","",4,10
+"c_232","Axius Technologies","","Less than 10,000","Consulting and Business Services",4.19999980926514,13
+"c_233","Axos Bank","","","",NA,NA
+"c_235","BAE Systems","More than $10B (USD)","10,000+","Aerospace and Defense",3.90000009536743,3246
+"c_236","BAE Systems Applied Intelligence","Less than $1B (USD)","Less than 10,000","Computers and Electronics",3.70000004768372,49
+"c_237","BAIN & COMPANY","","","Consulting and Business Services",4.30000019073486,107
+"c_250","BASF","More than $10B (USD)","10,000+","Industrial Manufacturing",4.19999980926514,2078
+"c_255","BB&T","Less than $1B (USD)","10,000+","Banks and Financial Services",3.70000004768372,2153
+"c_256","BBYO","","","",3.90000009536743,9
+"c_257","BBYO -","","","",NA,NA
+"c_258","BCD Travel","More than $10B (USD)","10,000+","Restaurants, Travel and Leisure",3.799999952,327
+"c_259","BCG Digital Ventures","","","",4.5,4
+"c_274","BGC Partners","","","Banks and Financial Services",3.700000048,41
+"c_275","BHP Engineering & Construction","","","",NA,NA
+"c_276","BI Worldwide","","","",4,45
+"c_289","BJ's Wholesale Club, Inc.","More than $10B (USD)","10,000+","Retail",3.5,2550
+"c_307","BLUECUBE Information Technology","","","",NA,NA
+"c_308","BLUEHAWK, LLC","","","",NA,NA
+"c_313","BMO Financial Group","More than $10B (USD)","10,000+","Banks and Financial Services",3.79999995231628,1830
+"c_314","BMW North America","","10,000+","Auto",4,2057
+"c_315","BNP Paribas","","10,000+","Banks and Financial Services",3.90000009536743,2542
+"c_316","BNY Mellon","Less than $1B (USD)","10,000+","Banks and Financial Services",3.599999905,3445
+"c_319","BOK Financial","More than $10B (USD)","Less than 10,000","Banks and Financial Services",3.70000004768372,321
+"c_348","BRS","","","",3.70000004768372,34
+"c_238","Ball Corporation","","","",3.90000009536743,110
+"c_239","Baltimore Medical System, Inc.","","","",2.79999995231628,41
+"c_240","Balyasny","","","",4.40000009536743,5
+"c_241","Bangor Savings Bank","Less than $1B (USD)","Less than 10,000","Banks and Financial Services",4.300000191,23
+"c_242","Bank of America Merchant Services","","Less than 10,000","Banks and Financial Services",3.5,167
+"c_243","Bank of the West","$1B to $5B (USD)","Less than 10,000","Banks and Financial Services",3.59999990463257,983
+"c_244","Banner Health","","10,000+","Health Care",3.79999995231628,1764
+"c_245","Baptist Health South Florida","Less than $1B (USD)","10,000+","Health Care",4.19999980926514,851
+"c_246","Barings","","","",4.09999990463257,16
+"c_247","Barri Financial Group","","","Banks and Financial Services",3.59999990463257,34
+"c_248","Barrick Gold Corporation","More than $10B (USD)","10,000+","Agriculture and Extraction",4.09999990463257,316
+"c_249","Bartech Group","","Less than 10,000","Consulting and Business Services",3.79999995231628,103
+"c_251","Bassett Healthcare","","","Health Care",3.40000009536743,56
+"c_252","Battelle","","10,000+","Consulting and Business Services",3.79999995231628,291
+"c_253","Baylor Scott & White Health","","10,000+","Health Care",3.90000009536743,2132
+"c_254","Baystate Health","","","Health Care",3.90000009536743,331
+"c_260","Beachbody","$1B to $5B (USD)","Less than 10,000","Retail",4,199
+"c_261","Beacon Health System","","Less than 10,000","Health Care",3.299999952,78
+"c_262","Bealls Inc","","10,000+","Retail",3.5,1137
+"c_263","Beaumont Health","$1B to $5B (USD)","10,000+","Health Care",3.79999995231628,738
+"c_264","Beaver Dam Community Hospitals, Inc.","","","Health Care",5,2
+"c_265","Becton Dickinson","","10,000+","",4,960
+"c_266","Benchmark Education Company","","","",2.90000009536743,16
+"c_267","Benson Hill Biosystems, Inc","","","",NA,NA
+"c_268","Berico Technologies","","","",3.40000009536743,8
+"c_269","Berkadia Commercial Mortgage","","Less than 10,000","Real Estate",3.90000009536743,48
+"c_270","Bertelsmann","$1B to $5B (USD)","10,000+","Consulting and Business Services",4.09999990463257,1837
+"c_271","Betterment LLC","","","",NA,NA
+"c_272","Beyond Limits","","","",4,6
+"c_273","Beyondsoft Consulting","Less than $1B (USD)","Less than 10,000","Consulting and Business Services",3.599999905,38
+"c_277","Big Fish Games","","","Internet and Software",3.70000004768372,19
+"c_278","BigCommerce","Less than $1B (USD)","Less than 10,000","Internet and Software",3.799999952,29
+"c_279","Bigfoot Biomedical","","","",NA,NA
+"c_280","Bill.com","","","",3.79999995231628,11
+"c_281","Billings Clinic","","","",3.799999952,106
+"c_282","Bind Benefits","","","",NA,NA
+"c_283","Bio-Rad","$1B to $5B (USD)","Less than 10,000","Industrial Manufacturing",3.70000004768372,281
+"c_284","BioTelemetry, Inc.","","","",NA,NA
+"c_285","Bird Rides Inc.","","","Transport and Freight",4.599999905,5
+"c_287","BitTorrent Inc.","","","",NA,NA
+"c_286","Bitcoin","","","",NA,NA
+"c_288","Bixal","","","",NA,NA
+"c_291","BlackLine","","","",3.90000009536743,7
+"c_292","BlackRock","More than $10B (USD)","10,000+","Banks and Financial Services",3.90000009536743,358
+"c_290","Blackbaud","Less than $1B (USD)","Less than 10,000","Internet and Software",3.59999990463257,77
+"c_293","Blade","","","",5,20
+"c_294","Blizzard Entertainment","$1B to $5B (USD)","Less than 10,000","Computers and Electronics",4.099999905,181
+"c_295","Bloomberg","","10,000+","Media, News and Publishing",3.90000009536743,671
+"c_296","Blue Apron","","Less than 10,000","Food and Beverages",3.40000009536743,478
+"c_297","Blue Chip Talent","","","",3.79999995231628,4
+"c_298","Blue Cross Blue Shield of Arizona","","","Health Care",3.799999952,113
+"c_299","Blue Cross Blue Shield of Arizona Advantage","","","Health Care",2.5,2
+"c_300","Blue Cross Blue Shield of Michigan","","","Insurance",3.90000009536743,609
+"c_301","Blue Nile","","","",3,31
+"c_302","Blue Origin","","","Aerospace and Defense",3.70000004768372,18
+"c_303","Blue Owl","","Less than 10,000","Internet and Software",4,2
+"c_304","Blue Shield of California","More than $10B (USD)","Less than 10,000","Health Care",3.59999990463257,542
+"c_309","BlueLabs Analytics","","","",NA,NA
+"c_310","BlueLinx Corporation","","","",3.20000004768372,99
+"c_306","Bluecore Inc.","","Less than 10,000","Consulting and Business Services",5,3
+"c_311","Blume Global","","","",NA,NA
+"c_312","Blytheco, LLC","","","",NA,NA
+"c_317","Boeing","More than $10B (USD)","10,000+","Aerospace and Defense",4,5876
+"c_318","Boeing Intelligence & Analytics","More than $10B (USD)","10,000+","Aerospace and Defense",4,5876
+"c_320","Bold","","","",3.5,6
+"c_321","Boll & Branch","","","",NA,NA
+"c_322","BookBub","","","",NA,NA
+"c_323","Booz Allen Hamilton","$5B to $10B (USD)","10,000+","Consulting and Business Services",3.90000009536743,1733
+"c_324","BorderX Lab Inc","","","",NA,NA
+"c_325","Bosch Group","More than $10B (USD)","10,000+","",4.19999980926514,3505
+"c_326","Bose","","","Computers and Electronics",4.19999980926514,717
+"c_327","Boss Fight Entertainment","","","",NA,NA
+"c_328","Boston Bruins","","","",4.300000191,3
+"c_329","Boston Children's Hospital","","Less than 10,000","Organization",4.19999980926514,377
+"c_330","Boston Medical Center","","","Health Care",4,451
+"c_331","Bowery Farming","","","",5,8
+"c_332","Boxy Charm","","","",2.79999995231628,6
+"c_333","BoxyCharm","","","",2.79999995231628,6
+"c_334","Boyd Caton Group (bcg)","","","",NA,NA
+"c_335","Boyne Resorts","","","",NA,NA
+"c_336","Brad's Deals","","","",NA,NA
+"c_337","Bright Cellars","","","",1.29999995231628,3
+"c_338","Brighthouse Financial","","","Banks and Financial Services",3.79999995231628,17
+"c_339","Brightidea","","","",4.5,2
+"c_340","Brightree","","","Consulting and Business Services",3.59999990463257,39
+"c_341","Brillio","","","",3.40000009536743,27
+"c_342","Bristol-Myers Squibb","More than $10B (USD)","10,000+","Health Care",4.19999980926514,1481
+"c_343","Brivo Systems","","","",2.5,4
+"c_344","Broad Institute","","","",4.09999990463257,36
+"c_345","Broadridge","","","",3.59999990463257,570
+"c_346","Brooks Sports, Inc","","","",4,31
+"c_347","Brown & Brown Insurance","","","",NA,NA
+"c_349","Bryant & Stratton College","","","Education and Schools",3.90000009536743,367
+"c_350","Buchanan & Edwards","","Less than 10,000","Government",4,22
+"c_351","Burlington Stores","$1B to $5B (USD)","10,000+","Retail",3.40000009536743,6742
+"c_352","Butterball, LLC","","","",3.70000004768372,509
+"c_353","Butterfly Network","","","",NA,NA
+"c_354","Buxton","","Less than 10,000","Consulting and Business Services",2.90000009536743,16
+"c_355","C&A Industries, Inc","","","Consulting and Business Services",4.30000019073486,6
+"c_356","C.H. Robinson Worldwide, Inc.","More than $10B (USD)","10,000+","Transport and Freight",3.5,874
+"c_357","C3","","Less than 10,000","Consulting and Business Services",3,774
+"c_358","C5T Corporation","","","",NA,NA
+"c_361","CACI","$1B to $5B (USD)","10,000+","Consulting and Business Services",3.90000009536743,1435
+"c_368","CALNET INC.","","","",4.19999980926514,30
+"c_378","CAPCO","Less than $1B (USD)","Less than 10,000","Consulting and Business Services",3.5,103
+"c_407","CBRE","$5B to $10B (USD)","10,000+","Real EstateReal Estate",3.79999995231628,2218
+"c_408","CCC Information Services Inc.","","Less than 10,000","Internet and Software",3.90000009536743,73
+"c_409","CDW","","","",NA,NA
+"c_426","CGG","","","",3.90000009536743,103
+"c_434","CHEP","$5B to $10B (USD)","10,000+","Consulting and Business Services",3.59999990463257,480
+"c_442","CHOC Children's Hospital","","","Health Care",4.09999990463257,149
+"c_448","CIBC","More than $10B (USD)","10,000+","Banks and Financial Services",3.90000009536743,2309
+"c_450","CIITS","","","",NA,NA
+"c_486","CMI Media and Compas, Inc.","","Less than 10,000","Consulting and Business Services",3.59999990463257,7
+"c_532","CONTINUUM","Less than $1B (USD)","Less than 10,000","Consulting and Business Services",3.5,41
+"c_543","CORKCICLE.","","","",NA,NA
+"c_546","CORTEK","","","",4.19999980926514,12
+"c_558","CRB Workforce LLC","","","",NA,NA
+"c_568","CRGT Inc.","Less than $1B (USD)","Less than 10,000","Aerospace and Defense",3.40000009536743,131
+"c_583","CSRA","","","",3.5,318
+"c_584","CSSI, Inc.","","","",NA,NA
+"c_585","CTG","","","Internet and Software",3.59999990463257,193
+"c_359","Cable & Wireless Communications Inc","","","",4.09999990463257,293
+"c_362","Caesars Entertainment","$5B to $10B (USD)","10,000+","Restaurants, Travel and Leisure",3.799999952,1179
+"c_363","Calero Software","","","",3.09999990463257,15
+"c_364","Calico","","","",NA,NA
+"c_365","California State University","","Less than 10,000","Education and Schools",4.40000009536743,878
+"c_366","Calix","Less than $1B (USD)","Less than 10,000","Telecommunications",3.200000048,30
+"c_367","CallMiner, Inc","","","",NA,NA
+"c_369","Cambia Health","","","Health Care",3.59999990463257,80
+"c_370","Cambria","","Less than 10,000","Consumer Goods and Services",2.79999995231628,87
+"c_371","Camp4 Therapeutics Corporation","","","",NA,NA
+"c_372","Cancer Treatment Centers of America","","Less than 10,000","Health Care",3.79999995231628,309
+"c_373","Candid Co.","","","",NA,NA
+"c_374","Candid Partners","","","",NA,NA
+"c_375","Canton-Potsdam Hospital","","","Health Care",2.90000009536743,23
+"c_376","Canvas Technology","","","",NA,NA
+"c_384","CapTech Consulting","Less than $1B (USD)","Less than 10,000","Consulting and Business Services",4.5,15
+"c_377","Capax Global LLC","","","",NA,NA
+"c_379","Capgemini","","10,000+","Consulting and Business Services",3.79999995231628,6074
+"c_380","Capgemini Government Solutions","","10,000+","Consulting and Business Services",3.79999995231628,6072
+"c_381","Capital Group Companies","$1B to $5B (USD)","Less than 10,000","Banks and Financial Services",4.099999905,302
+"c_382","Capital Impact Partners","","","",4,3
+"c_383","Capital One","More than $10B (USD)","10,000+","Banks and Financial Services",4,6791
+"c_394","CarMax","More than $10B (USD)","10,000+","Auto",3.79999995231628,2426
+"c_385","Carbon Black","","Less than 10,000","Internet and Software",4.09999990463257,7
+"c_386","Carbonite","","Less than 10,000","Computers and Electronics",3.400000095,62
+"c_387","Cardinal Health","More than $10B (USD)","10,000+","Health Care",3.599999905,2722
+"c_388","Cardinal Solutions Group","","","",4.80000019073486,8
+"c_389","Care New England Health System","","","Health Care",3.59999990463257,33
+"c_390","Care.org","","","",NA,NA
+"c_391","CareSource","","","",3.70000004768372,255
+"c_392","Caris Life Sciences","","","",3.20000004768372,44
+"c_393","Carlisle & Company","","","",NA,NA
+"c_395","Carolinas HealthCare System","$5B to $10B (USD)","10,000+","Health Care",3.90000009536743,1145
+"c_396","Carrot Inc.","","","",NA,NA
+"c_397","Carter Bank and Trust","$1B to $5B (USD)","Less than 10,000","Banks and Financial Services",3.29999995231628,24
+"c_398","Caserta","","","",3.700000048,3
+"c_399","Casey's General Stores","$5B to $10B (USD)","10,000+","Retail",3.5,2526
+"c_400","Castle Global","","","",NA,NA
+"c_401","Castleton Commodities International","","","",3.29999995231628,11
+"c_402","Castlight Health","Less than $1B (USD)","Less than 10,000","Internet and Software",3.40000009536743,10
+"c_403","Catalina Marketing","Less than $1B (USD)","Less than 10,000","Consulting and Business Services",3.20000004768372,81
+"c_404","Catalyst Repository Systems","","","",4,4
+"c_405","Catasys","","","",3.40000009536743,12
+"c_406","Catholic Health Initiatives","More than $10B (USD)","10,000+","Health Care",3.40000009536743,689
+"c_410","Celgene","$5B to $10B (USD)","Less than 10,000","Pharmaceuticals",4,216
+"c_411","Cell Signaling Technology, Inc","","","",3,3
+"c_412","Celmatix","","","",NA,NA
+"c_413","Celtra Inc.","","","",NA,NA
+"c_414","CenCal Health","","","",4.30000019073486,7
+"c_415","Centene","$5B to $10B (USD)","Less than 10,000","InsuranceHealth Care",3.29999995231628,1134
+"c_416","Central California Alliance for Health","Less than $1B (USD)","Less than 10,000","Health Care",3.90000009536743,21
+"c_417","Central Health","","","",NA,NA
+"c_418","Central Intelligence Agency","","","Government",4.300000191,158
+"c_419","Central Maine Medical Center","","","Health Care",3.29999995231628,117
+"c_420","Central Texas Food Bank","","","",3.09999990463257,10
+"c_421","Centro","","Less than 10,000","Media, News and Publishing",3.79999995231628,20
+"c_422","Centura Health","","","",3.5,675
+"c_423","CenturyLink","More than $10B (USD)","10,000+","Telecommunications",3.5,3182
+"c_424","Cerebri AI","","","",NA,NA
+"c_425","Certara","","","",3.79999995231628,4
+"c_427","Change Healthcare","$1B to $5B (USD)","10,000+","Health Care",3.200000048,448
+"c_428","Change.org","","Less than 10,000","",2,2
+"c_429","Chapman Cubine Adams & Hussey","","","",NA,NA
+"c_430","Charles Schwab","$1B to $5B (USD)","10,000+","Banks and Financial Services",4.099999905,948
+"c_431","Chatmeter","","","",3.70000004768372,3
+"c_432","Chegg","Less than $1B (USD)","Less than 10,000","Internet and Software",3.900000095,126
+"c_433","Chenega Corporation","","","Government",3.79999995231628,420
+"c_435","Chicago Public Schools","","10,000+","Education and Schools",3.90000009536743,1216
+"c_436","Chicago Trading Company (CTC)","","","",NA,NA
+"c_437","Child Care Resource Center – Chatsworth, CA","","","",NA,NA
+"c_438","Children's Hospital & Research Center Oakland","","","Health Care",3.29999995231628,7
+"c_439","Children's Hospital of Wisconsin","","","Health Care",4.300000191,161
+"c_440","Children's Medical Center","","","Health Care",3.70000004768372,99
+"c_441","Chime","","","",3.29999995231628,12
+"c_443","Choice Hotels","","Less than 10,000","Restaurants, Travel and Leisure",3.799999952,258
+"c_444","ChowNow","","","",4.300000191,4
+"c_445","Christiana Care Health Systems","","10,000+","Health Care",4.09999990463257,327
+"c_446","Church Pension Group","","Less than 10,000","",3.79999995231628,24
+"c_447","Churchill Mortgage Corp","","","",NA,NA
+"c_449","Cigna","More than $10B (USD)","10,000+","Insurance",3.700000048,3295
+"c_451","Cimpress","$1B to $5B (USD)","Less than 10,000","Internet and Software",4.099999905,24
+"c_452","Ciox Health","Less than $1B (USD)","Less than 10,000","Internet and Software",2.90000009536743,1119
+"c_453","CircleUp","","","",NA,NA
+"c_454","Cisco Meraki","","Less than 10,000","Internet and Software",4.40000009536743,10
+"c_455","Cisco Systems","More than $10B (USD)","10,000+","Internet and Software",4.099999905,4252
+"c_456","Citadel Securities","","","",3.799999952,4
+"c_457","Citi","More than $10B (USD)","10,000+","Banks and Financial Services",3.90000009536743,14631
+"c_459","Citizens Energy Group","","","",3.59999990463257,21
+"c_460","City National Bank","","Less than 10,000","Banks and Financial Services",3.70000004768372,199
+"c_461","City of Minneapolis","","","Government",3.90000009536743,54
+"c_462","City of Seattle","","","",NA,NA
+"c_463","City of Tucson","","","Government",3.70000004768372,70
+"c_464","Cityblock Health","","","",NA,NA
+"c_465","Civis Analytics","","","",3.5,2
+"c_466","Civitas Learning","","","",3.900000095,8
+"c_467","Clara","","","",3.70000004768372,6
+"c_468","Clarabridge","","","",4,10
+"c_469","Claritas","","","",3.79999995231628,6
+"c_470","Clarity Insights","","","",3.5,10
+"c_471","Clarity USA","","","",NA,NA
+"c_472","Clarivate Analytics","$1B to $5B (USD)","Less than 10,000","",3.59999990463257,32
+"c_473","Clarkston Consulting","","","",4.59999990463257,10
+"c_474","ClassLink Inc","","","",NA,NA
+"c_475","Clayton Homes","","10,000+","Construction",3.59999990463257,325
+"c_476","Clear Capital","","","",NA,NA
+"c_478","ClearView Healthcare Partners","","","Health Care",5,2
+"c_477","Clearpoint","","","",3.29999995231628,33
+"c_479","Clearwater Paper","","","",3.29999995231628,174
+"c_480","Clemson University","","","Education and Schools",4.40000009536743,294
+"c_481","Cleveland Cavaliers","","","",4.099999905,26
+"c_482","ClimaCell","","","",NA,NA
+"c_483","CliniWorks","","","",NA,NA
+"c_484","Clockwork Solutions","","","",3.79999995231628,6
+"c_485","Cloudburst Consulting Group Inc","","","",NA,NA
+"c_487","Coda Search","","","Human Resources and Staffing",4.5,2
+"c_488","Code Pilot","","","",NA,NA
+"c_489","Coffee & Bagel Brands","","","",NA,NA
+"c_490","Coffee Meets Bagel","","","",NA,NA
+"c_491","Cogitativo","","","",NA,NA
+"c_492","Cognitive Scale","","","",NA,NA
+"c_493","Cognizant","$5B to $10B (USD)","10,000+","Internet and Software",4,10492
+"c_494","Cognosante, LLC","Less than $1B (USD)","Less than 10,000","Health Care",3.79999995231628,303
+"c_495","Cogo Labs","","Less than 10,000","Internet and Software",3.5,2
+"c_496","Coherent Germany","","","",NA,NA
+"c_497","Coherent, Inc.","","","",NA,NA
+"c_498","Coinbase","","Less than 10,000","Internet and Software",4.69999980926514,3
+"c_499","Colgate-Palmolive","$1B to $5B (USD)","Less than 10,000","Consumer Goods and Services",4,34
+"c_500","Collective Health","","","",4.09999990463257,7
+"c_501","College Raptor","","","",NA,NA
+"c_502","Colliers International","","10,000+","Real Estate",3.90000009536743,410
+"c_503","Colony Brands, Inc.","","Less than 10,000","Consumer Goods and Services",3.70000004768372,156
+"c_504","Colorado Community Managed Care Network","","","",NA,NA
+"c_505","Columbia Sportswear","$1B to $5B (USD)","Less than 10,000","Retail",3.70000004768372,324
+"c_506","Columbia University","","","Education and Schools",4.099999905,830
+"c_507","Comcast","More than $10B (USD)","10,000+","Telecommunications",3.700000048,12327
+"c_508","Commerce Bank","Less than $1B (USD)","Less than 10,000","Banks and Financial Services",3.79999995231628,360
+"c_509","Common Securitization Solutions","","Less than 10,000","Banks and Financial Services",2.20000004768372,6
+"c_510","Commonwealth Care Alliance","","Less than 10,000","Health Care",3.5,62
+"c_512","Commonwealth Of Virginia","","","",NA,NA
+"c_511","Commonwealth of Massachusetts","","","Government",3.90000009536743,353
+"c_513","Community Behavioral Health","","Less than 10,000","Organization",3.79999995231628,47
+"c_514","Community Health Network","","10,000+","Health Care",4,331
+"c_515","Community Medical Centers","","","Health Care",3.90000009536743,321
+"c_516","Community Medical Centers Inc","","","Health Care",3.90000009536743,321
+"c_517","Community Reach Center","","","",3.70000004768372,30
+"c_518","Compass Group USA","","","",3.40000009536743,3476
+"c_519","Comprehensive Healthcare","","Less than 10,000","Health Care",4.19999980926514,18
+"c_520","CompuCom","$1B to $5B (USD)","10,000+","Consulting and Business Services",3.40000009536743,1613
+"c_521","CompuGain","","","",4.09999990463257,14
+"c_522","Comrise","","","",4,5
+"c_525","ConAgra Foods","$5B to $10B (USD)","10,000+","Consumer Goods and Services",3.70000004768372,1281
+"c_524","Conagra Brands","$5B to $10B (USD)","10,000+","Consumer Goods and Services",3.70000004768372,1281
+"c_526","Concerted Care Group","","","",1.70000004768372,3
+"c_527","Concur","Less than $1B (USD)","Less than 10,000","Internet and Software",4.199999809,140
+"c_528","Conductor","","","",3.599999905,97
+"c_529","Conduent","","10,000+","Consulting and Business Services",2.79999995231628,2774
+"c_530","ConnectYourCare","","","Health Care",3,34
+"c_531","Consumers Energy","$5B to $10B (USD)","Less than 10,000","Energy and Utilities",4,184
+"c_533","Conversant Media","","","",3.90000009536743,21
+"c_534","Convey","","","",3.09999990463257,9
+"c_535","Convey, Inc.","","","",NA,NA
+"c_536","Convoy","","","",4.80000019073486,5
+"c_537","Cook Medical","","","",3.70000004768372,146
+"c_538","CooperVision","Less than $1B (USD)","Less than 10,000","Consumer Goods and Services",3.90000009536743,180
+"c_539","Copper","","","",3.599999905,14
+"c_540","Corcentric","","","",2.79999995231628,4
+"c_541","Core10","","","",NA,NA
+"c_542","CoreCompete","","","",4.5,2
+"c_544","Cormac Corporation","","","",4.30000019073486,4
+"c_545","Corning","$5B to $10B (USD)","10,000+","Construction",4,431
+"c_547","Coso IT","","","",NA,NA
+"c_548","Cota","","","",3.90000009536743,66
+"c_549","Coty Inc.","","","",3.79999995231628,481
+"c_550","Country Financial","$1B to $5B (USD)","Less than 10,000","Insurance",3.70000004768372,286
+"c_551","County of San Mateo","","","Government",4,119
+"c_552","Coupa Software","","","",4.5,6
+"c_553","Coursera","","","",4.40000009536743,11
+"c_554","Courtney Raymond Consultants","","","",NA,NA
+"c_555","Covance","","10,000+","Pharmaceuticals",3.29999995231628,820
+"c_556","Coverent","","Less than 10,000","Consulting and Business Services",4.5,2
+"c_557","Coyote Logistics","","Less than 10,000","Transport and Freight",3.59999990463257,165
+"c_559","Creative Alignments","","","",4.69999980926514,3
+"c_560","Creative Arts Agency (CAA)","","","Media, News and Publishing",4,53
+"c_561","Credit Acceptance","","Less than 10,000","Banks and Financial Services",3.59999990463257,120
+"c_562","Credit Karma","","","",3,6
+"c_563","Credit Sesame","","","",NA,NA
+"c_564","Credit Suisse","$5B to $10B (USD)","10,000+","Banks and Financial Services",3.90000009536743,1238
+"c_565","Cresco Labs","","","",2.29999995231628,3
+"c_566","Crestron","","Less than 10,000","Computers and Electronics",3.09999990463257,104
+"c_567","Crestron Electronics","","Less than 10,000","Computers and Electronics",3.09999990463257,104
+"c_569","Cricket Health","","","",NA,NA
+"c_570","Cricut","Less than $1B (USD)","Less than 10,000","Consumer Goods and Services",3.29999995231628,10
+"c_571","Criteo","","","",4,27
+"c_572","Criterion Systems","","","",3.299999952,18
+"c_573","Crohn's & Colitis Foundation of America","","","",3.90000009536743,30
+"c_574","Cross River Bank","","Less than 10,000","Banks and Financial Services",4.599999905,8
+"c_575","CrossFit, Inc.","","","",NA,NA
+"c_576","Crossover","","","Human Resources and Staffing",2.79999995231628,19
+"c_577","Crossover Health","","","",3.5,2
+"c_578","Crowdstrike","","Less than 10,000","Internet and Software",2.70000004768372,6
+"c_579","Crowe","Less than $1B (USD)","Less than 10,000","Consulting and Business Services",3.79999995231628,183
+"c_580","Crown Castle","$1B to $5B (USD)","Less than 10,000","Telecommunications",4,172
+"c_581","Crozer Keystone Health System","","Less than 10,000","Health Care",3.5,104
+"c_582","Crystal Dynamics","","","",4.5,6
+"c_586","Cubic Corporation","$1B to $5B (USD)","Less than 10,000","Government",3.79999995231628,379
+"c_587","Culinary Health Center","","","",3.90000009536743,9
+"c_588","Cummins Inc.","More than $10B (USD)","10,000+","Industrial Manufacturing",3.90000009536743,2705
+"c_589","Cummins Power Systems, LLC.","More than $10B (USD)","10,000+","Industrial Manufacturing",3.90000009536743,2705
+"c_590","Curbside","","Less than 10,000","Internet and Software",4.199999809,9
+"c_591","Curriculum Associates","Less than $1B (USD)","Less than 10,000","Media, News and Publishing",4.09999990463257,8
+"c_592","Curve IT Consulting","","","",NA,NA
+"c_593","Custoria","","","",NA,NA
+"c_594","Cyberonics","Less than $1B (USD)","Less than 10,000","Industrial Manufacturing",2.900000095,34
+"c_595","Cyberspace Solutions","","","",3.5,25
+"c_596","Cydecor, Inc.","","Less than 10,000","Consulting and Business Services",3.90000009536743,11
+"c_597","Cyient","Less than $1B (USD)","10,000+","Consulting and Business Services",3.70000004768372,692
+"c_598","Cymer","","Less than 10,000","Industrial Manufacturing",3.59999990463257,77
+"c_599","D&K Engineering","","","",3.79999995231628,16
+"c_604","DATA WORKS","","","",5,4
+"c_611","DCS Corp","","Less than 10,000","Aerospace and Defense",4.5,46
+"c_614","DEG","","","",3.59999990463257,8
+"c_629","DHL","","","",3.90000009536743,323
+"c_642","DISH","More than $10B (USD)","10,000+","Media, News and Publishing",3.29999995231628,4479
+"c_645","DJO","","","Health Care",3.29999995231628,125
+"c_646","DNAnexus","","","",NA,NA
+"c_663","DRW","","","",NA,NA
+"c_664","DRW Trading Group","","","",4.59999990463257,7
+"c_666","DSD Partners Inc","","","",NA,NA
+"c_667","DTCC","$1B to $5B (USD)","Less than 10,000","Banks and Financial Services",3.79999995231628,237
+"c_672","DXC","","","Internet and Software",3.29999995231628,1642
+"c_600","Daley and Associates","","Less than 10,000","Human Resources and Staffing",4.19999980926514,9
+"c_601","Dana-Farber Cancer Institute","","","Health Care",4.099999905,261
+"c_602","Darwin Recruitment","","","",NA,NA
+"c_603","Dassault Falcon Jet","","","",3.90000009536743,134
+"c_606","DataLab USA","","Less than 10,000","Consulting and Business Services",4.5,2
+"c_607","DataRobot","","","",5,2
+"c_605","Datadog","","","",3.29999995231628,7
+"c_608","Daugherty Business Solutions","","","",3.599999905,34
+"c_609","David Weekley Homes","$1B to $5B (USD)","Less than 10,000","Construction",3.59999990463257,104
+"c_610","Day Zero Diagnostics","","","",NA,NA
+"c_613","DeepCurrent Technologies, Inc.","","","",NA,NA
+"c_615","Delaware North","","","",3.700000048,1208
+"c_616","Dell","More than $10B (USD)","10,000+","Computers and Electronics",4,8696
+"c_617","Deloitte","","10,000+","Consulting and Business Services",4,7198
+"c_618","Delta Dental of Minnesota","","Less than 10,000","Insurance",4.80000019073486,5
+"c_619","Denodo","","","",NA,NA
+"c_620","Denodo Technologies","","","",NA,NA
+"c_621","Dentsu Aegis Networks","","","",3.90000009536743,21
+"c_622","Department of Veterans Affairs","","10,000+","Health Care",3.90000009536743,4615
+"c_623","Dev Technology Group, Inc.","","","",NA,NA
+"c_624","Devoted Health","","","",NA,NA
+"c_626","Dewpoint","","","",4.19999980926514,9
+"c_627","Dexcom","Less than $1B (USD)","Less than 10,000","Health Care",3.59999990463257,86
+"c_628","Dexperts","","","",NA,NA
+"c_630","Dialpad, Inc.","","","",NA,NA
+"c_631","Dice","","","",NA,NA
+"c_632","Dick's Sporting Goods","$5B to $10B (USD)","10,000+","Retail",3.5,4637
+"c_633","Digital Management, LLC","","","Internet and Software",3.70000004768372,127
+"c_634","Digital Promise","","","",NA,NA
+"c_635","DigitasLBi","","","",3.79999995231628,155
+"c_636","Dime Community Bank","","","Banks and Financial Services",2.59999990463257,7
+"c_637","Diné Development Corporation","","","",NA,NA
+"c_638","Direct Resources Group","","","",NA,NA
+"c_639","Directly","","Less than 10,000","Internet and Software",5,2
+"c_640","Discover Financial Services","$5B to $10B (USD)","10,000+","Banks and Financial Services",4,1948
+"c_641","Discovery Communications, LLC","$1B to $5B (USD)","Less than 10,000","Media, News and Publishing",4.19999980926514,321
+"c_643","Disney","More than $10B (USD)","10,000+","Restaurants, Travel and Leisure",4.30000019073486,4330
+"c_644","Diverse Lynx","","","Internet and Software",4.80000019073486,82
+"c_647","Dollar Shave Club","","Less than 10,000","Consumer Goods and Services",3.90000009536743,7
+"c_648","Domino's","$5B to $10B (USD)","10,000+","Food and Beverages",3.70000004768372,17054
+"c_649","Domo, Inc.","","","",4,32
+"c_650","Donnelley Financial Solutions","$1B to $5B (USD)","Less than 10,000","Consulting and Business Services",3.099999905,43
+"c_651","DoorDash","","","Internet and Software",3.29999995231628,588
+"c_652","Doosan Bobcat","","Less than 10,000","Construction",3.799999952,28
+"c_653","Dot818","","","",NA,NA
+"c_654","Dotdash","","","",3,2
+"c_656","DoubleDown Interactive LLC","","","",NA,NA
+"c_657","Dow Jones","","Less than 10,000","Media, News and Publishing",3.79999995231628,181
+"c_658","Doximity","","","",5,2
+"c_660","Drillinginfo","","","",3.599999905,21
+"c_661","Driven Brands","","","Auto",2.90000009536743,34
+"c_662","Dropbox","","Less than 10,000","Internet and Software",3.599999905,23
+"c_665","Drybar","","Less than 10,000","Consumer Goods and Services",3.40000009536743,160
+"c_671","DuPont","More than $10B (USD)","10,000+","Consumer Goods and Services",4,1063
+"c_668","Duke Energy","$5B to $10B (USD)","10,000+","Energy and Utilities",3.900000095,936
+"c_669","Duke University and Duke University Health System","","","Health Care",4,191
+"c_670","Dun & Bradstreet","","","",3.79999995231628,166
+"c_673","Dynetics","","Less than 10,000","Aerospace and Defense",4.30000019073486,15
+"c_674","Dyson","","Less than 10,000","Consumer Goods and Services",3.70000004768372,235
+"c_675","E*TRADE FINANCIAL","","","Banks and Financial Services",3.59999990463257,331
+"c_686","EBSCO Industries Inc","","","",3.70000004768372,89
+"c_688","ECRI Institute","","","",3.299999952,19
+"c_689","ECS Federal LLC","","","Consulting and Business Services",3.59999990463257,85
+"c_706","ELLKAY LLC","","","",3.299999952,3
+"c_708","EMA, Inc.","","","",NA,NA
+"c_711","EMD","","10,000+","Industrial Manufacturing",4,50
+"c_713","EMIDS","","Less than 10,000","Health Care",3.90000009536743,56
+"c_731","EPAM Systems","","","",3.90000009536743,135
+"c_733","EPMA","","Less than 10,000","Consulting and Business Services",4.19999980926514,5
+"c_740","ERM Group","","","Consulting and Business Services",3.29999995231628,86
+"c_741","ESAC Inc","","","",4,2
+"c_758","EXL","","Less than 10,000","Consulting and Business Services",3.79999995231628,1208
+"c_764","EY","More than $10B (USD)","10,000+","Consulting and Business Services",4,5654
+"c_676","Eagle Ray Inc","","","",3.90000009536743,12
+"c_677","EagleView Technologies","","","",3.20000004768372,15
+"c_678","Early Warning Services","","","",3.09999990463257,31
+"c_679","East Daley Capital Advisors","","","",NA,NA
+"c_680","East West Bank","","","",3.5,120
+"c_681","Eastman Chemical Company","","","",3.599999905,14
+"c_682","EasyPost","","","",3.299999952,3
+"c_683","Eaton","More than $10B (USD)","10,000+","Industrial Manufacturing",3.900000095,3227
+"c_684","Eaton Vance","$1B to $5B (USD)","Less than 10,000","Banks and Financial Services",4.30000019073486,32
+"c_687","Ecolab","More than $10B (USD)","10,000+","Industrial Manufacturing",3.5,1287
+"c_690","Edelman","","","",3.79999995231628,104
+"c_691","Edison Energy","","","",3.5,4
+"c_692","Edison Software, Inc.","","","",NA,NA
+"c_693","EducationDynamics","","","Education and Schools",3.799999952,21
+"c_694","Edward-Elmhurst Health","","","Health Care",4,364
+"c_695","Edwards Lifesciences","$1B to $5B (USD)","Less than 10,000","Health Care",4.099999905,211
+"c_697","Einstein Healthcare Network","","Less than 10,000","Health Care",3.40000009536743,112
+"c_698","Elder Research Inc","","","",NA,NA
+"c_699","Electronic Arts","$1B to $5B (USD)","Less than 10,000","Internet and Software",3.90000009536743,417
+"c_700","Elev8 Hire Solutions","","","",NA,NA
+"c_701","Eli Lilly","$1B to $5B (USD)","10,000+","Pharmaceuticals",4.19999980926514,1302
+"c_703","Elite SEM","","","",NA,NA
+"c_704","Ellie Mae","","","",3.70000004768372,30
+"c_705","Ellis Medicine","","","",3.90000009536743,48
+"c_707","Ely-Bloomenson Community Hospital","","","",NA,NA
+"c_709","Emailage","","Less than 10,000","Internet and Software",4,4
+"c_710","EmblemHealth","","Less than 10,000","Insurance",3.59999990463257,517
+"c_712","Emerson Hospital","","","Health Care",3.90000009536743,87
+"c_714","Emmis Communications","","","",4.19999980926514,57
+"c_715","Emory Healthcare","","","Health Care",4,1244
+"c_716","Emory University","","","Education and Schools",4.09999990463257,580
+"c_717","Enable Midstream","","","",4.09999990463257,7
+"c_718","Encompass Community Services","","","",3.20000004768372,13
+"c_719","Endurance International Group","","","Internet and Software",3.5,123
+"c_721","EnerNOC","Less than $1B (USD)","Less than 10,000","Energy and Utilities",3.79999995231628,43
+"c_720","Energy Sense Finance","","","",NA,NA
+"c_722","Engage Partners","","","",3.79999995231628,16
+"c_723","Engie","","","Energy and Utilities",3.70000004768372,781
+"c_724","Engility","Less than $1B (USD)","Less than 10,000","Aerospace and Defense",3.79999995231628,495
+"c_725","Enlighted","","","",NA,NA
+"c_726","Ensign Services","","10,000+","Health Care",2.79999995231628,174
+"c_727","Entergy Corporation","Less than $1B (USD)","Less than 10,000","Energy and Utilities",3.90000009536743,399
+"c_728","Envisagegroup","","","",NA,NA
+"c_729","Envision Healthcare","","","Health Care",3.59999990463257,149
+"c_732","Epic Care","","","",2.5,19
+"c_734","Epsilon","","","",3.40000009536743,259
+"c_737","EquiLend","","Less than 10,000","",2.799999952,4
+"c_736","Equifax","","10,000+","Banks and Financial Services",3.700000048,551
+"c_738","Equityzen","","","",NA,NA
+"c_739","Ericsson","","10,000+","Telecommunications",4.099999905,5199
+"c_743","Esri","$1B to $5B (USD)","Less than 10,000","Internet and Software",3.79999995231628,92
+"c_744","Essence","","Less than 10,000","Consulting and Business Services",3.90000009536743,7
+"c_745","Estee Lauder","","10,000+","Consumer Goods and Services",4.09999990463257,1464
+"c_746","Esurance","$1B to $5B (USD)","Less than 10,000","Insurance",3.5,301
+"c_747","Etsy","","","",4.40000009536743,32
+"c_748","Evaya Data Systems","","","",NA,NA
+"c_749","Eventbrite","","Less than 10,000","Internet and Software",3.79999995231628,5
+"c_750","Everlane","","","",5,3
+"c_751","Everything But The House (EBTH)","","","",2.29999995231628,16
+"c_752","Evolent Health","","Less than 10,000","Health Care",3.700000048,90
+"c_753","Evonik","","","Industrial Manufacturing",3.900000095,201
+"c_754","Exabeam","","","",NA,NA
+"c_755","Exact Sciences","","","Pharmaceuticals",3.29999995231628,46
+"c_756","Exact Sciences Corporation","","","Pharmaceuticals",3.29999995231628,46
+"c_757","ExcelaCom","","","",3,11
+"c_759","Experian","","","Internet and Software",4.30000019073486,330
+"c_760","Experis","","10,000+","Consulting and Business Services",3.59999990463257,567
+"c_761","Express Scripts","More than $10B (USD)","10,000+","Health Care",3.29999995231628,3301
+"c_762","ExtraHop Networks, Inc.","","","",3.79999995231628,4
+"c_763","ExxonMobil","More than $10B (USD)","10,000+","Energy and Utilities",4,2234
+"c_765","EyeView","","","",NA,NA
+"c_780","FARO Technologies","","","Industrial Manufacturing",3.5,57
+"c_789","FICO","Less than $1B (USD)","Less than 10,000","Consulting and Business Services",3.70000004768372,122
+"c_808","FIS","$5B to $10B (USD)","10,000+","Banks and Financial Services",3.5,1447
+"c_819","FM Global","","Less than 10,000","Insurance",4.19999980926514,96
+"c_835","FPM Technologies","","","",NA,NA
+"c_766","FabFitFun","","","",3,4
+"c_767","Fabick Cat","","","",3.70000004768372,30
+"c_768","Facebook","","10,000+","Internet and Software",4.19999980926514,387
+"c_769","Facing History and Ourselves, Inc","","","",NA,NA
+"c_770","Fair","","","",3.79999995231628,22
+"c_771","Faire","","","",NA,NA
+"c_772","Falls Lake Insurance Companies","","","",NA,NA
+"c_773","Fanatics Inc.","","Less than 10,000","Retail",3.700000048,455
+"c_774","Fannie Mae","More than $10B (USD)","Less than 10,000","Banks and Financial Services",4,937
+"c_775","Faraday Future, Inc.","","","Auto",3.400000095,37
+"c_776","Farfetch","","","",NA,NA
+"c_777","Farm Bureau Insurance of Michigan","Less than $1B (USD)","Less than 10,000","Insurance",4.09999990463257,177
+"c_778","Farmers Fridge","","","",NA,NA
+"c_779","Farmers Insurance Group","More than $10B (USD)","10,000+","Insurance",3.700000048,3613
+"c_785","FedEx","More than $10B (USD)","10,000+","Transport and Freight",3.90000009536743,18164
+"c_781","Federal Management Systems, Inc.","","","",3.90000009536743,34
+"c_782","Federal Reserve Bank of Dallas","","Less than 10,000","Banks and Financial Services",4.09999990463257,495
+"c_783","Federal Reserve Bank of New York","","Less than 10,000","Banks and Financial Services",4.09999990463257,495
+"c_784","Federal Reserve Bank of St. Louis","","Less than 10,000","Organization",3.900000095,17
+"c_786","Feedzai","","","",4.5,2
+"c_787","Fender","","","",2.90000009536743,14
+"c_788","Fiat Chrysler Automobiles","","10,000+","Auto",4.099999905,4433
+"c_790","Fidelis Care","$1B to $5B (USD)","Less than 10,000","Insurance",3.29999995231628,296
+"c_791","Fidelity Investments","","10,000+","Banks and Financial Services",4.099999905,3021
+"c_792","Fidelity National Financial","$1B to $5B (USD)","10,000+","Insurance",3.79999995231628,576
+"c_793","Fifth Third Bank","$5B to $10B (USD)","10,000+","Banks and Financial Services",3.59999990463257,1803
+"c_794","Figure","","","",5,4
+"c_795","FinLocker","","","",NA,NA
+"c_796","Finra","","Less than 10,000","Banks and Financial Services",3.79999995231628,84
+"c_797","FireEye","","Less than 10,000","Internet and Software",3.70000004768372,70
+"c_798","First American Corporation","","10,000+","Insurance",3.90000009536743,1629
+"c_799","First Horizon","","","Banks and Financial Services",3.79999995231628,81
+"c_800","First National Bank of America","","","Banks and Financial Services",3.70000004768372,17
+"c_801","First National Bank of Omaha","","","Banks and Financial Services",4.19999980926514,131
+"c_802","First National of Nebraska, Inc.","","","Banks and Financial Services",4.19999980926514,131
+"c_803","First Orion","","","",NA,NA
+"c_804","First Republic Bank","","","",4,132
+"c_805","First San Francisco Partners","","","",NA,NA
+"c_806","First Tech Federal Credit Union","","","Banks and Financial Services",3.20000004768372,72
+"c_807","FirstCare Health Plans","","","",2.90000009536743,37
+"c_809","Fiserv","","","Banks and Financial Services",3.5,1666
+"c_810","Fitch Group","","","",3.79999995231628,83
+"c_811","Flagship Pioneering","","","",NA,NA
+"c_812","Flair IT Solutions","","","",NA,NA
+"c_813","FleetPride","","10,000+","Auto",3.20000004768372,192
+"c_814","Flight Centre","","","",NA,NA
+"c_815","Florida Blue","","","Health Care",4,841
+"c_816","Florida Hospital","","10,000+","Health Care",4.09999990463257,1983
+"c_817","Florida Polytechnic University","","Less than 10,000","Education and Schools",3.90000009536743,16
+"c_818","Fluid Intelligence","Less than $1B (USD)","Less than 10,000","Consulting and Business Services",4.59999990463257,9
+"c_820","Foot Locker","$5B to $10B (USD)","10,000+","Retail",3.90000009536743,5503
+"c_821","Fora Financial LLC","","","Banks and Financial Services",3.70000004768372,20
+"c_822","Forcepoint","","","",3.099999905,98
+"c_823","Ford Motor Company","More than $10B (USD)","10,000+","Auto",4.19999980926514,4811
+"c_824","ForeFlight","","","",3.5,2
+"c_825","Foreground Security","","","",4.30000019073486,4
+"c_826","Formation","","","",NA,NA
+"c_827","Formativ Health","","","",3.29999995231628,23
+"c_828","Fortive","","","",NA,NA
+"c_829","Fossil Group","$1B to $5B (USD)","10,000+","Consumer Goods and Services",3.90000009536743,110
+"c_830","Foundation Medicine, Inc.","","","",3.79999995231628,15
+"c_831","FourKites","","","",NA,NA
+"c_832","FourthWall Media","","","",NA,NA
+"c_834","FoxNext Games","","","",NA,NA
+"c_833","Foxconn","","","Industrial Manufacturing",4,1652
+"c_836","Fragomen","","Less than 10,000","Consulting and Business Services",3.29999995231628,113
+"c_837","Franciscan Health","","10,000+","Health Care",3.70000004768372,456
+"c_838","Franklin Templeton Investments","","","",4,533
+"c_840","Fred Hutchinson Cancer Research Center","","Less than 10,000","Organization",4.19999980926514,95
+"c_839","Fred's","","","",3.59999990463257,1198
+"c_841","Freddie Mac","More than $10B (USD)","Less than 10,000","Banks and Financial Services",3.90000009536743,607
+"c_842","Freedom Financial Network","","Less than 10,000","Banks and Financial Services",3.59999990463257,142
+"c_843","Freedom Forever","","","",3.5,26
+"c_844","Fremont Bank","","","Banks and Financial Services",3.5,106
+"c_845","Fresenius Medical Care","","10,000+","Health Care",3.59999990463257,3205
+"c_846","Frogdata","","","",NA,NA
+"c_847","Fruition Partners","","","",4.09999990463257,7
+"c_848","FuelX","","","",NA,NA
+"c_849","Fullscreen","","","",4.19999980926514,33
+"c_850","Fullscreen Media","","","",4.19999980926514,33
+"c_851","Fund for Public Health in New York City","","","",NA,NA
+"c_852","Funding Circle US","","","",NA,NA
+"c_862","GCC Technologies, LLC","","","",3.79999995231628,8
+"c_863","GE Careers","More than $10B (USD)","10,000+","Industrial Manufacturing",4,4685
+"c_864","GEHA","","Less than 10,000","Insurance",3.90000009536743,56
+"c_893","GM Financial","$1B to $5B (USD)","Less than 10,000","Auto",3.700000048,514
+"c_895","GOCOOL","","","",NA,NA
+"c_853","Galaxy Systems","","","",1.79999995231628,4
+"c_854","Gallagher","$1B to $5B (USD)","10,000+","Insurance",3.29999995231628,665
+"c_855","Gallup","Less than $1B (USD)","Less than 10,000","Consulting and Business Services",3.799999952,154
+"c_856","Galvanize","","","",4,11
+"c_857","Gap Inc.","More than $10B (USD)","10,000+","Retail",3.79999995231628,2346
+"c_858","Garmin","Less than $1B (USD)","Less than 10,000","Consumer Goods and Services",3.90000009536743,197
+"c_859","Gartner, Inc.","$1B to $5B (USD)","Less than 10,000","Media, News and Publishing",3.79999995231628,307
+"c_860","Gayathri's Sandbox","","","",NA,NA
+"c_861","Gaylord Specialty Healthcare","","","Health Care",4,17
+"c_865","GenapSys, Inc.","","","",NA,NA
+"c_866","Genedata","","","",NA,NA
+"c_867","Genentech","","10,000+","Pharmaceuticals",4.099999905,726
+"c_868","General Dentistry 4 Kids","","","",3.29999995231628,7
+"c_869","General Dynamics Information Technology","More than $10B (USD)","10,000+","Aerospace and Defense",3.79999995231628,4573
+"c_870","General Dynamics Mission Systems","","Less than 10,000","Computers and Electronics",3.70000004768372,264
+"c_871","General Mills","More than $10B (USD)","10,000+","Consumer Goods and Services",4,1530
+"c_872","General Motors","More than $10B (USD)","10,000+","Auto",4.19999980926514,6241
+"c_873","Genmab","","","",NA,NA
+"c_874","Genuine Parts Company","","","Auto",3.70000004768372,1270
+"c_875","Genworth","","","Banks and Financial Services",3.70000004768372,361
+"c_876","GeoDigital","","","",3,3
+"c_877","George Mason University","","","Education and Schools",4.19999980926514,407
+"c_878","Georgia Military College","","","Education and Schools",4.09999990463257,89
+"c_879","Geotab","Less than $1B (USD)","Less than 10,000","Internet and Software",3.79999995231628,8
+"c_880","Germania Insurance","","","Insurance",4.09999990463257,18
+"c_881","Getty Images","","Less than 10,000","",3.90000009536743,102
+"c_882","Giant Oak","","","",NA,NA
+"c_883","Gila River Health Care","","","Health Care",3.40000009536743,81
+"c_884","Ginger.io","","","",NA,NA
+"c_885","GlassDoor","$5B to $10B (USD)","10,000+","Restaurants, Travel and Leisure",4.69999980926514,10078
+"c_886","Glassview Media","","","",NA,NA
+"c_887","GlaxoSmithKline","More than $10B (USD)","10,000+","Pharmaceuticals",4.19999980926514,3195
+"c_888","GlobalLogic, Inc.","","","",3.900000095,362
+"c_889","Globant","","","",4.19999980926514,92
+"c_890","Globoforce Limited","","","",5,2
+"c_891","Glooko","","","",NA,NA
+"c_892","Glu Mobile","","","",3.200000048,16
+"c_896","GoDaddy","$1B to $5B (USD)","Less than 10,000","Internet and Software",3.599999905,369
+"c_904","GoPro","","Less than 10,000","Computers and Electronics",3.900000095,46
+"c_894","Goby","","","",NA,NA
+"c_897","Goldman Sachs","More than $10B (USD)","10,000+","Banks and Financial Services",4,1226
+"c_898","GoodData Corporation","","","",NA,NA
+"c_899","GoodRx","","Less than 10,000","Internet and Software",5,3
+"c_900","Goodwill Industries International, Inc. (GII)","","Less than 10,000","Organization",3.59999990463257,14245
+"c_901","Goodwin Recruiting","","","Human Resources and Staffing",4.5,8
+"c_902","Goodyear","More than $10B (USD)","10,000+","Auto",3.70000004768372,1401
+"c_903","Google","More than $10B (USD)","10,000+","Internet and Software",4.300000191,2642
+"c_906","Gradient.io","","","",NA,NA
+"c_907","Grail Insights","","","",NA,NA
+"c_908","Grand Rounds","","Less than 10,000","Health Care",3.90000009536743,11
+"c_909","Grant Thornton","","","Banks and Financial Services",3.79999995231628,981
+"c_910","Graphic Products","","","",NA,NA
+"c_911","Gray Matter Systems","","","",NA,NA
+"c_912","GrayMatter","","","",NA,NA
+"c_913","Great Bay Staffing Group","","","",NA,NA
+"c_914","Great Wolf Lodge","","Less than 10,000","Restaurants, Travel and Leisure",3.599999905,910
+"c_915","Greater Delaware Valley","","","",NA,NA
+"c_916","Green Dot Corporation","Less than $1B (USD)","Less than 10,000","Banks and Financial Services",3.40000009536743,27
+"c_917","Greene, Tweed & Co.","","","",NA,NA
+"c_918","Grid Dynamics","","","",3.5,2
+"c_919","GroupM","More than $10B (USD)","10,000+","Media, News and Publishing",3.79999995231628,95
+"c_920","Groupon","","Less than 10,000","Internet and Software",3.599999905,645
+"c_921","Grubhub","Less than $1B (USD)","Less than 10,000","Internet and Software",3.29999995231628,322
+"c_922","Grundfos","","","",3.900000095,139
+"c_923","Grundfos Pumps Corporation","","","",3.900000095,139
+"c_924","Guardant Health","","","",2.799999952,8
+"c_925","Guardian Industries","$1B to $5B (USD)","10,000+","Industrial Manufacturing",3.59999990463257,169
+"c_926","Guidehouse","","","",NA,NA
+"c_927","Guidewire Software, Inc.","","Less than 10,000","Insurance",3.70000004768372,30
+"c_928","GumGum","","","",3.799999952,4
+"c_929","H2M Group","","","",3.29999995231628,3
+"c_944","HAVI Logistics","","","Transport and Freight",3.90000009536743,28
+"c_947","HBM Holdings","","","",NA,NA
+"c_948","HCSC","","","Health Care",3.90000009536743,1472
+"c_949","HD Vest","Less than $1B (USD)","Less than 10,000","",4,6
+"c_971","HERE Technologies","","Less than 10,000","Internet and Software",3.90000009536743,209
+"c_974","HHB Systems","","","",5,2
+"c_986","HNI Allsteel","","","",3.59999990463257,72
+"c_987","HNI Corporation","","","",3.59999990463257,72
+"c_989","HOMER","","","",NA,NA
+"c_1003","HP","More than $10B (USD)","10,000+","Computers and Electronics",4,10824
+"c_1004","HR, Legal, & Administration","","","",NA,NA
+"c_1012","HX5","","Less than 10,000","Aerospace and Defense",4.90000009536743,8
+"c_930","Hackensack Meridian Health","","","",NA,NA
+"c_931","Hagerty","","Less than 10,000","Insurance",4,21
+"c_932","Halfaker and Associates","","","",3.79999995231628,24
+"c_933","Hallmark","$1B to $5B (USD)","Less than 10,000","Consumer Goods and Services",3.90000009536743,3006
+"c_934","Hamilton Lane","","","",3.400000095,5
+"c_935","Harbor Wholesale Foods","","Less than 10,000","Food and Beverages",3.70000004768372,30
+"c_936","Harley-Davidson","Less than $1B (USD)","Less than 10,000","Auto",3.79999995231628,1169
+"c_937","Harnham","","Less than 10,000","Consulting and Business Services",4.800000191,6
+"c_938","Harry's","","","",4.19999980926514,12
+"c_939","Harvard Business Publishing","","","Education and Schools",4.30000019073486,607
+"c_940","Harvard Pilgrim Health Care","","Less than 10,000","Health Care",4.09999990463257,65
+"c_941","Harvard University","","","Education and Schools",4.30000019073486,607
+"c_942","Hasbro Inc.","","","Consumer Goods and Services",4.19999980926514,417
+"c_943","HatchWorks Technologies","","","",NA,NA
+"c_945","Hawaii Medical Service Association","","Less than 10,000","Health Care",3.40000009536743,42
+"c_946","Hawaiian Airlines","$1B to $5B (USD)","Less than 10,000","Transport and Freight",4,96
+"c_950","Healdsburg District Hospital","","","Health Care",3.20000004768372,32
+"c_951","Health Care District of Palm Beach County","Less than $1B (USD)","Less than 10,000","Health Care",4.09999990463257,25
+"c_952","Health Catalyst","","","",4.69999980926514,13
+"c_953","Health Dialog","","","",3.90000009536743,45
+"c_954","Health First","","","Health Care",3.70000004768372,381
+"c_955","Health One Alliance, LLC","","","",NA,NA
+"c_956","Health Team Advantage","","","",NA,NA
+"c_958","HealthGrades","","","",3.29999995231628,60
+"c_957","Healthfirst","$1B to $5B (USD)","Less than 10,000","Insurance",3.5,522
+"c_959","Healthline Media","","Less than 10,000","Computers and Electronics",3.79999995231628,22
+"c_960","Healthtronics","","","",3.70000004768372,33
+"c_961","Hearsay Social","","","",4.300000191,3
+"c_962","HeartFlow","","","",3.200000048,5
+"c_963","Heartland Business Systems","Less than $1B (USD)","Less than 10,000","Internet and Software",2.79999995231628,18
+"c_964","Heartland Dental, LLC","","Less than 10,000","Organization",2.79999995231628,359
+"c_965","Hearts and Science","","","",NA,NA
+"c_966","HelloFresh","","","Food and Beverages",3.20000004768372,236
+"c_967","HelloSign","","Less than 10,000","Internet and Software",4,6
+"c_968","HelloWorld","","","",3,10
+"c_969","Helpshift","","","",3,2
+"c_970","Henry Schein","More than $10B (USD)","10,000+","Health Care",3.799999952,526
+"c_972","Hertz","$5B to $10B (USD)","10,000+","Auto",3.40000009536743,4280
+"c_973","Hewlett Packard Enterprise","","10,000+","Internet and Software",3.700000048,3653
+"c_975","High Alpha","","","",NA,NA
+"c_976","Highmark Health","","","Health Care",3.200000048,610
+"c_977","Hilcorp Energy Company","Less than $1B (USD)","Less than 10,000","Agriculture and Extraction",4.09999990463257,19
+"c_978","Hill-Rom","$1B to $5B (USD)","Less than 10,000","Health Care",3.700000048,443
+"c_979","Hilton","$5B to $10B (USD)","10,000+","Restaurants, Travel and Leisure",4,10078
+"c_980","Hinge Health","","","",NA,NA
+"c_982","Hiscox Ltd","","Less than 10,000","Insurance",3.90000009536743,39
+"c_983","Hitachi","Less than $1B (USD)","Less than 10,000","Consulting and Business Services",3.700000048,175
+"c_984","Hitachi Vantara","","Less than 10,000","Internet and Software",3.200000048,42
+"c_985","Hitech Assets, LLC.","","","",NA,NA
+"c_988","Holleran Consulting","","","",3.40000009536743,5
+"c_990","Honda Research Institute USA","","","",NA,NA
+"c_991","Honeywell","More than $10B (USD)","10,000+","Industrial Manufacturing",3.79999995231628,6497
+"c_992","Hook & Loop Creative","","","",NA,NA
+"c_993","HopJump","","","",NA,NA
+"c_994","Horizon Health Services","","","Health Care",3,32
+"c_995","Hospital for Special Surgery","","","Health Care",4.300000191,286
+"c_997","HotSchedules","","","",3.5,24
+"c_996","HotelTonight","","","",3.79999995231628,6
+"c_998","HouseCall Pro","Less than $1B (USD)","Less than 10,000","Internet and Software",4.40000009536743,8
+"c_999","Housing Authority","","","",3.599999905,27
+"c_1000","Housing Works","","","Organization",3.90000009536743,133
+"c_1001","Houston Methodist","","10,000+","Health Care",4.19999980926514,1124
+"c_1002","Houzz","","Less than 10,000","Internet and Software",3.40000009536743,48
+"c_1005","Huawei","More than $10B (USD)","10,000+","Industrial Manufacturing",3.79999995231628,2581
+"c_1006","Hudson's Bay","","10,000+","Retail",3.70000004768372,1679
+"c_1007","Hulu","","","Internet and Software",4.099999905,64
+"c_1009","HumanTouch, LLC","","","",4.69999980926514,3
+"c_1008","Humana","More than $10B (USD)","10,000+","Health Care",3.700000048,4686
+"c_1010","Huntington Bank","","","",3.59999990463257,1238
+"c_1011","Huobi","","","",NA,NA
+"c_1013","Hy-Vee, Inc.","$5B to $10B (USD)","10,000+","Retail",3.799999952,3246
+"c_1014","Hydromax USA","","Less than 10,000","Energy and Utilities",3,21
+"c_1015","Hylink Group","","","",NA,NA
+"c_1016","HyperspaceVentures","","","",NA,NA
+"c_1017","IBM","","10,000+","Consulting and Business Services",3.90000009536743,23477
+"c_1018","ICR","","","",3.79999995231628,38
+"c_1021","IDEO","","","",4.09999990463257,13
+"c_1022","IDEXX","$1B to $5B (USD)","Less than 10,000","Industrial Manufacturing",3.599999905,293
+"c_1024","IDT Corporation","$1B to $5B (USD)","Less than 10,000","Internet and Software",3.79999995231628,65
+"c_1025","IEEE GlobalSpec","","","",NA,NA
+"c_1028","IHS","","10,000+","Banks and Financial Services",3.599999905,240
+"c_1029","IHS Markit","","10,000+","Banks and Financial Services",3.599999905,240
+"c_1034","IMO - Intelligent Medical Objects, Inc.","","","",NA,NA
+"c_1038","IMTAS","","","",3.09999990463257,17
+"c_1053","INSIGHT ENGINES","","","",NA,NA
+"c_1075","IPG Mediabrands","","","Media, News and Publishing",3.700000048,48
+"c_1076","IPRO","","","",3.79999995231628,31
+"c_1079","IQ Workforce","","","",NA,NA
+"c_1080","IQVIA","","","Pharmaceuticals",3.70000004768372,140
+"c_1082","ISE Data Systems","","","",NA,NA
+"c_1084","IT Concepts Inc.","","","",NA,NA
+"c_1085","ITAGroup","","","",3.5,8
+"c_1086","ITT Corporation","","","",3.79999995231628,865
+"c_1087","IXIS","","","",NA,NA
+"c_1020","Ideal Concepts, Inc.","Less than $1B (USD)","Less than 10,000","Insurance",4.19999980926514,55
+"c_1023","Idexx Laboratories","$1B to $5B (USD)","Less than 10,000","Industrial Manufacturing",3.599999905,293
+"c_1030","Illumina","Less than $1B (USD)","Less than 10,000","Health Care",3.59999990463257,144
+"c_1031","Illumination Works","","","",2.5,4
+"c_1032","Imerys","","","",4,228
+"c_1033","Immuta","","","",NA,NA
+"c_1035","Impact Makers, Inc.","","","",NA,NA
+"c_1036","Impetus Technologies","","","",4.09999990463257,54
+"c_1037","Improbable","","","",NA,NA
+"c_1074","InVision Studio","","","",NA,NA
+"c_1039","Inabia Solutions and Consulting","","","",NA,NA
+"c_1040","Indiana University","","","Education and Schools",4.30000019073486,332
+"c_1041","InfoArmor Inc","","","",NA,NA
+"c_1042","Infoblox","","","",3.59999990463257,31
+"c_1043","Inframark","Less than $1B (USD)","Less than 10,000","Energy and Utilities",2.70000004768372,17
+"c_1044","Infront Sports & Media Group","","","",NA,NA
+"c_1045","Ingersoll Rand","","10,000+","Industrial Manufacturing",3.79999995231628,911
+"c_1046","Ingram Content Group","","Less than 10,000","",3.20000004768372,96
+"c_1047","Ingram Micro","More than $10B (USD)","10,000+","Computers and Electronics",3.79999995231628,1472
+"c_1048","Inland Empire Health Plan","","Less than 10,000","Health Care",3.59999990463257,99
+"c_1049","InnovaSystems International","","","",4,9
+"c_1050","Innove LLC","","","",NA,NA
+"c_1051","Inovalon","Less than $1B (USD)","Less than 10,000","Health Care",3.20000004768372,398
+"c_1052","InsideSales.com, Inc.","","","",3,2
+"c_1054","Institute for Health Metrics and Evaluation - Faculty","","","",NA,NA
+"c_1055","Intalere Inc","","","",NA,NA
+"c_1056","Integral Ad Science","","","",4.09999990463257,9
+"c_1057","Integral Consulting Services, Inc.","","Less than 10,000","Government",3.5,18
+"c_1058","Integrated Management Resources, LLC","","","",NA,NA
+"c_1059","Integrity Applications Incorporated","Less than $1B (USD)","Less than 10,000","Internet and Software",4.199999809,13
+"c_1060","Intel","More than $10B (USD)","10,000+","Computers and Electronics",4.09999990463257,3826
+"c_1061","Intelligent Automation","","","",4.19999980926514,6
+"c_1062","Intelligent Waves Llc","","Less than 10,000","Aerospace and Defense",4.09999990463257,14
+"c_1063","Intelliswift Software Inc","","","",NA,NA
+"c_1064","Interactive Brokers","$1B to $5B (USD)","Less than 10,000","Banks and Financial Services",3.29999995231628,27
+"c_1065","Intercontinental Exchange","","","Banks and Financial Services",3.5,81
+"c_1066","Internet Brands","","","",NA,NA
+"c_1067","Intrexon Corporation.","","","",NA,NA
+"c_1068","IntroPro","","","",NA,NA
+"c_1069","Intuit","$1B to $5B (USD)","Less than 10,000","Internet and Software",4.19999980926514,1103
+"c_1070","Intuitive Surgical","","","",3.79999995231628,95
+"c_1071","Invesco","$1B to $5B (USD)","Less than 10,000","Banks and Financial Services",4,288
+"c_1072","Invictus International Consulting, LLC","","","",NA,NA
+"c_1073","Invisibly","","","",NA,NA
+"c_1077","Ipsos North America","$1B to $5B (USD)","Less than 10,000","Media, News and Publishing",3.700000048,358
+"c_1088","J. Crew Group, Inc.","","","Retail",3.799999952,795
+"c_1089","J.D. Power","","","",3.29999995231628,13
+"c_1094","JB HUNT","$5B to $10B (USD)","10,000+","Transport and Freight",3.29999995231628,1574
+"c_1095","JBCconnect","","","",2.29999995231628,4
+"c_1096","JD.com","","","",4.300000191,8
+"c_1104","JFrog","","","",4,2
+"c_1105","JLL","","10,000+","Real Estate",3.79999995231628,1888
+"c_1106","JM GROUP","","","",3.40000009536743,5
+"c_1116","JPMorgan Chase","More than $10B (USD)","10,000+","Banks and Financial Services",3.90000009536743,21159
+"c_1117","JT4","","","",4,67
+"c_1120","JUUL Labs","","","Consumer Goods and Services",4,2
+"c_1090","Jackson Dawson","","","",5,2
+"c_1091","Jacobs","More than $10B (USD)","10,000+","Construction",4,2621
+"c_1092","Jamul Casino","","","",NA,NA
+"c_1093","Janus Research Group","","","",4.599999905,18
+"c_1097","Jebbit","","","",NA,NA
+"c_1098","Jellyfish","","Less than 10,000","Media, News and Publishing",5,7
+"c_1099","Jellyfish UK","","","",NA,NA
+"c_1100","Jet.com","","Less than 10,000","Internet and Software",3.5,183
+"c_1102","JetBlue Airways Corporation","$5B to $10B (USD)","10,000+","Transport and Freight",4.19999980926514,732
+"c_1101","Jetblack","","","",2.5,2
+"c_1103","Jewelers Mutual Insurance Company","","Less than 10,000","Insurance",3.59999990463257,16
+"c_1107","Jobspring Partners","","","Human Resources and Staffing",3.700000048,31
+"c_1108","John Clements","","","",NA,NA
+"c_1109","John Deere","More than $10B (USD)","10,000+","Agriculture and Extraction",4.09999990463257,2283
+"c_1110","Johns Hopkins","","Less than 10,000","",4.09999990463257,86
+"c_1111","Johns Hopkins Health System","","10,000+","Health Care",4.09999990463257,1303
+"c_1112","Johns Hopkins University","$1B to $5B (USD)","10,000+","Education and Schools",4.09999990463257,645
+"c_1113","Johns Manville","","Less than 10,000","Industrial Manufacturing",3.59999990463257,231
+"c_1114","Johnson & Johnson Family of Companies","More than $10B (USD)","10,000+","Pharmaceuticals",4.30000019073486,3526
+"c_1115","Johnson Matthey","","10,000+","",3.40000009536743,201
+"c_1119","JustAnswer","","","",3.70000004768372,6
+"c_1121","Juvo","","","",NA,NA
+"c_1122","K12","","","",3,112
+"c_1131","KAR Auction Services, Inc.","","10,000+","Auto",3.20000004768372,415
+"c_1133","KAYAK","","","",4.69999980926514,6
+"c_1134","KBRWyle","$1B to $5B (USD)","10,000+","Government",3.90000009536743,183
+"c_1142","KEYPR","","","",NA,NA
+"c_1144","KEYW Corporation","","Less than 10,000","Aerospace and Defense",4.09999990463257,33
+"c_1145","KGPCo","","Less than 10,000","Telecommunications",3.29999995231628,102
+"c_1152","KMM Technologies","","","",2.5,2
+"c_1159","KPMG LLP","","","Consulting and Business Services",4,4776
+"c_1123","Kabam","","Less than 10,000","Internet and Software",4.09999990463257,24
+"c_1124","Kaiser Permanente","","10,000+","Health Care",4.19999980926514,8164
+"c_1125","Kaizen","","","",4,28
+"c_1126","Kaleido Biosciences","","","",NA,NA
+"c_1127","Kaleidoscope","","","",3.70000004768372,56
+"c_1128","Kantar Careers","","","",3.59999990463257,73
+"c_1129","Kaplan","$1B to $5B (USD)","10,000+","Education and Schools",3.79999995231628,1479
+"c_1130","Kaplan Test Prep","$1B to $5B (USD)","10,000+","Education and Schools",3.79999995231628,1479
+"c_1132","Karsun Solutions, LLC","","","",4,2
+"c_1135","Keck Medical Center of USC","","","Health Care",4.09999990463257,83
+"c_1136","Keep Truckin","","","",NA,NA
+"c_1137","KeepSafe","","","",NA,NA
+"c_1138","Kelvin","","","",3.40000009536743,5
+"c_1139","Kemper Corporation","","","",3.40000009536743,235
+"c_1140","Kennametal","$1B to $5B (USD)","10,000+","Industrial Manufacturing",3.79999995231628,382
+"c_1141","KeyBank","$5B to $10B (USD)","10,000+","Banks and Financial Services",3.59999990463257,1374
+"c_1143","Keysight Technologies","$1B to $5B (USD)","10,000+","Computers and Electronics",4,149
+"c_1146","Kinetica DB","","","",NA,NA
+"c_1147","King County Housing Authority","","","Government",4,14
+"c_1148","King.com","","","",NA,NA
+"c_1149","KingsIsle Entertainment","","","Internet and Software",3.09999990463257,10
+"c_1150","Kinsa Inc.","","","",NA,NA
+"c_1151","Klaviyo","","","",NA,NA
+"c_1153","Knorr-Bremse North America","","","",1.89999997615814,13
+"c_1154","Knowledge Facilitation Group","","","",NA,NA
+"c_1155","Koddi","","","",NA,NA
+"c_1156","Kogentix","","Less than 10,000","Consulting and Business Services",4,2
+"c_1157","Kohler Co.","","","",3.70000004768372,534
+"c_1158","Kongregate","","","",NA,NA
+"c_1160","Kraken","","Less than 10,000","Internet and Software",3.799999952,4
+"c_1161","Kroger","More than $10B (USD)","10,000+","Retail",3.59999990463257,24248
+"c_1164","L Brands","","","",3.70000004768372,50
+"c_1165","L&T Technology Services Ltd.","Less than $1B (USD)","10,000+","Industrial Manufacturing",4,3504
+"c_1163","L'OREAL USA","More than $10B (USD)","10,000+","Consumer Goods and Services",3.79999995231628,899
+"c_1166","L. L. Bean","","","",4.19999980926514,381
+"c_1167","L.A. Care Health Plan","","","",NA,NA
+"c_1168","L3 Technologies","$5B to $10B (USD)","10,000+","Aerospace and Defense",3.79999995231628,2978
+"c_1230","LTD Commodities","","","",3.70000004768372,205
+"c_1238","LUXOTTICA","More than $10B (USD)","10,000+","Retail",3.70000004768372,2434
+"c_1169","Lab126","","","",NA,NA
+"c_1170","LabCorp","$5B to $10B (USD)","10,000+","Health Care",3.59999990463257,3247
+"c_1171","Lake Trust Credit Union","","","Banks and Financial Services",3.700000048,43
+"c_1172","Langan Engineering and Environmental Services, Inc.","","","",3.59999990463257,27
+"c_1173","Lark Health","","","",NA,NA
+"c_1174","Las Vegas Sands Corp.","More than $10B (USD)","10,000+","Restaurants, Travel and Leisure",3.700000048,47
+"c_1175","Lattice Engines","","","",4,7
+"c_1176","Laureate International Universities","","","Education and Schools",3.5,234
+"c_1179","LawTrades","","","",NA,NA
+"c_1177","Lawrence Berkeley National Laboratory","","","Government",4.19999980926514,130
+"c_1178","Lawrence Livermore National Laboratory","$1B to $5B (USD)","Less than 10,000","Government",4.30000019073486,111
+"c_1180","Layer3 TV","","","",3.5,2
+"c_1181","Leadsmarket.com LLC","","","",NA,NA
+"c_1182","LeafLink","","","",NA,NA
+"c_1183","LeanTaas","","","",NA,NA
+"c_1184","LeapYear","","","",NA,NA
+"c_1185","Legends","","","Consulting and Business Services",3.90000009536743,137
+"c_1186","Legg Mason","","","",3.90000009536743,28
+"c_1187","Leidos","Less than $1B (USD)","10,000+","Aerospace and Defense",3.700000048,653
+"c_1188","LendingClub","","Less than 10,000","Banks and Financial Services",3.599999905,64
+"c_1189","LendingTree","","","",4,54
+"c_1190","Lenovo","More than $10B (USD)","10,000+","Computers and Electronics",3.90000009536743,857
+"c_1191","Level Ex, Inc.","","","",NA,NA
+"c_1192","LevelUp","","Less than 10,000","Internet and Software",4.09999990463257,7
+"c_1193","Levi Strauss & Co.","","10,000+","Retail",3.900000095,1898
+"c_1194","Levy","","","Restaurants, Travel and Leisure",3.90000009536743,1511
+"c_1195","Lexmark International, Inc.","","","",3.90000009536743,375
+"c_1196","Liberty Lending","","","",NA,NA
+"c_1197","Liberty Mutual","More than $10B (USD)","10,000+","Insurance",3.70000004768372,2914
+"c_1198","Liberty University","","","Education and Schools",3.90000009536743,423
+"c_1199","Libra Services","","","",NA,NA
+"c_1200","Lieberman Research Worldwide","","","",3.5,15
+"c_1201","Life Chiropractic College West","","","Education and Schools",3,15
+"c_1203","LifeWatch Services, Inc.","","Less than 10,000","Health Care",3.799999952,14
+"c_1202","Lifetouch","$1B to $5B (USD)","10,000+","",3.700000048,1913
+"c_1204","Lightmatter","","","",NA,NA
+"c_1205","LimeBike","","Less than 10,000","Consumer Goods and Services",2.59999990463257,11
+"c_1206","Linc Global, Inc.","","","",NA,NA
+"c_1207","Lincoln Financial Group","Less than $1B (USD)","Less than 10,000","Insurance",3.79999995231628,735
+"c_1208","Linden Lab","","","",4,4
+"c_1209","LiniumTalentAcquistion","","","",NA,NA
+"c_1210","Lionbridge Technologies","Less than $1B (USD)","Less than 10,000","Consulting and Business Services",3.40000009536743,264
+"c_1211","Liquidnet","","","",3.90000009536743,8
+"c_1212","Lirio","","","",NA,NA
+"c_1213","Listrak","","","",4,2
+"c_1214","Liv Communities","","","",3.799999952,10
+"c_1215","Location3","","","",NA,NA
+"c_1216","Lockheed Martin Corporation","More than $10B (USD)","10,000+","Aerospace and Defense",4.099999905,6415
+"c_1217","Lockton, Inc.","","","Insurance",4.09999990463257,174
+"c_1222","LogMeIn","","","",3.70000004768372,45
+"c_1218","Logic Rule","","","",NA,NA
+"c_1219","Logic20/20","","Less than 10,000","Consulting and Business Services",3.599999905,8
+"c_1220","Logistics Management Institute","","","",4,44
+"c_1221","Logitech","$1B to $5B (USD)","Less than 10,000","Industrial Manufacturing",4,97
+"c_1223","London Stock Exchange Group","","","",4.09999990463257,14
+"c_1224","Looker","","Less than 10,000","Internet and Software",4,4
+"c_1225","Lorven Technologies","","","",NA,NA
+"c_1226","Los Alamos Technical Associates","","","",4.09999990463257,7
+"c_1227","Louis Dreyfus","","","",4,392
+"c_1228","Lovepop","","","",3,4
+"c_1229","Lowe's","More than $10B (USD)","10,000+","Retail",3.70000004768372,29206
+"c_1231","Lubbock Heart & Surgical Hospital","","","Health Care",4.40000009536743,12
+"c_1232","Lubrizol","","","",4,216
+"c_1233","Lucid Motors","","Less than 10,000","Auto",4.400000095,5
+"c_1234","Lucky Day","","","",4.30000019073486,3
+"c_1236","Lumos Labs, Inc.","","","",NA,NA
+"c_1237","Lutron Electronics","","","Consumer Goods and Services",3.70000004768372,79
+"c_1239","Lyft","","Less than 10,000","Transport and Freight",3.70000004768372,1626
+"c_1240","Lyric","","","",NA,NA
+"c_1241","Lytx","Less than $1B (USD)","Less than 10,000","Internet and Software",3.79999995231628,9
+"c_1242","M&T Bank","$1B to $5B (USD)","10,000+","Banks and Financial Services",3.700000048,1128
+"c_1286","MEDSTAR HEALTH RESEARCH INSTITUTE (MHRI)","","","",NA,NA
+"c_1289","MEI Technologies","","Less than 10,000","Aerospace and Defense",4.09999990463257,14
+"c_1305","MGAC","","","",4,3
+"c_1306","MGM Resorts International","$5B to $10B (USD)","10,000+","Restaurants, Travel and Leisure",4,1296
+"c_1319","MIT","","","Education and Schools",4.19999980926514,278
+"c_1320","MIT Lincoln Laboratory","","Less than 10,000","Aerospace and Defense",4.19999980926514,75
+"c_1324","MJHS","","","Health Care",3.70000004768372,187
+"c_1325","MKTG","","","",3.90000009536743,21
+"c_1326","MLB.com","","","",3.799999952,23
+"c_1327","MM.Lafleur","","","",2.70000004768372,6
+"c_1328","MOBE, LLC","","","",NA,NA
+"c_1349","MSA Safety","","Less than 10,000","Industrial Manufacturing",2.29999995231628,6
+"c_1350","MSA Safety Inc.","","","",NA,NA
+"c_1351","MSCI Inc.","","","",4.19999980926514,6
+"c_1352","MUFG","More than $10B (USD)","10,000+","Banks and Financial Services",2.59999990463257,41
+"c_1357","MVM","","","Consulting and Business Services",3.5,224
+"c_1358","MWW Group","","","",2.79999995231628,5
+"c_1243","Maana","","","",NA,NA
+"c_1244","MacAulay-Brown, Inc. (MacB)","","Less than 10,000","Aerospace and Defense",4.099999905,96
+"c_1245","MachineZone","","","",3,2
+"c_1247","Macquarie Group Limited","","","Banks and Financial Services",4,143
+"c_1248","Magento","","","",4,5
+"c_1249","MaineHealth","","10,000+","Health Care",3.79999995231628,300
+"c_1250","Major League Soccer","","","",4.09999990463257,24
+"c_1255","ManTech International Corporation","","Less than 10,000","Aerospace and Defense",4,1275
+"c_1251","Manage","","","",NA,NA
+"c_1252","Managed Care Advisors","","","",NA,NA
+"c_1253","Management Concepts","","","",3,26
+"c_1254","Management Science Associates Inc.","","","",2.40000009536743,9
+"c_1256","Manulife","","","Insurance",4,190
+"c_1257","MapR","","","",NA,NA
+"c_1258","MarketDial","","","",NA,NA
+"c_1259","Marketers on Demand Inc.","","","",NA,NA
+"c_1260","Mars","More than $10B (USD)","10,000+","Food and Beverages",4,1157
+"c_1261","Marsh & McLennan Companies","","","",3.40000009536743,28
+"c_1262","Martin's Point Health Care","","","Health Care",3.70000004768372,29
+"c_1263","Mary Washington Healthcare","","","Health Care",3.5,309
+"c_1264","Maryville University","","","Education and Schools",4.19999980926514,24
+"c_1265","Masco","$5B to $10B (USD)","10,000+","Industrial ManufacturingConstruction",3.40000009536743,450
+"c_1266","MassMutual Financial Group","More than $10B (USD)","Less than 10,000","Banks and Financial Services",3.79999995231628,845
+"c_1267","MasterCard","","","",4.09999990463257,473
+"c_1268","Matheny School and Hospital","","","Health Care",4,2
+"c_1269","Matrix Medical Network","","Less than 10,000","Health Care",3,167
+"c_1270","Maven Wave Partners","","","",3,2
+"c_1271","Maxim Integrated","$1B to $5B (USD)","Less than 10,000","Computers and Electronics",3.59999990463257,324
+"c_1272","Maxus","","","",4,12
+"c_1273","Mayo Clinic","Less than $1B (USD)","10,000+","Health Care",4.19999980926514,1568
+"c_1274","Mazda North American Operations","","","Auto",4.099999905,20
+"c_1276","McGraw Hill Financial","","","Banks and Financial Services",4,700
+"c_1275","McGraw-Hill Education","","Less than 10,000","Education and Schools",3.90000009536743,237
+"c_1277","McKinsey & Company","","","",4.300000191,411
+"c_1278","Measured Progress, Inc.","","","",3.200000048,10
+"c_1285","MedStar Health","","","Health Care",3.79999995231628,373
+"c_1287","MedStar National Rehabilitation Network","","","Health Care",3.79999995231628,373
+"c_1279","Medallia, Inc.","","","",4.19999980926514,11
+"c_1280","Medical Science & Computing","","","Pharmaceuticals",4.09999990463257,8
+"c_1281","Medical Science & Computing, Inc.","","","Pharmaceuticals",4.09999990463257,8
+"c_1282","Medical Transportation Management (MTM)","Less than $1B (USD)","Less than 10,000","Health Care",3.20000004768372,250
+"c_1283","Medidata Solutions","","","Internet and Software",3.70000004768372,54
+"c_1284","Medifast, Inc","Less than $1B (USD)","Less than 10,000","Consumer Goods and Services",3.5,85
+"c_1288","Medtronic","More than $10B (USD)","10,000+","Health Care",4,2789
+"c_1290","Meijer","","10,000+","Retail",3.5,6797
+"c_1291","Memorial Health System","","Less than 10,000","Health Care",3.70000004768372,49
+"c_1292","Memorial Sloan Kettering","","10,000+","Health Care",4.19999980926514,754
+"c_1293","Mentor Graphics","$1B to $5B (USD)","Less than 10,000","Internet and Software",4.30000019073486,103
+"c_1294","Mercari","","","",4,11
+"c_1295","Merck","More than $10B (USD)","10,000+","Health Care",4.09999990463257,3144
+"c_1296","Mercy Health","","","",NA,NA
+"c_1297","Meridian Health Plan","","","Health Care",2.79999995231628,155
+"c_1298","Merkle Inc.","","Less than 10,000","Consulting and Business Services",3.40000009536743,136
+"c_1299","Merlin Labs","","","",NA,NA
+"c_1301","MetLife","More than $10B (USD)","10,000+","Insurance",3.90000009536743,3842
+"c_1300","Methodist Le Bonheur Healthcare","","","Health Care",4.19999980926514,253
+"c_1302","MetroHealth","","","Health Care",4,210
+"c_1303","MetroPlus Health Plan","","","",3.29999995231628,108
+"c_1304","MetroStar Systems","","Less than 10,000","",4.5,11
+"c_1307","Miami HEAT","","","",4.30000019073486,27
+"c_1311","MicroStrategy","","Less than 10,000","Internet and Software",3.299999952,80
+"c_1308","Microfinance Gateway","","","",4,4
+"c_1309","Micron","More than $10B (USD)","10,000+","Computers and Electronics",3.90000009536743,618
+"c_1310","Microsoft","More than $10B (USD)","10,000+","Internet and Software",4.19999980926514,5180
+"c_1312","Mid-Atlantic Permanente Medical Group","","Less than 10,000","Health Care",3,4
+"c_1313","MileOne Automotive","","Less than 10,000","Auto",2.5,66
+"c_1314","Milliman","","","",3.700000048,87
+"c_1315","Mindshare","Less than $1B (USD)","Less than 10,000","Media, News and Publishing",3.79999995231628,100
+"c_1316","Mission Staffing","","","",NA,NA
+"c_1317","Mississippi Lime Company","","","",4,20
+"c_1318","Mist Systems","","","",NA,NA
+"c_1321","Mitchell International, Inc.","","","",3.70000004768372,114
+"c_1322","Mitre Corporation","$1B to $5B (USD)","Less than 10,000","Health Care",4.09999990463257,200
+"c_1323","Mixbook","","","",4.30000019073486,3
+"c_1329","Moda Health","","","",3.20000004768372,106
+"c_1330","Modern Meadow","","","",NA,NA
+"c_1331","Mojio","","","",NA,NA
+"c_1332","Molekule","","","",NA,NA
+"c_1333","Molina Healthcare","More than $10B (USD)","10,000+","Insurance",3.40000009536743,922
+"c_1335","Mondelēz International","More than $10B (USD)","10,000+","Food and Beverages",4,2388
+"c_1336","Money Mart Financial Services","","","",NA,NA
+"c_1337","Monsanto","More than $10B (USD)","10,000+","Agriculture and Extraction",4.19999980926514,1602
+"c_1338","Moody's Corporation","$1B to $5B (USD)","Less than 10,000","Banks and Financial Services",3.79999995231628,284
+"c_1339","Morgan Stanley","More than $10B (USD)","10,000+","Banks and Financial Services",3.90000009536743,2900
+"c_1340","Morneau Shepell","Less than $1B (USD)","Less than 10,000","Consulting and Business Services",3.09999990463257,226
+"c_1341","Morning Consult","","Less than 10,000","",5,2
+"c_1342","Morningstar","Less than $1B (USD)","Less than 10,000","Consulting and Business Services",3.799999952,134
+"c_1343","Mosaic North America","","10,000+","Consumer Goods and Services",3.90000009536743,594
+"c_1344","Motif Investing","","","",2,2
+"c_1345","Motion Recruitment Partners","","","",3.40000009536743,7
+"c_1346","Motorola Solutions","$5B to $10B (USD)","10,000+","Computers and Electronics",4.09999990463257,2546
+"c_1347","Mount Sinai Health System","$5B to $10B (USD)","10,000+","Health Care",4,1086
+"c_1348","Mountain America Credit Union","","","Banks and Financial Services",4.09999990463257,82
+"c_1353","MultiPlan Inc.","","","",3.700000048,245
+"c_1354","MultiScale","","","",NA,NA
+"c_1355","Multnomah County, OR","","","",NA,NA
+"c_1356","Munich Re","","","Insurance",3.799999952,66
+"c_1360","Myers Media Group, LLC.","","","",NA,NA
+"c_1361","N3TWORK","","","",NA,NA
+"c_1381","NBA Properties","","","Organization",4.19999980926514,253
+"c_1382","NBCUniversal","","10,000+","Media, News and Publishing",4.099999905,1829
+"c_1383","NCI Information Systems, Inc.","Less than $1B (USD)","Less than 10,000","Government",3.5,250
+"c_1393","NEURA","","","",NA,NA
+"c_1422","NISSAN","","","Auto",3.900000095,3957
+"c_1425","NORC at the University of Chicago","Less than $1B (USD)","Less than 10,000","Organization",3.5,390
+"c_1440","NRG Energy","$1B to $5B (USD)","Less than 10,000","Energy and Utilities",3.90000009536743,319
+"c_1441","NSD","","","",3,9
+"c_1442","NT Concepts","Less than $1B (USD)","Less than 10,000","Internet and Software",3.40000009536743,39
+"c_1447","NVIDIA","","","Computers and Electronics",4.19999980926514,177
+"c_1448","NYC Careers","","","Government",4.09999990463257,265
+"c_1449","NYSTEC","","","",4.30000019073486,4
+"c_1362","Na Ali'i LLC","","","",NA,NA
+"c_1363","Nabler Web Solutions","","","",NA,NA
+"c_1364","Nanigans","","","",4.5,2
+"c_1365","Narvar","","","",3.59999990463257,5
+"c_1366","National Financial Partners","","Less than 10,000","Insurance",3.79999995231628,72
+"c_1367","National Fish Wildlife Foundation","","","",NA,NA
+"c_1368","National Football League","","Less than 10,000","",4.5,321
+"c_1369","National Funding","","","",3.5,11
+"c_1370","National Grid","","","",3.90000009536743,575
+"c_1371","National Home Rentals","","","",NA,NA
+"c_1372","National Instruments","Less than $1B (USD)","Less than 10,000","Computers and Electronics",4,244
+"c_1373","National Renewable Energy Laboratory","","","Government",3.700000048,78
+"c_1374","National Security Agency","","","",4.30000019073486,173
+"c_1375","Nationwide Children's Hospital","$1B to $5B (USD)","Less than 10,000","Health Care",4.09999990463257,399
+"c_1376","Nauto","","","",NA,NA
+"c_1378","NaviHealth","","","Health Care",3.29999995231628,49
+"c_1377","Navigator Management Partners","","Less than 10,000","Consulting and Business Services",3.5,6
+"c_1379","Navstar, Inc.","","","",4,4
+"c_1380","Navy Federal Credit Union","$5B to $10B (USD)","10,000+","Banks and Financial Services",4,928
+"c_1384","Nerdwallet","","","",4.19999980926514,5
+"c_1385","Nestle USA","","10,000+","Consumer Goods and Services",3.70000004768372,1113
+"c_1386","NetApp","$1B to $5B (USD)","10,000+","Computers and Electronics",4.09999990463257,615
+"c_1387","NetBrain Technologies, Inc.","Less than $1B (USD)","Less than 10,000","Internet and Software",2.5,11
+"c_1389","NetMotion Software","","","",NA,NA
+"c_1391","NetVision Resources (NVR)","","","",NA,NA
+"c_1388","Netflix","","","Internet and Software",3.90000009536743,421
+"c_1390","Netsmart Technologies","","","",3.099999905,35
+"c_1394","NeuStar, Inc.","","","",3.200000048,6
+"c_1392","Neuberger Berman","Less than $1B (USD)","Less than 10,000","Banks and Financial Services",3.79999995231628,61
+"c_1395","Nevro Corporation","","","",3.599999905,7
+"c_1396","New Knowledge","","","",NA,NA
+"c_1397","New Mexico State University","","","Education and Schools",4.30000019073486,428
+"c_1398","New Visions Central Office","","","",NA,NA
+"c_1399","New Visions for Public Schools","","","Education and Schools",4.09999990463257,9
+"c_1400","New York Blood Center","","","Organization",3.79999995231628,91
+"c_1401","New York Life Insurance Company","More than $10B (USD)","10,000+","Insurance",3.700000048,1788
+"c_1402","New York Media LLC","","","",2.5,2
+"c_1403","New York State Office of the Attorney General","","","Government",4.19999980926514,42
+"c_1404","New York University","$1B to $5B (USD)","Less than 10,000","Education and Schools",4.19999980926514,729
+"c_1405","New York Yankees","Less than $1B (USD)","Less than 10,000","Restaurants, Travel and Leisure",4.300000191,53
+"c_1406","NewYork-Presbyterian Hospital","$1B to $5B (USD)","10,000+","Health Care",4.19999980926514,1275
+"c_1407","Nexidia","","","",4,7
+"c_1408","Next Rev Technologies LLC","","","",NA,NA
+"c_1409","NextEra Energy, Inc.","$1B to $5B (USD)","10,000+","Energy and Utilities",3.79999995231628,248
+"c_1410","NextGen Healthcare","Less than $1B (USD)","Less than 10,000","Internet and Software",3.40000009536743,87
+"c_1411","Nextiva","","Less than 10,000","Telecommunications",4.30000019073486,111
+"c_1412","Nextphase Systems","","","",NA,NA
+"c_1413","Niagara Bottling","","Less than 10,000","Food and Beverages",3,322
+"c_1414","Niantic Labs","","","",NA,NA
+"c_1415","Niantic, Inc.","","","",NA,NA
+"c_1416","Nice","","","",2.599999905,8
+"c_1417","Nielsen","","10,000+","Consulting and Business Services",3.79999995231628,2066
+"c_1418","Nift Networks","","","",NA,NA
+"c_1419","Nike","More than $10B (USD)","10,000+","Consumer Goods and Services",4.19999980926514,6574
+"c_1420","NinthDecimal","","","",3.29999995231628,4
+"c_1421","Nippon Dynawave Packaging","","","",3.70000004768372,6
+"c_1423","Nokia","","","Computers and Electronics",4.09999990463257,3532
+"c_1424","Nolij Consulting","","","",3.29999995231628,6
+"c_1426","Nordic Naturals, Inc.","","","",3.90000009536743,21
+"c_1427","Nordstrom","$5B to $10B (USD)","10,000+","Retail",4,8955
+"c_1428","Norfolk Southern Corp","More than $10B (USD)","10,000+","Transport and Freight",3.40000009536743,787
+"c_1429","Northeastern University","","","Education and Schools",4.30000019073486,378
+"c_1430","Northern Trust Corp.","","10,000+","Banks and Financial Services",3.90000009536743,952
+"c_1431","Northrop Grumman","More than $10B (USD)","10,000+","Aerospace and Defense",4,4327
+"c_1432","Northwell Health","More than $10B (USD)","10,000+","Health Care",4.09999990463257,903
+"c_1433","Northwest Farm Credit Services","","Less than 10,000","Banks and Financial Services",4,22
+"c_1434","Northwest Permanente, P.C.","","","",NA,NA
+"c_1435","Northwestern Mutual","More than $10B (USD)","Less than 10,000","Banks and Financial Services",3.90000009536743,2365
+"c_1436","Novartis","","","Pharmaceuticals",4.09999990463257,2769
+"c_1437","Novelis","More than $10B (USD)","10,000+","Industrial Manufacturing",3.79999995231628,195
+"c_1438","Novetta","","","",3.29999995231628,28
+"c_1439","Novus","","","",3.299999952,41
+"c_1443","Numerator","Less than $1B (USD)","Less than 10,000","Consulting and Business Services",3.59999990463257,108
+"c_1444","Numerdox","","","",NA,NA
+"c_1445","Nutanix","","Less than 10,000","Internet and Software",4.099999905,26
+"c_1446","Nuvve","","","",NA,NA
+"c_1461","OGSystems","","Less than 10,000","Aerospace and Defense",4.30000019073486,13
+"c_1463","OM Partners","","","",NA,NA
+"c_1450","Oath Inc","","","Telecommunications",3.90000009536743,33
+"c_1451","Object Computing Inc.","","","",4.5,2
+"c_1452","Object Partners","","","",NA,NA
+"c_1453","Obsidian Security","","","",NA,NA
+"c_1454","Obsidian Solutions Group","","","",3.40000009536743,7
+"c_1455","Ochsner Health System","","10,000+","Health Care",3.90000009536743,1299
+"c_1456","Octane Lending","","","",NA,NA
+"c_1457","Octic Capital","","","",NA,NA
+"c_1458","Octo Consulting Group","Less than $1B (USD)","Less than 10,000","Consulting and Business Services",3.5,12
+"c_1459","Odyssey Systems Consulting Group","","","",3.90000009536743,9
+"c_1460","Office of the Nassau County Comptroller","","","",NA,NA
+"c_1462","Oklahoma Cancer Specialists and Research Institute","","","",NA,NA
+"c_1464","Omada Health","","","",3.599999905,5
+"c_1465","Omatic Software","","","",NA,NA
+"c_1466","Omnicell","","","",3.70000004768372,87
+"c_1467","One Call","","","Insurance",3,357
+"c_1468","OneAmerica","","Less than 10,000","Insurance",3.5,64
+"c_1469","OneGlobe","","","",NA,NA
+"c_1470","OneKreate","","","",2.59999990463257,14
+"c_1471","OneSource Virtual","","","",2.90000009536743,34
+"c_1472","Onyx Government Services, LLC","","","",4.5,4
+"c_1473","Open Systems Technologies, Inc.","Less than $1B (USD)","Less than 10,000","Consulting and Business Services",4,36
+"c_1474","OpenAI","","","",NA,NA
+"c_1476","OpenTable","","Less than 10,000","Internet and Software",4.19999980926514,35
+"c_1475","Opendoor","","Less than 10,000","Real Estate",3,15
+"c_1477","Operation Smile","Less than $1B (USD)","Less than 10,000","Organization",4.59999990463257,32
+"c_1478","OppLOans","","","",NA,NA
+"c_1479","Optimizely","","Less than 10,000","",3.5,2
+"c_1480","Optimove","","","",NA,NA
+"c_1481","Option Care","","Less than 10,000","Health Care",3.09999990463257,336
+"c_1482","Optoro","","","",3.90000009536743,15
+"c_1483","Oracle","More than $10B (USD)","10,000+","Internet and Software",3.90000009536743,4364
+"c_1484","Orange County Transportation Authority","","","Transport and Freight",4.19999980926514,31
+"c_1485","Orbital Insight","","","",NA,NA
+"c_1486","Orzota","","","",NA,NA
+"c_1487","Otsuka","","","",3.79999995231628,125
+"c_1488","Outreach Process Partners","","","",NA,NA
+"c_1489","Overstock.com","","","",3.5,183
+"c_1490","Owens Corning","$5B to $10B (USD)","10,000+","Construction",3.79999995231628,669
+"c_1491","Oxford Global Resources","","Less than 10,000","Human Resources and Staffing",3.29999995231628,63
+"c_1492","P3 North America","","Less than 10,000","Consulting and Business Services",3.79999995231628,9
+"c_1493","PACCAR","More than $10B (USD)","10,000+","Transport and Freight",3.599999905,161
+"c_1500","PANGEATWO","","","",4.09999990463257,17
+"c_1505","PARC, a Xerox company","","","",NA,NA
+"c_1511","PATHORAS CORPORATION","","","",NA,NA
+"c_1534","PG&E","More than $10B (USD)","10,000+","Energy and Utilities",3.90000009536743,599
+"c_1547","PJM Interconnection, LLC","","","",4.5,13
+"c_1559","PNC","More than $10B (USD)","10,000+","Banks and Financial Services",3.700000048,4966
+"c_1570","PPL Corporation","$5B to $10B (USD)","10,000+","Energy and Utilities",3.70000004768372,191
+"c_1571","PRA Group","Less than $1B (USD)","Less than 10,000","Banks and Financial Services",3.400000095,662
+"c_1572","PRA Health Sciences","","10,000+","Health Care",3.5,264
+"c_1613","PTP","","","",3.70000004768372,12
+"c_1494","Pace University","","","Education and Schools",4.30000019073486,270
+"c_1495","Pacific Northwest National Laboratory","","","Organization",4.09999990463257,123
+"c_1496","Pairwise","","","",NA,NA
+"c_1497","Palo Alto Networks","","Less than 10,000","Internet and Software",4.099999905,56
+"c_1498","Panasonic","","","",3.70000004768372,179
+"c_1499","Pandora Media, Inc.","$1B to $5B (USD)","Less than 10,000","Media, News and Publishing",3.900000095,36
+"c_1501","Par Government Systems Corporation","","","",3.29999995231628,3
+"c_1502","Paradyme Management","","","",3.90000009536743,23
+"c_1503","Parallel HR","","","",NA,NA
+"c_1504","Parametric","","","",3.29999995231628,8
+"c_1506","Parker Hannifin Corporation","More than $10B (USD)","10,000+","Industrial Manufacturing",3.90000009536743,1888
+"c_1507","Parkland Health & Hospital System","","","Health Care",3.90000009536743,816
+"c_1508","Parkview Health","","","",4.80000019073486,6
+"c_1509","Partners HealthCare","","","Health Care",4,351
+"c_1510","Patagonia, Inc","","Less than 10,000","Retail",3.90000009536743,11
+"c_1512","Paychex Inc.","$1B to $5B (USD)","10,000+","Consulting and Business Services",3.70000004768372,1203
+"c_1513","Paycom","Less than $1B (USD)","Less than 10,000","Internet and Software",4,149
+"c_1514","Payette Group","","","",NA,NA
+"c_1515","Payfone","","","",NA,NA
+"c_1516","Paypal","$5B to $10B (USD)","10,000+","Banks and Financial Services",3.90000009536743,988
+"c_1517","Peak6","","","",4,2
+"c_1518","Pearson","","10,000+","Education and Schools",3.79999995231628,1730
+"c_1519","PeerStreet","","","",NA,NA
+"c_1520","Peloton","","","Consumer Goods and Services",3.29999995231628,34
+"c_1521","Peloton Technology","","","",4.699999809,3
+"c_1522","Penn State University","","Less than 10,000","Education and Schools",4.40000009536743,732
+"c_1523","Penobscot Community Health Care","","","Health Care",3.5,17
+"c_1524","Penske","$1B to $5B (USD)","10,000+","Transport and Freight",3.599999905,1442
+"c_1525","PepsiCo","More than $10B (USD)","10,000+","Consumer Goods and Services",3.90000009536743,10791
+"c_1526","Peraton","","","Internet and Software",3.29999995231628,34
+"c_1527","Perfect World Entertainment","","","",3.400000095,10
+"c_1528","Perficient","Less than $1B (USD)","Less than 10,000","Consulting and Business Services",3.40000009536743,50
+"c_1529","Performics","","","",3.79999995231628,15
+"c_1530","Periscope technologies inc","","","",NA,NA
+"c_1531","PetSmart","$5B to $10B (USD)","10,000+","Retail",3.700000048,6850
+"c_1532","Pfizer","More than $10B (USD)","10,000+","Health Care",4.19999980926514,4468
+"c_1533","Pfizer Inc.","More than $10B (USD)","10,000+","Health Care",4.19999980926514,4468
+"c_1535","Philips","$5B to $10B (USD)","10,000+","Health Care",4,2880
+"c_1536","Photon","","","",3.70000004768372,9
+"c_1537","Phreesia","","","",2.70000004768372,16
+"c_1538","Picarro","","","",3.40000009536743,17
+"c_1539","Piedmont Healthcare","","","Health Care",3.70000004768372,347
+"c_1540","Pilot AI","","","",NA,NA
+"c_1541","Pinkerton","Less than $1B (USD)","Less than 10,000","Consulting and Business Services",3.59999990463257,510
+"c_1542","Pinnacle Engines, Inc.","","","",NA,NA
+"c_1543","PitchBook Data, Inc.","","","",NA,NA
+"c_1544","Pitney Bowes","$1B to $5B (USD)","10,000+","Consulting and Business Services",3.70000004768372,2339
+"c_1545","Pivotal Commware","","","",NA,NA
+"c_1546","Pizza Hut","","10,000+","Restaurants, Travel and Leisure",3.599999905,21733
+"c_1548","PlaceIQ","","","",4.19999980926514,9
+"c_1549","PlacePass","","","",NA,NA
+"c_1550","Plaid","","","",3.70000004768372,3
+"c_1551","Planned Systems International","","","",4.09999990463257,24
+"c_1552","Plante & Moran","","Less than 10,000","",3.599999905,55
+"c_1553","Plastiq","","","",NA,NA
+"c_1554","PlayQ","","","",NA,NA
+"c_1555","Plume","","","",4,2
+"c_1556","Pluralsight","Less than $1B (USD)","Less than 10,000","Internet and Software",4.5,8
+"c_1557","Plus3 IT Systems","","","",NA,NA
+"c_1558","Plymouth Rock Assurance Corporation","","","Insurance",3.59999990463257,57
+"c_1560","Pocket Gems","","","",3.20000004768372,9
+"c_1561","Polaris Industries","","","Auto",3.70000004768372,216
+"c_1562","Polis, Inc.","","","",NA,NA
+"c_1563","Poll Everywhere","","","",NA,NA
+"c_1564","Pond5","","","",NA,NA
+"c_1565","Pop Healthcare LLC","","","",NA,NA
+"c_1566","Porch","","","",3.599999905,37
+"c_1567","Porsche","","","",3.79999995231628,32
+"c_1568","PowerSchool","","Less than 10,000","Internet and Software",3.20000004768372,24
+"c_1569","Powertek Corporation","Less than $1B (USD)","Less than 10,000","Computers and Electronics",3.59999990463257,28
+"c_1573","Pragmatics","","Less than 10,000","Internet and Software",3.70000004768372,27
+"c_1574","Pray","","","",3,2
+"c_1575","Precima","","","",NA,NA
+"c_1577","Precision Health AI","","","",NA,NA
+"c_1578","Precision Value & Health","","","",NA,NA
+"c_1576","Precision for Medicine","","","",NA,NA
+"c_1579","Precocity","","","",NA,NA
+"c_1580","Predictive Science","","","",NA,NA
+"c_1581","Preferred Resources Inc.","","","",NA,NA
+"c_1582","Premera Blue Cross","$5B to $10B (USD)","Less than 10,000","Insurance",3.70000004768372,296
+"c_1583","Press Ganey Associates, Inc.","","","",3.59999990463257,10
+"c_1584","Priceline.com","$1B to $5B (USD)","Less than 10,000","Restaurants, Travel and LeisureConsulting and Business Services",3.90000009536743,77
+"c_1585","Prime Healthcare","$1B to $5B (USD)","10,000+","Health Care",3.70000004768372,1303
+"c_1586","Prime Solutions Group (PSG)","","","",NA,NA
+"c_1587","Prime Therapeutics","","","",3.40000009536743,370
+"c_1588","Primerica","$1B to $5B (USD)","Less than 10,000","Insurance",4.19999980926514,2664
+"c_1589","Primus Builders Inc.","","","",NA,NA
+"c_1590","Principal Financial Group","$5B to $10B (USD)","10,000+","Banks and Financial Services",3.900000095,303
+"c_1591","Privia Health","","","",2.799999952,16
+"c_1602","ProMedica","","10,000+","Health Care",3.79999995231628,281
+"c_1592","Probity Inc.","","","",NA,NA
+"c_1593","Procter & Gamble","More than $10B (USD)","10,000+","Consumer Goods and Services",4.19999980926514,4808
+"c_1594","Prodege, LLC","","","",4,4
+"c_1595","Productive Data Solutions, Inc.","","","",3.5,2
+"c_1596","Productive Edge","","","",4,2
+"c_1597","Prognos","","","",3.70000004768372,3
+"c_1598","Progressive","More than $10B (USD)","10,000+","Insurance",3.79999995231628,2081
+"c_1599","Progressive Leasing","","","Banks and Financial Services",3.59999990463257,107
+"c_1600","Progrexion Holdings Inc","","Less than 10,000","Consulting and Business Services",3.5,243
+"c_1601","Prokarma Inc.","","","",3.59999990463257,94
+"c_1603","Proofpoint","","","Internet and Software",4.09999990463257,29
+"c_1604","Pros.","","","",NA,NA
+"c_1605","Prosearch Strategies","","","",4,3
+"c_1606","Prospect 33","","","",4.5,2
+"c_1607","Prospect Medical Holdings, Inc.","","","",2.70000004768372,55
+"c_1608","Prospect Medical Systems","","","",2.70000004768372,55
+"c_1609","Protective Life Corporation","","","Insurance",3.79999995231628,163
+"c_1610","Proteus Digital Health","","","",3.70000004768372,15
+"c_1611","Providence Health & Services","","10,000+","Health Care",3.700000048,1222
+"c_1612","Prudential","More than $10B (USD)","10,000+","Banks and Financial Services",3.90000009536743,2348
+"c_1614","Public Company Accounting Oversight Board","","","Organization",3.79999995231628,16
+"c_1615","Public Consulting Group","","","Consulting and Business Services",3.200000048,140
+"c_1616","Publicis Spine","","","",NA,NA
+"c_1617","Publicis.Sapient","","","",3.79999995231628,12
+"c_1618","PureCars","","","",3.59999990463257,7
+"c_1619","Purple Communications, Inc.","","","",NA,NA
+"c_1620","PwC","More than $10B (USD)","10,000+","Insurance",4,5988
+"c_1621","Pythian","","Less than 10,000","Internet and Software",3.5,10
+"c_1622","Q2ebanking","","","",3.40000009536743,9
+"c_1623","QIC Limited","","","",NA,NA
+"c_1624","Qikspace","","","",NA,NA
+"c_1634","QuEST Global Engineering","Less than $1B (USD)","10,000+","Aerospace and Defense",3.29999995231628,139
+"c_1625","Quadrint, Inc.","","","",NA,NA
+"c_1626","Qualtrics","","Less than 10,000","Internet and Software",4.30000019073486,17
+"c_1627","Qualys","","Less than 10,000","Computers and Electronics",3.90000009536743,14
+"c_1628","Quantcast","","","",3.099999905,14
+"c_1629","Quantiply Corporation","","","",NA,NA
+"c_1630","QuantumBlack","","","",NA,NA
+"c_1631","Quartet","","","",4.800000191,4
+"c_1632","Quest Analytics","","","",NA,NA
+"c_1633","Quest Diagnostics","$5B to $10B (USD)","10,000+","Health Care",3.79999995231628,3804
+"c_1635","Quicken Loans","","10,000+","Banks and Financial Services",3.90000009536743,1031
+"c_1636","Quinstreet","","","",2.70000004768372,35
+"c_1637","Quora","","","",NA,NA
+"c_1638","Qwinix","","","",NA,NA
+"c_1639","QxBranch","","","",NA,NA
+"c_1650","RB","","","",3.70000004768372,624
+"c_1651","RBC","More than $10B (USD)","10,000+","Banks and Financial Services",4.099999905,2905
+"c_1652","RE/MAX, LLC","","","Real Estate",4.19999980926514,1894
+"c_1664","REI","$1B to $5B (USD)","10,000+","Retail",4.09999990463257,454
+"c_1666","RELX Group","","","",3.79999995231628,778
+"c_1681","REsurety","","","",NA,NA
+"c_1690","RK","Less than $1B (USD)","Less than 10,000","Construction",3.20000004768372,13
+"c_1701","RS Energy Group","","","",NA,NA
+"c_1704","RWJBarnabas Health","","10,000+","Health Care",4,1235
+"c_1640","Rackspace","","Less than 10,000","Internet and Software",3.900000095,260
+"c_1641","Radian Group Inc.","","Less than 10,000","Banks and Financial Services",3.70000004768372,67
+"c_1642","Radiance Technologies Inc.","","","",NA,NA
+"c_1643","Radiant Solutions","","Less than 10,000","Aerospace and Defense",4.300000191,24
+"c_1644","Rally Health","","","",2.900000095,7
+"c_1645","Ramsey Solutions","","","",5,3
+"c_1646","Rational Consulting","","","",NA,NA
+"c_1647","Rauxa","","","",3.5,12
+"c_1648","Raymond James","","","Banks and Financial Services",3.90000009536743,480
+"c_1649","Raytheon","More than $10B (USD)","10,000+","Aerospace and Defense",4,3166
+"c_1653","Real Capital Analytics (RCA)","","","",NA,NA
+"c_1654","Realogy","","","",NA,NA
+"c_1656","Recorded Future","","","",NA,NA
+"c_1657","Red Ventures","","Less than 10,000","Internet and Software",3.29999995231628,511
+"c_1658","Redfin","","Less than 10,000","Real Estate",3.29999995231628,49
+"c_1659","Redfish Technology - High Tech Executive Recruiters","","","",NA,NA
+"c_1660","Reflektive","","","",NA,NA
+"c_1661","Regional One Health","","","",3.79999995231628,155
+"c_1662","Regions Bank","$5B to $10B (USD)","10,000+","Banks and Financial Services",3.70000004768372,2071
+"c_1663","Regis Corporation","$1B to $5B (USD)","10,000+","Consumer Goods and Services",3.20000004768372,1137
+"c_1665","Relevant Healthcare Technologies","","","",NA,NA
+"c_1667","Remedy BPCI Partners, LLC.","","","",NA,NA
+"c_1668","Remedy Partners","","","",3,9
+"c_1669","Renew Financial","","","Banks and Financial Services",3.400000095,21
+"c_1670","Renewable Energy Systems Ltd.","","","",3,2
+"c_1671","Renown Health","","Less than 10,000","Health Care",3.29999995231628,118
+"c_1672","Rent-A-Center","","10,000+","Retail",3.20000004768372,3822
+"c_1673","RentPath, LLC","","","",3.20000004768372,68
+"c_1674","Reorg Research","","","",NA,NA
+"c_1675","Reputation.com","","Less than 10,000","",3.5,22
+"c_1677","ResMed","$1B to $5B (USD)","Less than 10,000","Industrial Manufacturing",3.79999995231628,88
+"c_1676","Research Innovations Inc","","","",NA,NA
+"c_1678","Resolvit, LLC","Less than $1B (USD)","Less than 10,000","Consulting and Business Services",3.599999905,29
+"c_1679","Resource Systems Group, Inc.","","","",NA,NA
+"c_1680","Restoration Media","","","",NA,NA
+"c_1682","RetailMeNot, Inc.","","Less than 10,000","Internet and Software",4,13
+"c_1683","RhythmOne","","","",3.200000048,6
+"c_1684","Rice University","Less than $1B (USD)","Less than 10,000","Education and Schools",4.30000019073486,150
+"c_1685","Rifiniti","","","",NA,NA
+"c_1686","Ring Inc.","","","",NA,NA
+"c_1687","Riot Games","","Less than 10,000","Internet and Software",3.79999995231628,26
+"c_1688","RiskSpan","","","",4,3
+"c_1689","Riverside Research","Less than $1B (USD)","Less than 10,000","Aerospace and Defense",3.70000004768372,15
+"c_1691","Robert Walters","","","Human Resources and Staffing",3.79999995231628,49
+"c_1692","Roche","","10,000+","Health Care",4.19999980926514,1662
+"c_1693","RocksBox","","","",2.29999995231628,3
+"c_1694","Rockstar New York","","","",NA,NA
+"c_1695","Rockstar San Diego","","","",NA,NA
+"c_1696","Rockwell Collins","$5B to $10B (USD)","10,000+","Aerospace and Defense",3.90000009536743,857
+"c_1697","Roku","","Less than 10,000","Computers and Electronics",3.5,11
+"c_1698","Rosecrance Health Network","","","Health Care",3.5,72
+"c_1699","Ross-Carlisle Group","","","",NA,NA
+"c_1700","Rover","","Less than 10,000","Internet and Software",4.40000009536743,435
+"c_1702","RubrYc Therapeutics","","","",NA,NA
+"c_1703","Russian School of Mathematics","","","",3.79999995231628,17
+"c_1705","Ryder","$5B to $10B (USD)","10,000+","Transport and Freight",3.5,2712
+"c_1706","S&P Global","","","Banks and Financial Services",4,700
+"c_1711","SAIC","","10,000+","Aerospace and Defense",4,2279
+"c_1720","SAP","More than $10B (USD)","10,000+","Internet and Software",4.300000191,1792
+"c_1723","SAS Institute","$1B to $5B (USD)","10,000+","Internet and Software",4,134
+"c_1727","SCAN Health Plan","","","Insurance",4,87
+"c_1739","SECU","","Less than 10,000","Organization",3.59999990463257,52
+"c_1759","SHI International Corp.","$5B to $10B (USD)","Less than 10,000","Consulting and Business Services",3.79999995231628,187
+"c_1761","SHINE Systems & Technologies","","","",3.5,4
+"c_1821","SRC, Inc.","","Less than 10,000","Aerospace and Defense",3.59999990463257,53
+"c_1822","SSi","","Less than 10,000","Human Resources and Staffing",3.700000048,146
+"c_1841","STOBER Drives, Inc.","","","",NA,NA
+"c_1853","SUBWAY","","10,000+","Food and Beverages",3.70000004768372,33082
+"c_1868","SWIFT","","","",NA,NA
+"c_1879","SYSCO","More than $10B (USD)","10,000+","Consulting and Business Services",3.5,2628
+"c_1707","Sabio Mobile","","","",NA,NA
+"c_1708","Sabre","","10,000+","Internet and Software",3.70000004768372,280
+"c_1709","Safeway Corp.","","","Retail",3.5,190
+"c_1710","Sage Intacct","","Less than 10,000","Internet and Software",5,18
+"c_1712","SailPoint","Less than $1B (USD)","Less than 10,000","Internet and Software",4.099999905,12
+"c_1713","Salesforce","","10,000+","Internet and Software",4.19999980926514,417
+"c_1714","Samsung","More than $10B (USD)","10,000+","Computers and Electronics",4,6130
+"c_1715","Samsung Semiconductor, Inc.","More than $10B (USD)","10,000+","Computers and Electronics",4,6130
+"c_1716","Sandhills Publishing","","Less than 10,000","Media, News and Publishing",3.5,33
+"c_1717","SanofiUS","More than $10B (USD)","10,000+","Pharmaceuticals",4.09999990463257,3165
+"c_1718","Santa Clara Family Health Plan","$1B to $5B (USD)","Less than 10,000","Government",3.90000009536743,17
+"c_1719","Santander Consumer USA","$1B to $5B (USD)","Less than 10,000","Banks and Financial Services",3.40000009536743,601
+"c_1721","Sartorius Corporation","$1B to $5B (USD)","Less than 10,000","Industrial Manufacturing",4,4
+"c_1722","Sartorius North America","","","",NA,NA
+"c_1724","Satsyil Corporation","","","",NA,NA
+"c_1725","Scalable Digital","","","",NA,NA
+"c_1726","Scaleapi","","","",NA,NA
+"c_1728","Schneider National","$1B to $5B (USD)","10,000+","Transport and Freight",3.5,1444
+"c_1729","Schnucks","","","Retail",3.59999990463257,998
+"c_1730","Scholastic","$1B to $5B (USD)","Less than 10,000","Media, News and Publishing",3.79999995231628,646
+"c_1731","Schoolzilla","","","",NA,NA
+"c_1732","ScienceSoft USA Corporation","","","",NA,NA
+"c_1733","Scoop Technologies","","","",NA,NA
+"c_1734","Scoot Networks","","","",NA,NA
+"c_1735","Seagate Technology","More than $10B (USD)","10,000+","Computers and Electronics",3.79999995231628,549
+"c_1736","Sealed Air","$1B to $5B (USD)","10,000+","Industrial Manufacturing",3.79999995231628,537
+"c_1737","Seasoned","","","",4.80000019073486,5
+"c_1738","Seattle Children’s","$1B to $5B (USD)","Less than 10,000","Health Care",4,210
+"c_1741","Sedgwick Claims Management Services","","10,000+","Insurance",3.20000004768372,1005
+"c_1742","Selective Insurance Group","","","Insurance",3.20000004768372,109
+"c_1743","Self Regional Healthcare","","","Health Care",3.90000009536743,98
+"c_1744","Sentara Healthcare","","10,000+","Health Care",3.90000009536743,605
+"c_1745","Sentieo","","","",NA,NA
+"c_1746","Sentry Insurance","$1B to $5B (USD)","Less than 10,000","Insurance",3.40000009536743,258
+"c_1747","Sephora","","10,000+","Retail",4,2977
+"c_1748","Serco , Inc.","$1B to $5B (USD)","10,000+","Consulting and Business Services",3.599999905,3248
+"c_1749","Service Management Group, Inc.","","","",NA,NA
+"c_1750","ServiceLink","","","",3.09999990463257,382
+"c_1751","ServiceMaster","","Less than 10,000","Consumer Goods and Services",3.29999995231628,285
+"c_1752","ServiceNow","$1B to $5B (USD)","Less than 10,000","Internet and Software",3.79999995231628,97
+"c_1753","ServiceTitan","","","",4.5,2
+"c_1754","Servient Inc","","","",NA,NA
+"c_1755","Sevatec, Inc.","","","",NA,NA
+"c_1756","ShareThis, Inc","","","",NA,NA
+"c_1757","SharpSpring","","","",NA,NA
+"c_1758","Shell","More than $10B (USD)","10,000+","Energy and Utilities",3.90000009536743,5611
+"c_1760","Shift Technology","","","",NA,NA
+"c_1762","ShipBob Inc","","","",NA,NA
+"c_1763","Shippensburg University","","","Education and Schools",4.30000019073486,62
+"c_1764","Shippo","","","",NA,NA
+"c_1765","Shoes For Crews, Inc.","","","",NA,NA
+"c_1766","Shutterfly","","","Retail",3.79999995231628,376
+"c_1767","Siemens","","10,000+","Computers and Electronics",4.099999905,6479
+"c_1768","Siena College","","","Education and Schools",4.09999990463257,56
+"c_1769","Sierra Lobo","","","",4.199999809,21
+"c_1773","SigOpt","","","",NA,NA
+"c_1770","Sigma Space","","","",4,12
+"c_1771","Signify","$5B to $10B (USD)","10,000+","Industrial Manufacturing",3.79999995231628,151
+"c_1772","Signifyd","","","",NA,NA
+"c_1774","Silicon Valley Bank","","","",4,103
+"c_1775","Simon-Kucher & Partners","","","",4.300000191,8
+"c_1776","Simons Foundation","","","",4.80000019073486,4
+"c_1777","Simple","","","",3.700000048,54
+"c_1778","Sirius XM Radio","","","",3.59999990463257,169
+"c_1779","Sitecore","Less than $1B (USD)","Less than 10,000","Internet and Software",3.70000004768372,6
+"c_1780","Skillsoft","Less than $1B (USD)","Less than 10,000","Education and Schools",3.40000009536743,58
+"c_1781","Slack","","Less than 10,000","Internet and Software",3.40000009536743,7
+"c_1782","Slalom Consulting","","","Consulting and Business Services",3.700000048,52
+"c_1784","SmartThings","","","",NA,NA
+"c_1783","Smartly","","","",NA,NA
+"c_1785","Smith & Nephew","$1B to $5B (USD)","10,000+","Health Care",3.70000004768372,489
+"c_1786","Smith Hanley Associates","","Less than 10,000","Consulting and Business Services",4.09999990463257,18
+"c_1787","Smiths Detection","","","",3.40000009536743,100
+"c_1788","Smule","","","",4.5,4
+"c_1789","Snag","","","",3.599999905,5
+"c_1790","Snap Inc.","","","",3.79999995231628,5
+"c_1791","Snowflake Computing","","","",4.30000019073486,3
+"c_1796","SoFi","","Less than 10,000","",3.09999990463257,45
+"c_1792","Social Solutions","","","",3.599999905,13
+"c_1793","SocialWithin","","","",NA,NA
+"c_1794","Society for Human Resource Management","","","",4.09999990463257,75
+"c_1795","Socure","","","",NA,NA
+"c_1799","SoftVision - North America & UK","","","",NA,NA
+"c_1797","Softrams","","","",NA,NA
+"c_1798","Softvision","","","",3.5,14
+"c_1800","Solidus Technical Solutions","","","",NA,NA
+"c_1801","Solomon Associates","","","",4.30000019073486,6
+"c_1802","Solomon Page","","Less than 10,000","Human Resources and Staffing",4,65
+"c_1803","Solving It","","","",NA,NA
+"c_1804","Sony Interactive Entertainment PlayStation","","","Computers and Electronics",3.599999905,34
+"c_1805","South Dakota State University Foundation","","","",NA,NA
+"c_1806","Southern California Edison","","10,000+","Energy and Utilities",4,706
+"c_1807","Southern Methodist University","","","Education and Schools",4.19999980926514,126
+"c_1808","Southern Poverty Law Center","","","",4.800000191,11
+"c_1809","Sovrn Holdings","","Less than 10,000","Media, News and Publishing",3.29999995231628,7
+"c_1810","SpaceCurve","","","",4,2
+"c_1811","SpartanNash","$5B to $10B (USD)","10,000+","Food and Beverages",3.20000004768372,438
+"c_1812","Spireon","","","",3,23
+"c_1813","Splunk","","Less than 10,000","Internet and Software",4.300000191,30
+"c_1814","Spokeo","","Less than 10,000","Internet and Software",3.099999905,14
+"c_1816","SpotX","","","",4,7
+"c_1815","Spotify","","Less than 10,000","Internet and Software",4.300000191,35
+"c_1817","Spreetail","","","Internet and Software",3.59999990463257,20
+"c_1818","Sprint","More than $10B (USD)","10,000+","Telecommunications",3.70000004768372,9229
+"c_1819","Spy Pond Partners","","","",NA,NA
+"c_1820","Square","","Less than 10,000","Banks and Financial Services",3.90000009536743,64
+"c_1823","St. Joseph Health","","","",NA,NA
+"c_1824","St. Jude Children's Research Hospital","","Less than 10,000","Health Care",4.5,265
+"c_1825","Standard Insurance Company","","Less than 10,000","Insurance",3.700000048,198
+"c_1826","Stanford University","","Less than 10,000","Education and Schools",4.300000191,530
+"c_1827","Stanley Black & Decker","$5B to $10B (USD)","10,000+","Industrial Manufacturing",3.70000004768372,1167
+"c_1829","Staples","More than $10B (USD)","10,000+","Retail",3.599999905,9416
+"c_1830","Starbucks","More than $10B (USD)","10,000+","Restaurants, Travel and Leisure",4.09999990463257,27858
+"c_1831","State Auto Insurance Companies","","","Insurance",3,32
+"c_1832","State Farm","More than $10B (USD)","10,000+","Insurance",3.79999995231628,8531
+"c_1837","State Street","More than $10B (USD)","10,000+","Banks and Financial Services",3.5,2068
+"c_1833","State of Arizona","More than $10B (USD)","10,000+","Government",3.59999990463257,724
+"c_1834","State of New Mexico","","","Government",3.70000004768372,225
+"c_1835","State of North Carolina","","","Government",3.599999905,205
+"c_1836","State of Washington","","","Government",3.40000009536743,209
+"c_1839","Stella.ai","","","",NA,NA
+"c_1840","Stessa","","","",NA,NA
+"c_1842","Stormont-Vail Healthcare","Less than $1B (USD)","Less than 10,000","Health Care",4.09999990463257,62
+"c_1843","Stratacache, A Family of Companies","","","",NA,NA
+"c_1844","Strategic Resources, Inc.","","Less than 10,000","Consulting and Business Services",3.70000004768372,102
+"c_1845","Straumann","$1B to $5B (USD)","Less than 10,000","Industrial Manufacturing",3.20000004768372,38
+"c_1846","Strava","","","",NA,NA
+"c_1847","Stream","","","",3.40000009536743,214
+"c_1848","StreetLight Data","","","",NA,NA
+"c_1849","Stride Search","","","",NA,NA
+"c_1850","Stryker","$5B to $10B (USD)","10,000+","Health Care",4,1129
+"c_1851","StubHub","","","",4,129
+"c_1852","Subaru of America","","","Auto",4,145
+"c_1854","Success Academy Charter Schools","","Less than 10,000","Education and Schools",2.599999905,91
+"c_1855","Sullivan, Cotter and Associates, Inc.","","","",NA,NA
+"c_1857","SumTotal Systems","","","",2.90000009536743,56
+"c_1856","Sumeru Solutions","","","",NA,NA
+"c_1858","Sun Basket","","Less than 10,000","Food and Beverages",3.599999905,35
+"c_1859","Sun Life Financial","","10,000+","Insurance",3.90000009536743,923
+"c_1860","SunPower Corporation","","","",3.70000004768372,91
+"c_1861","SunTrust","$5B to $10B (USD)","10,000+","Banks and Financial Services",3.59999990463257,3532
+"c_1862","Superior Vision","","","",2.40000009536743,36
+"c_1863","Suplari","","","",NA,NA
+"c_1864","Susquehanna International Group","","Less than 10,000","Banks and Financial Services",4.099999905,31
+"c_1865","Swagelok","$1B to $5B (USD)","Less than 10,000","Industrial Manufacturing",3.79999995231628,302
+"c_1867","Sweetser","","","",3,53
+"c_1869","Swift Navigation","","","",NA,NA
+"c_1870","Swiss Re","More than $10B (USD)","10,000+","Insurance",4.09999990463257,93
+"c_1871","Symantec","$1B to $5B (USD)","10,000+","Internet and Software",3.90000009536743,1006
+"c_1872","Symphony Talent","","","",3,5
+"c_1873","Synchronoss","","","",3.40000009536743,31
+"c_1874","Synchronoss Technologies, Inc.","","","",3.59999990463257,5
+"c_1875","Synechron","Less than $1B (USD)","Less than 10,000","Consulting and Business Services",3.59999990463257,212
+"c_1876","Syneos Health Commercial Solutions","","10,000+","Pharmaceuticals",3.900000095,389
+"c_1877","Syngenta","Less than $1B (USD)","Less than 10,000","Agriculture and Extraction",4.099999905,717
+"c_1878","Syntelli Solutions, Inc","","","",NA,NA
+"c_1880","System1","","","",NA,NA
+"c_1881","System1 Biosciences","","","",NA,NA
+"c_1882","Systems Staffing Group","","","",NA,NA
+"c_1883","T-Mobile","More than $10B (USD)","10,000+","Telecommunications",4,8595
+"c_1884","T. Parker Host","","","Transport and Freight",3.70000004768372,7
+"c_1885","T. Rowe Price","","Less than 10,000","Banks and Financial Services",3.90000009536743,348
+"c_1886","T1D Exchange","","","",NA,NA
+"c_1890","TACG, LLC","","","",3.40000009536743,8
+"c_1899","TE Connectivity","More than $10B (USD)","10,000+","Industrial Manufacturing",3.799999952,1100
+"c_1916","TFS","","","",3.59999990463257,51
+"c_1917","TGS Management Company","","","",NA,NA
+"c_1966","TIBCO Software","$1B to $5B (USD)","Less than 10,000","Internet and Software",4.09999990463257,30
+"c_1970","TISTA Science and Technology Corporation","Less than $1B (USD)","Less than 10,000","Consulting and Business Services",3.599999905,17
+"c_1971","TMP Worldwide","","Less than 10,000","",3.700000048,110
+"c_1979","TPC Energy Fund","","","",NA,NA
+"c_2001","TSheets","","","",4,2
+"c_2004","TVG Network Betfair US","","","",NA,NA
+"c_2006","TWINN INTELLIGENCE GROUP","","","",NA,NA
+"c_2010","TXU Energy","$5B to $10B (USD)","Less than 10,000","Energy and Utilities",3.700000048,262
+"c_1887","Tableau","Less than $1B (USD)","","",3.799999952,44
+"c_1888","Taboola","","","Consulting and Business Services",3.29999995231628,4
+"c_1889","Tabula Rasa Healthcare, Inc","","","",NA,NA
+"c_1891","Taino Consulting Group","","","",NA,NA
+"c_1892","Takeda Pharmaceuticals","More than $10B (USD)","10,000+","Pharmaceuticals",3.900000095,553
+"c_1893","Talent Plus","Less than $1B (USD)","Less than 10,000","Human Resources and Staffing",3.29999995231628,7
+"c_1894","Talking Rain Beverage Company","Less than $1B (USD)","Less than 10,000","Consumer Goods and Services",3.79999995231628,17
+"c_1895","Tampa Family Health Centers","","","",2.90000009536743,43
+"c_1896","Targetbase","","","",3,16
+"c_1897","Tate & Lyle","Less than $1B (USD)","Less than 10,000","Industrial Manufacturing",3.40000009536743,65
+"c_1898","Tavant Technologies","","","",3.900000095,68
+"c_1900","Teacher Retirement System of Texas","","Less than 10,000","Government",2.5,10
+"c_1901","Team Red Dog","","","",NA,NA
+"c_1902","Technamo LLC","","","",NA,NA
+"c_1903","Technicolor","","","",3.5,1488
+"c_1904","Technology Partners","","","",3.90000009536743,21
+"c_1905","Techshed","","","",NA,NA
+"c_1906","Tek Experts","","Less than 10,000","Internet and Software",3.29999995231628,20
+"c_1907","TeleTracking Technologies","","","",4.199999809,22
+"c_1908","Ten-X","","Less than 10,000","Internet and Software",3.599999905,17
+"c_1909","Tendril","","","",3.299999952,8
+"c_1910","Teradata","$1B to $5B (USD)","10,000+","Internet and Software",3.79999995231628,145
+"c_1911","Tesla","","10,000+","Industrial Manufacturing",3.599999905,1445
+"c_1912","Tesorio","","","",NA,NA
+"c_1913","Tessella","","","",2.5,2
+"c_1914","Texas Health and Human Services Commission","","","Government",3.5,867
+"c_1915","Textio","","","",NA,NA
+"c_1918","Thales","","","Aerospace and Defense",4,937
+"c_1919","The Aerospace Corporation","","","Aerospace and Defense",4,91
+"c_1920","The American College of Radiology","","","",NA,NA
+"c_1921","The Black Tux","","","",3.799999952,5
+"c_1922","The Boston Consulting Group","","","Banks and Financial Services",4.19999980926514,211
+"c_1923","The Boston Globe","","","",3.59999990463257,34
+"c_1924","The Cadmus Group, Inc.","","","",NA,NA
+"c_1925","The Carian Group","","","",NA,NA
+"c_1926","The Carle Foundation","","","Health Care",4.09999990463257,139
+"c_1927","The Church of Jesus Christ of Latter-day Saints","","10,000+","Organization",4.80000019073486,1324
+"c_1928","The Climate Corporation","","","",4.19999980926514,11
+"c_1929","The Clorox Company","Less than $1B (USD)","Less than 10,000","Consumer Goods and Services",4.099999905,509
+"c_1930","The Denzel Group","","","",NA,NA
+"c_1931","The Dow Chemical Company","More than $10B (USD)","10,000+","Energy and Utilities",4,1270
+"c_1932","The Hagan-Ricci Group, Inc.","","","",NA,NA
+"c_1933","The Hanover Insurance Group","$5B to $10B (USD)","Less than 10,000","Insurance",3.79999995231628,255
+"c_1934","The Home Depot","More than $10B (USD)","10,000+","RetailConsumer Goods and Services",3.79999995231628,41290
+"c_1935","The International Fund for Animal Welfare","","","",4,9
+"c_1936","The J. M. Smucker Company","$5B to $10B (USD)","Less than 10,000","Food and Beverages",3.90000009536743,269
+"c_1937","The Logistics Company","","Less than 10,000","Government",3.79999995231628,58
+"c_1938","The Meet Group","","","",NA,NA
+"c_1939","The Money Source","","","",2.79999995231628,55
+"c_1940","The Motley Fool","","Less than 10,000","Media, News and Publishing",4.5,20
+"c_1941","The National Association of Manufacturers","","","",NA,NA
+"c_1942","The New School","","","Education and Schools",3.90000009536743,103
+"c_1943","The New York Times","","","Media, News and Publishing",4,207
+"c_1944","The Parking Spot","","Less than 10,000","Restaurants, Travel and Leisure",3.59999990463257,146
+"c_1945","The Rawlings Group","","Less than 10,000","Insurance",2.70000004768372,32
+"c_1946","The Situs Companies","","","",3.09999990463257,18
+"c_1947","The Standard","","","",NA,NA
+"c_1948","The TJX Companies, Inc.","More than $10B (USD)","10,000+","Retail",3.79999995231628,4968
+"c_1949","The University of Kansas Health System","$1B to $5B (USD)","Less than 10,000","Health Care",4.099999905,287
+"c_1950","The University of Pittsburgh","","","Education and Schools",4.19999980926514,541
+"c_1951","The Vancouver Clinic","","Less than 10,000","Health Care",2.90000009536743,79
+"c_1952","The Walsh Group","$1B to $5B (USD)","Less than 10,000","Construction",3.400000095,18
+"c_1953","The Wonderful Company LLC","$1B to $5B (USD)","Less than 10,000","Consumer Goods and Services",3.20000004768372,19
+"c_1954","The Zebra","","","Insurance",4,3
+"c_1955","Theoris Services","","","",4.599999905,20
+"c_1956","Thermo Fisher Scientific","More than $10B (USD)","10,000+","Industrial Manufacturing",3.59999990463257,2065
+"c_1957","ThinkIQ","","","",NA,NA
+"c_1958","ThirdLove","","Less than 10,000","Consumer Goods and Services",4,47
+"c_1959","Thomas Jefferson University and Hospitals","$1B to $5B (USD)","10,000+","Education and Schools",4,663
+"c_1961","ThoughtWorks","Less than $1B (USD)","Less than 10,000","Internet and Software",4.199999809,64
+"c_1963","Thrive Market","","","",3,43
+"c_1965","Thunder Token","","","",NA,NA
+"c_1967","Ticketmaster","","","Consumer Goods and Services",4,444
+"c_1968","Tilt Lending","","","",NA,NA
+"c_1969","Time Warner","More than $10B (USD)","10,000+","Media, News and Publishing",4.19999980926514,124
+"c_1972","Tompkins International","Less than $1B (USD)","Less than 10,000","Consulting and Business Services",3,6
+"c_1973","Tonal","","","",NA,NA
+"c_1974","Toole Design Group LLC","","","",NA,NA
+"c_1975","TopSchoolJobs.org","","","",NA,NA
+"c_1976","Toptal","","","Human Resources and Staffing",4.599999905,12
+"c_1977","Tory Burch","","","",3.70000004768372,237
+"c_1978","Toyota Research Institute","","","",NA,NA
+"c_1981","TracFone Wireless","","Less than 10,000","Telecommunications",3.5,91
+"c_1980","Trace3","","","",3.40000009536743,8
+"c_1982","Tractor Supply Company","$5B to $10B (USD)","10,000+","Retail",3.59999990463257,2380
+"c_1983","TracyLocke","Less than $1B (USD)","Less than 10,000","Consulting and Business Services",3.90000009536743,17
+"c_1984","Tradesy","","","",4.5,2
+"c_1985","Transamerica","More than $10B (USD)","Less than 10,000","Insurance",3.700000048,621
+"c_1986","Tranzact","","","Consulting and Business Services",3.20000004768372,38
+"c_1987","Travelers","More than $10B (USD)","10,000+","Insurance",3.70000004768372,1434
+"c_1988","Traxion Group, Inc","","","",NA,NA
+"c_1989","Tredence","","","",4.800000191,4
+"c_1990","Trend Micro","","","",4,98
+"c_1993","TriHealth","","","Health Care",3.90000009536743,344
+"c_1991","Trianz","","","",3.599999905,15
+"c_1992","Trident Technologies LLC","","","",NA,NA
+"c_1994","Trimble","Less than $1B (USD)","Less than 10,000","Internet and Software",3.70000004768372,142
+"c_1995","Trimble Inc.","Less than $1B (USD)","Less than 10,000","Internet and Software",3.70000004768372,142
+"c_1996","Trinity Health","","","Health Care",4.19999980926514,310
+"c_1997","TripAdvisor","","Less than 10,000","Internet and Software",4.099999905,67
+"c_1998","TripleLift","","","",NA,NA
+"c_1999","Triquetro","","","",NA,NA
+"c_2000","TrueCar, Inc.","","","",3.40000009536743,21
+"c_2002","Tsource","","","",NA,NA
+"c_2003","Turnitin, LLC","","","",NA,NA
+"c_2005","Twentieth Century Fox","","","",4,60
+"c_2007","Twitch","","Less than 10,000","Media, News and Publishing",4.5,44
+"c_2008","Twitter","$1B to $5B (USD)","Less than 10,000","Internet and Software",3.90000009536743,63
+"c_2009","Two Sigma Investments, LLC.","","","Banks and Financial Services",3.5,8
+"c_2011","U.S. Anesthesia Partners","","Less than 10,000","Health Care",3.20000004768372,45
+"c_2012","U.S. Bank","More than $10B (USD)","10,000+","Banks and Financial Services",3.70000004768372,5986
+"c_2013","U.S. Venture, Inc.","","Less than 10,000","",3.40000009536743,23
+"c_2016","UBS","","10,000+","Banks and Financial Services",3.90000009536743,1674
+"c_2017","UC DAVIS HEALTH SYSTEM","","","Education and Schools",4.09999990463257,196
+"c_2018","UCHealth","","","Health Care",3.90000009536743,573
+"c_2019","UCLA Health","","","Health Care",4.19999980926514,357
+"c_2020","UCS Consulting","","","",NA,NA
+"c_2021","UES","","","",4.40000009536743,11
+"c_2024","UJA Federation of New York","","","",3.79999995231628,17
+"c_2027","UL LLC","","","",3.70000004768372,262
+"c_2035","UNITE HERE HEALTH","","","",3.90000009536743,9
+"c_2037","UNITED NEGRO COLLEGE FUND","","","",3.79999995231628,35
+"c_2063","UPMC","More than $10B (USD)","10,000+","Health Care",3.79999995231628,2433
+"c_2064","UPS","More than $10B (USD)","10,000+","Transport and Freight",3.90000009536743,27660
+"c_2067","US Information Technologies","","Less than 10,000","Consulting and Business Services",3.700000048,9
+"c_2068","US Pharmacopeia","","","",4.09999990463257,17
+"c_2069","US Software & Consulting","","","",NA,NA
+"c_2070","USAA","More than $10B (USD)","10,000+","Insurance",4,2175
+"c_2072","USANA Health Sciences","Less than $1B (USD)","Less than 10,000","Consumer Goods and Services",4.300000191,107
+"c_2073","USANA Health Services","Less than $1B (USD)","Less than 10,000","Consumer Goods and Services",4.300000191,107
+"c_2074","USfalcon","","","",4.09999990463257,39
+"c_2075","UT Southwestern Medical Center","","","Health Care",3.90000009536743,500
+"c_2076","UTC","More than $10B (USD)","10,000+","Aerospace and Defense",4,1065
+"c_2014","Uber","","10,000+","Internet and Software",3.79999995231628,642
+"c_2015","Ubisoft","$1B to $5B (USD)","Less than 10,000","Internet and Software",3.90000009536743,170
+"c_2022","Uhana, Inc.","","","",NA,NA
+"c_2023","UiPath","","","Internet and Software",2.5,2
+"c_2026","Ukpeagvik Iñupiat Corporation/Bowhead Family of Companies","","","Government",2.90000009536743,9
+"c_2028","Ulta Beauty","$1B to $5B (USD)","10,000+","Retail",3.5,3919
+"c_2029","Ultimate Software","","Less than 10,000","Internet and Software",4.40000009536743,194
+"c_2030","Under Armour","$1B to $5B (USD)","Less than 10,000","Consumer Goods and Services",3.90000009536743,620
+"c_2031","Underwriters Laboratories","","","",3.70000004768372,262
+"c_2032","Unilever","More than $10B (USD)","10,000+","Consumer Goods and Services",4.19999980926514,5417
+"c_2033","Union Bank & Trust","$5B to $10B (USD)","Less than 10,000","Banks and Financial Services",3.40000009536743,65
+"c_2034","Unisys","","10,000+","Internet and Software",3.70000004768372,1924
+"c_2036","United Fire Group","Less than $1B (USD)","Less than 10,000","Insurance",3.5,33
+"c_2038","United Network for Organ Sharing","","","",3.5,11
+"c_2039","United States Associati","","","",NA,NA
+"c_2040","United States Steel","More than $10B (USD)","10,000+","Industrial ManufacturingAgriculture and Extraction",3.5,958
+"c_2041","Unity Technologies","","Less than 10,000","",4.09999990463257,13
+"c_2042","Universal Consulting Services","","Less than 10,000","Consulting and Business Services",3.59999990463257,23
+"c_2043","Universal Health Services","","","Health Care",4,56
+"c_2044","Universities Space Research Association","","","",4.30000019073486,11
+"c_2045","University of California Berkeley","","","Education and Schools",4.09999990463257,263
+"c_2046","University of California San Francisco","","","Education and Schools",4.19999980926514,282
+"c_2047","University of California San Francisco Medical Center","","","Health Care",4.19999980926514,300
+"c_2048","University of California UCOP","","","Education and Schools",4.30000019073486,1198
+"c_2049","University of Colorado","","","Education and Schools",4.19999980926514,758
+"c_2050","University of Idaho","","","Education and Schools",4.19999980926514,233
+"c_2051","University of Maryland Medical System","","10,000+","Health Care",4,737
+"c_2052","University of Maryland, Baltimore","","","Education and Schools",4.099999905,93
+"c_2053","University of Massachusetts Medical School","","","Education and Schools",4.19999980926514,689
+"c_2054","University of Michigan","","","Education and Schools",4.40000009536743,1332
+"c_2055","University of Minnesota","","","Education and Schools",4.19999980926514,930
+"c_2056","University of Pennsylvania","","10,000+","Education and Schools",4.19999980926514,722
+"c_2057","University of Texas at Arlington","","","Education and Schools",4.30000019073486,454
+"c_2058","University of Texas at San Antonio","","","Education and Schools",4.30000019073486,281
+"c_2059","University of Utah","","10,000+","Education and Schools",4.19999980926514,430
+"c_2060","University of Virginia Health System","","Less than 10,000","Health Care",3.59999990463257,84
+"c_2061","University of Washington","","","Education and Schools",4.19999980926514,887
+"c_2062","UpClear","","","",NA,NA
+"c_2065","Upstart","","","Banks and Financial Services",3.700000048,6
+"c_2066","Upwork","","Less than 10,000","Internet and Software",4.099999905,831
+"c_2083","VCU Health System","","10,000+","Health Care",3.59999990463257,169
+"c_2128","VMware","$5B to $10B (USD)","10,000+","Internet and Software",4,649
+"c_2134","VROOM","","","",3.09999990463257,19
+"c_2135","VSCO","","","",NA,NA
+"c_2136","VVC Holding Corp","","","",NA,NA
+"c_2077","Valassis Digital","","","",4,2
+"c_2078","Vanda Pharmaceuticals Inc.","","","",NA,NA
+"c_2079","Vanguard","","10,000+","Banks and Financial Services",3.90000009536743,741
+"c_2080","Vantiv","$1B to $5B (USD)","Less than 10,000","Banks and Financial Services",3.40000009536743,183
+"c_2081","Varen Technologies","","","",4.30000019073486,4
+"c_2082","Varian Medical Systems","","","",3.90000009536743,183
+"c_2084","Veeva","Less than $1B (USD)","Less than 10,000","Internet and Software",3.79999995231628,22
+"c_2085","Vera Whole Health","","","",4.30000019073486,6
+"c_2086","Verb Surgical","","","",NA,NA
+"c_2087","Verisk Analytics","","Less than 10,000","Consulting and Business Services",3.799999952,104
+"c_2088","Veritone","","","",3,2
+"c_2089","Verizon","More than $10B (USD)","10,000+","Telecommunications",3.90000009536743,21269
+"c_2090","Verra Mobility","","Less than 10,000","Transport and Freight",3.40000009536743,30
+"c_2091","Verscend Technologies","","","",3.40000009536743,75
+"c_2092","Vertex","","Less than 10,000","Pharmaceuticals",3.90000009536743,182
+"c_2093","Vertex Pharmaceuticals","","Less than 10,000","Pharmaceuticals",3.90000009536743,182
+"c_2094","Vertical Careers, Inc.","","","",NA,NA
+"c_2095","Veteran's Enterprise Technology Solutions, Inc.","","","Internet and Software",2.900000095,12
+"c_2096","Vets First Choice","","","Pharmaceuticals",2.700000048,15
+"c_2097","Vettery","","","",NA,NA
+"c_2098","Vevo","","","",NA,NA
+"c_2101","ViaSat","$1B to $5B (USD)","Less than 10,000","Telecommunications",3.79999995231628,182
+"c_2099","Viacom","More than $10B (USD)","Less than 10,000","Media, News and Publishing",4.099999905,485
+"c_2100","Viant","","","",3.200000048,6
+"c_2102","VideoAmp","","Less than 10,000","Internet and Software",4.300000191,3
+"c_2103","VillageCare","","","",3.09999990463257,27
+"c_2104","VincentBenjamin","","","",3.59999990463257,5
+"c_2105","Viome","","","",NA,NA
+"c_2106","Viral Launch, Inc.","","","",NA,NA
+"c_2107","Virbac Animal Health","","","",3.59999990463257,22
+"c_2108","Virginia Jobs","","","Government",3.79999995231628,150
+"c_2109","Virginia Mason Medical Center","","Less than 10,000","Health Care",3.90000009536743,138
+"c_2110","Virginia Tech","","","Education and Schools",4.400000095,469
+"c_2111","Virginia Tech Applied Research Corporation","","","Education and Schools",4.40000009536743,469
+"c_2112","Virtru","","","",NA,NA
+"c_2113","VirtueGroup","","","",NA,NA
+"c_2114","Virtus Partners","","","",2.59999990463257,19
+"c_2115","Visa","More than $10B (USD)","10,000+","Banks and Financial Services",4,656
+"c_2116","Visionist, Inc.","","","",NA,NA
+"c_2117","Vista Technology Services","","Less than 10,000","Consulting and Business Services",5,2
+"c_2118","Vistage Worldwide","","Less than 10,000","Consulting and Business Services",3.79999995231628,10
+"c_2119","Vistaprint","$1B to $5B (USD)","Less than 10,000","Retail",3.799999952,101
+"c_2120","Vistra Energy","","","",4.59999990463257,9
+"c_2121","Visual Awareness Technologies and Consulting, Inc.","","","",NA,NA
+"c_2122","Vitals","","","",4.40000009536743,27
+"c_2123","Vituity","","","Human Resources and Staffing",3.5,13
+"c_2124","Vivid Seats","","Less than 10,000","",3.79999995231628,54
+"c_2125","VividCortex","","","",NA,NA
+"c_2126","Vivint Smart Home","","","",NA,NA
+"c_2127","Vivo","","","",4.30000019073486,1907
+"c_2129","Volanno","","","",NA,NA
+"c_2130","Voloridge Investment Management","","","",NA,NA
+"c_2131","Volvo Group","More than $10B (USD)","10,000+","Auto",4.09999990463257,2015
+"c_2132","Vox Financial Partners","","","",NA,NA
+"c_2133","Voya Financial","","","Banks and Financial Services",3.40000009536743,203
+"c_2137","W.R. Berkley","Less than $1B (USD)","Less than 10,000","Insurance",3.5,11
+"c_2138","W.W. Grainger","$5B to $10B (USD)","10,000+","Industrial ManufacturingConsumer Goods and Services",3.799999952,1930
+"c_2166","WEX Inc.","","","",3.599999905,81
+"c_2185","WP Engine","Less than $1B (USD)","Less than 10,000","Internet and Software",4.19999980926514,14
+"c_2187","WW International (formerly Weight Watchers)","","","",NA,NA
+"c_2188","WWE","","Less than 10,000","Media, News and Publishing",3.79999995231628,76
+"c_2139","Walmart","More than $10B (USD)","10,000+","Retail",3.599999905,157475
+"c_2140","Walmart eCommerce","","Less than 10,000","Internet and Software",3.700000048,252
+"c_2141","Warby Parker","","","Consumer Goods and Services",4,45
+"c_2142","Wargaming.net","","","",4,11
+"c_2143","Washington State Hospital Association (WSHA)","","","",NA,NA
+"c_2144","Watts Water Technologies","$1B to $5B (USD)","Less than 10,000","Industrial Manufacturing",3.20000004768372,104
+"c_2145","Wayfair","$1B to $5B (USD)","Less than 10,000","Internet and Software",3.40000009536743,397
+"c_2146","Waymo","","","",3.59999990463257,5
+"c_2165","WeWork","","","Consulting and Business Services",3.20000004768372,81
+"c_2147","Wealthfront","","","",NA,NA
+"c_2148","Weatherford","More than $10B (USD)","10,000+","Energy and Utilities",3.90000009536743,3148
+"c_2151","WebMD","Less than $1B (USD)","Less than 10,000","Internet and Software",3.59999990463257,157
+"c_2149","WebbMason Analytics","","","",4.5,2
+"c_2150","Weber Shandwick","","","",4,108
+"c_2152","Webster Bank","More than $10B (USD)","Less than 10,000","Banks and Financial Services",3.40000009536743,260
+"c_2153","WeddingWire","","Less than 10,000","Internet and Software",3.70000004768372,11
+"c_2154","WeedMaps","","","",2.700000048,12
+"c_2155","WellCare","More than $10B (USD)","Less than 10,000","Health Care",3.5,1008
+"c_2158","WellSky","","","",NA,NA
+"c_2156","Wellmore, Inc.","","","",NA,NA
+"c_2157","Wells Fargo","More than $10B (USD)","10,000+","Banks and Financial Services",3.79999995231628,29966
+"c_2159","Welltower","","","",3.29999995231628,12
+"c_2160","West Corporation","$1B to $5B (USD)","10,000+","Telecommunications",3.29999995231628,3094
+"c_2164","WestRock","More than $10B (USD)","10,000+","Industrial Manufacturing",3.40000009536743,1378
+"c_2161","Western Digital","More than $10B (USD)","10,000+","Computers and Electronics",3.90000009536743,318
+"c_2162","Western National Insurance Group","","","Insurance",2,3
+"c_2163","Western Union","$5B to $10B (USD)","10,000+","Banks and Financial Services",4,1048
+"c_2167","Whole Foods Market","More than $10B (USD)","10,000+","Retail",3.900000095,7163
+"c_2168","Wildlife Conservation Society","","","Organization",3.90000009536743,146
+"c_2169","Wiley","","","Consulting and Business Services",3.90000009536743,208
+"c_2170","William Blair & Company","","","",4,24
+"c_2171","William E. Wecker Associates, Inc.","","","",NA,NA
+"c_2172","Williams-Sonoma, Inc.","","","",3.700000048,1690
+"c_2173","Willis Towers Watson","More than $10B (USD)","10,000+","Consulting and Business Services",3.79999995231628,779
+"c_2174","Windstream","$5B to $10B (USD)","10,000+","Telecommunications",3.299999952,1187
+"c_2175","Windstream Communications","$5B to $10B (USD)","10,000+","Telecommunications",3.299999952,1187
+"c_2176","Wipro LTD","","10,000+","Transport and Freight",3.79999995231628,11485
+"c_2177","Wish","","Less than 10,000","Internet and Software",4,17
+"c_2178","Wolters Kluwer","$5B to $10B (USD)","10,000+","Media, News and Publishing",3.70000004768372,559
+"c_2179","Wolverine Trading","","","",4.099999905,10
+"c_2180","Women's World Banking","","","",4,4
+"c_2181","Wood","","","Agriculture and Extraction",4,944
+"c_2182","Workbridge Associates","","Less than 10,000","Human Resources and Staffing",3.40000009536743,40
+"c_2183","Workday","$1B to $5B (USD)","","Internet and Software",3.90000009536743,56
+"c_2184","World Fuel","More than $10B (USD)","Less than 10,000","Energy and Utilities",3.40000009536743,99
+"c_2186","Wunderman","","","",3.90000009536743,197
+"c_2189","Wycliffe Bible Translators","","","",4.40000009536743,14
+"c_2190","Wyndham Hotels & Resorts","","","",3.90000009536743,63
+"c_2194","XL Catlin","","","",4,81
+"c_2195","XLA","","","",3.09999990463257,15
+"c_2196","XPO Logistics, Inc.","$1B to $5B (USD)","10,000+","Transport and Freight",3.29999995231628,3484
+"c_2191","Xactly Corporation","","","",4,7
+"c_2192","Xandr","","","",NA,NA
+"c_2193","Xilinx","$1B to $5B (USD)","Less than 10,000","Industrial Manufacturing",3.90000009536743,96
+"c_2197","Xylem","","","Industrial Manufacturing",3.59999990463257,276
+"c_2198","Yamaha","Less than $1B (USD)","Less than 10,000","Industrial Manufacturing",4.09999990463257,170
+"c_2199","Yapstone","","","",3.5,30
+"c_2200","Yelp","Less than $1B (USD)","Less than 10,000","Internet and Software",3.59999990463257,326
+"c_2201","Yodlee","","Less than 10,000","Internet and Software",3.900000095,61
+"c_2202","YourMechanic","","Less than 10,000","Auto",2.79999995231628,4
+"c_2203","Youth Policy Institute","Less than $1B (USD)","Less than 10,000","Organization",4,108
+"c_2207","ZEISS Group","Less than $1B (USD)","10,000+","Industrial Manufacturing",3.59999990463257,251
+"c_2216","ZF","","","Industrial Manufacturing",3.90000009536743,1166
+"c_2220","ZIN TECHNOLOGIES INC.","","","",3.79999995231628,11
+"c_2204","Zachary Piper Solutions","Less than $1B (USD)","Less than 10,000","Internet and Software",3.79999995231628,4
+"c_2205","Zazzle","","","",3.70000004768372,58
+"c_2206","Zeiss","Less than $1B (USD)","10,000+","Industrial Manufacturing",3.59999990463257,251
+"c_2208","Zelis Healthcare","","","Health Care",2.59999990463257,29
+"c_2209","ZeniMax Media Inc.","","","",4.40000009536743,11
+"c_2210","Zenith","","","",3.5,358
+"c_2211","ZestFinance","","","",3,3
+"c_2213","Zeta Global","","","",3,15
+"c_2214","Zeus","","","",4,34
+"c_2215","Zeus Living","","","",NA,NA
+"c_2217","Zilker Partners","","","",NA,NA
+"c_2218","Zillow Group","Less than $1B (USD)","Less than 10,000","Real Estate",4,80
+"c_2219","Zimmerman Advertising","","","",2.90000009536743,68
+"c_2221","Zingbox","","","",NA,NA
+"c_2222","Zipcar","Less than $1B (USD)","Less than 10,000","Auto",3.599999905,47
+"c_2223","ZocDoc","","Less than 10,000","Internet and Software",3.5,45
+"c_2224","Zodiac Aerospace","","","Transport and Freight",3.29999995231628,1133
+"c_2225","Zot Inc.","","","",NA,NA
+"c_2226","Zotec Partners","","Less than 10,000","Health Care",3,87
+"c_2227","Zscaler","","Less than 10,000","Internet and Software",4.099999905,16
+"c_2229","Zumba Fitness, LLC","","","Consumer Goods and Services",4,10
+"c_2230","Zumper","Less than $1B (USD)","Less than 10,000","Real Estate",4.30000019073486,3
+"c_2231","Zurich North America","More than $10B (USD)","10,000+","Insurance",3.70000004768372,687
+"c_2232","Zynga","","","",3.79999995231628,79
+"c_2","[24]7","Less than $1B (USD)","10,000+","Computers and Electronics",3.90000009536743,211
+"c_202","aThingz","","","",NA,NA
+"c_95","alliantgroup","","Less than 10,000","Consulting and Business Services",2.5,43
+"c_201","athenahealth","","Less than 10,000","Internet and Software",3.700000048,245
+"c_234","b.well","","","",NA,NA
+"c_305","bluebird bio","","","",4,2
+"c_360","cableyou","","","",NA,NA
+"c_458","citius tech","","","",4,68
+"c_523","comScore","","","",3.5,62
+"c_612","ddms","","","",2.59999990463257,5
+"c_625","devwrx","","","",NA,NA
+"c_655","doTERRA International","","","Consumer Goods and Services",4.40000009536743,149
+"c_659","drawbridge","","","",4.699999809,3
+"c_685","eBay Inc.","","10,000+","Internet and Software",4,1531
+"c_696","eHire, LLC","","","",NA,NA
+"c_735","eQHealth Solutions","","","",2.5,30
+"c_742","eSpark","","","",3,2
+"c_702","elicit","","","",NA,NA
+"c_730","enVista","","","",3.59999990463257,11
+"c_905","goPuff","","","Consumer Goods and Services",2.59999990463257,48
+"c_981","hiretual.com","","","",NA,NA
+"c_1019","iD Tech","","","",4.5,39
+"c_1026","iHeartMedia, Inc.","$5B to $10B (USD)","10,000+","Media, News and Publishing",3.700000048,1087
+"c_1027","iHerb","","","",3.5,33
+"c_1081","iRobot Corporation","","","",4.099999905,20
+"c_1083","iSpot.tv, Inc.","","","",NA,NA
+"c_1078","ipsy","","","",4,4
+"c_1118","jump ramp","","","",NA,NA
+"c_1162","ktMINE","","","",NA,NA
+"c_1235","lululemon athletica","","","",4.300000191,413
+"c_1246","maconit","","","",NA,NA
+"c_1334","momofuku","","","",4.30000019073486,12
+"c_1359","myCOI","","Less than 10,000","Insurance",3.79999995231628,6
+"c_1655","realtor.com","","Less than 10,000","Internet and Software",3.599999905,36
+"c_1740","securonix","","","",1.70000004768372,6
+"c_1828","stanleyreid","","","",NA,NA
+"c_1838","stearns bank","","","Banks and Financial Services",2.79999995231628,5
+"c_1866","sweetgreen","","Less than 10,000","Food and Beverages",3.70000004768372,201
+"c_1960","thoughtmatrix","","","",NA,NA
+"c_1962","thredUP Inc","","Less than 10,000","Retail",2.900000095,99
+"c_1964","thrivecausemetics.com","","","",NA,NA
+"c_2025","uJoynus","Less than $1B (USD)","Less than 10,000","Industrial Manufacturing",3.79999995231628,34
+"c_2071","usajobs.gov","","10,000+","Government",4.30000019073486,4227
+"c_2212","zesty.ai","","","",NA,NA
+"c_2228","zulily","","Less than 10,000","Retail",3.20000004768372,367

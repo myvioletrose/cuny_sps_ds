@@ -1,0 +1,24 @@
+<root>
+    <book>
+        <Title>On the Origin of Species</Title>
+        <Author>Charles Darwin</Author>
+        <Genre>Anti-Religious Study</Genre>
+        <Year>1859</Year>
+        <ISBN>9781515383284</ISBN>
+    </book>
+    <book>
+        <Title>The Communist Manifesto</Title>
+        <Author>Karl Marx, Friedrich Engels</Author>
+        <Genre>Political Thriller, Satire</Genre>
+        <Year>1848</Year>
+        <ISBN>9780140447576</ISBN>
+    </book>
+    <book>
+        <Title>Civilization and Its Discontents</Title>
+        <Author>Sigmund Freud</Author>
+        <Genre>Clinical History of the West</Genre>
+        <Year>1930</Year>
+        <ISBN>9781453833896</ISBN>
+    </book>
+</root>
+
