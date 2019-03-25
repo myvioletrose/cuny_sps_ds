@@ -1,0 +1,49 @@
+---
+title: "Project 3"
+output: html_document
+---
+```{r}
+  library(DT)
+  library(stringr)
+  library(plyr)
+  library(tidyr)
+  library(dplyr)
+```
+##Company
+```{r}
+  companyTable <- read.csv("company.csv")
+  datatable(companyTable, options = list(pageLength = 5))
+```
+
+##Description
+```{r}
+  description <- read.csv("description.csv")
+  #datatable(description, options = list(pageLength = 1))
+```
+
+##Job Position
+```{r}
+  position <- read.csv("job_position.csv")
+  #datatable(position, options = list(pageLength = 5))
+```
+
+##Job_Post_Specific
+```{r}
+  job_post_specific <- read.csv("job_post_specific.csv")
+  #datatable(job_post_specific, options = list(pageLength = 5))
+```
+
+##Company + Skill Data Tidying
+```{r}
+
+position$skill <- str_split(position$skill, "\\[|\\]")
+
+positionDF <- select(position, company_id, skill)
+companyDF <- select(companyTable, company_id, company)
+positionDF <- positionDF %>% 
+    mutate(skill = strsplit(as.character(skill), ",")) %>% 
+    unnest(skill)
+result <- merge(positionDF, companyDF, by="company_id")
+datatable(result)
+```
+ 

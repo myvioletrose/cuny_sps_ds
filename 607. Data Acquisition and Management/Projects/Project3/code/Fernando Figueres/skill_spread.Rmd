@@ -1,0 +1,44 @@
+---
+title: "Skill Extraction - Indeed Dataset"
+output: html_notebook
+---
+
+```{r Library}
+suppressMessages(library(tidyverse))
+```
+
+```{r Import and Wide}
+dfwide <- read_csv("indeed.csv", na = "null") %>% # Error "Missing column names filled in: 'X1' [1]..." can be ignored
+  select (-c(X1)) %>% #Remove row number var from csv
+  select(Link, Skill) %>% #Take the link as an identifier and the skills column
+  rename(skill = Skill) %>% #Change to lower-case
+  mutate(skill = stringi::stri_extract_all(skill,regex = "(?!')((?:''|[^'])*)(?=(',)|(']))"), V2 = 1) %>% #extract individual skills
+  unnest(skill, .id = "id") %>% #Skills to rows
+  spread(skill, V2, fill = 0) %>% #Skills rows to columns
+  select (-c(`<NA>`,id)) %>% #remove unused columns
+  rename(NLP = `Natural Language Processing`) #Makes the chart look better
+```
+
+```{r Tall}
+dftall <- dfwide %>% 
+  gather(key = "skill",value = "required", 2:465)
+```
+
+
+```{r Summarise}
+dftop <- dftall %>% 
+  group_by(skill) %>% 
+  summarise(count = sum(required)) %>% 
+  arrange(count) %>% 
+  top_n(30)
+```
+
+```{r fig.width=4, fig.height=6}
+p<-ggplot(data=dftop, aes(x=reorder(skill,count), y=count), width=.5,position = position_dodge(width = 60)) +
+  ggtitle("Data Science Skills")+
+  geom_bar(stat="identity", fill="steelblue")+
+  theme_minimal() +
+  coord_flip() 
+p
+```
+

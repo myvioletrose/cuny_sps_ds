@@ -1,0 +1,606 @@
+---
+title: "Data Science Skills"
+author: "Jim Ng, Lewris Mota, Suma Gopal, Fernando Figueres"
+date: "March 22, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+
+library(tidyverse)
+library(kableExtra)
+library(plyr)
+library(Hmisc)
+library(sqldf)
+library(shiny)
+
+
+```
+***
+###Data Acquisition { .tabset}
+
+#### Data loading
+
+In this stage, the original dataframe will be loaded into the environment in order to start the cleaning process.
+
+```{r}
+indeed_dt <- read.csv("indeed_job_dataset.csv", stringsAsFactors = F)
+# clean up header
+names(indeed_dt) <- tolower(names(indeed_dt))
+
+```
+
+####  Original Dataset Display
+
+Dimensions:
+```{r}
+dim(indeed_dt)
+
+```
+
+
+Display of the first 50 rows from the data.
+```{r, echo=FALSE}
+indeed_dt %>%
+  head(.,n=50) %>% 
+  kable() %>%
+  kable_styling()%>%
+  scroll_box(width = "100%",height = "300px")
+```
+
+
+### Transformations
+
+```{r, warning=FALSE}
+
+indeed_dt <- indeed_dt %>%
+              mutate(jk_id = str_extract_all(link, pattern = "jk=[[:alnum:]]+&") %>% 
+                              str_replace_all(., pattern = "jk=|&", replacement = ""),
+                      fcc_id = str_extract_all(link, pattern = "fccid=[[:alnum:]]+&") %>% 
+                              str_replace_all(., pattern = "fccid=|&", replacement = ""))
+
+```
+
+```{r eval=FALSE, include=FALSE}
+
+
+indeed_dt %>% head()
+sapply(list(indeed_dt$jk_id, indeed_dt$fcc_id), function(x){length(unique(x))})
+
+
+```
+
+
+```{r}
+# lookup both Ids, some links are missing the "jk_id"
+jk_id.lookup <- plyr::count(indeed_dt, "jk_id") %>% arrange(desc(freq))
+
+
+```
+
+```{r}
+# "fcc_id" can be duplicated because the same company can post the same job position with different attributes, most likely offering the same position in different locations
+fcc_id.lookup <- count(indeed_dt, "fcc_id") %>% arrange(desc(freq))
+
+```
+
+```{r}
+# the result indicates that each "jk_id" is unique in the data set; there is no duplication for any "jk_id"
+# however, 99 jobs have missing "jk_id"
+# why? what are these 99 jobs? 
+
+jk_id.missing <- indeed_dt %>%
+        filter(jk_id == "character(0)") 
+
+```
+
+```{r}
+# let's fix these "jk_id" - these are written differently as there's no "jk=" in these links        
+# e.g. https://www.indeed.com/company/Wag!/jobs/Data-Engineer-0633d6309b9f2be8?fccid=381733c3e1596619&vjs=3
+jk_id.missing <- jk_id.missing %>%
+        dplyr::mutate(jk_id = str_extract_all(jk_id.missing$link, pattern = "-[[:alnum:]]+\\?fccid") %>%
+                              str_replace_all(., pattern = "-|\\?fccid", replacement = ""))
+
+
+
+```
+
+```{r}
+# let's 'union all' both sets
+indeed_dt <- indeed_dt %>%
+        dplyr::filter(x %nin% jk_id.missing$x) %>%
+        dplyr::bind_rows(., jk_id.missing)
+
+```
+***
+### Data Normalization
+
+we are going to create a simple star schema for this data set we need four tables, i.e. "job_post_specific", "job_position", "company", & "description". "job_post_specific" table - "jk_id" is the primary key. Each "jk_id" is unique and that represents a post for one job position from a company.
+
+"job_position" table - beware of the original "fcc_id"! Note, the "job_post_specific" and "job_position" tables are different. The same job position is supposed to share an idential and unique "fcc_id"; however, there can be multiple posting. In other words, we expect to see the same "fcc_id" for multiple "jk_id". For instance, Google posted four identical position "Google AI Resident, 2019 Start (Fixed-Term Employee)" with the same "fcc_id" (a5b4499d9e91a5c6) but four different "jk_id". These four positions were offered in different locations (NY, MA, CA, & WA)
+
+We should consider these four positions as one when counting for skill sets; otherwise, we will inflate our numbers when calculating for the percentage based on skill sets; however, the data is also messy in terms of some companies posted different job positions with the same "fcc_id"! Using Google and the same "fcc_id" (a5b4499d9e91a5c6) as an example, there are actually 40 entries in the data set that share the same "fcc_id"! That simply means that there are different job positions share the same "fcc_id", but we also have identical jobs share the same "fcc_id" with different entries in the data set because they can be offered in different locations
+one extreme case, Booz Allen Hamilton posted 151 different jobs with identical "fcc_id" (4e041af1d0af1bc8)! We must clean up the messy "fcc_id" before splitting up the data set into four tables:
+
+We must 1) remove duplication of identical jobs (job_title, queried_salary, job_type, skill, company), and 2) create unique "fcc_unique_id" as the primary key. Last but not least, we also need to clean up the "company" table by creating a company Id and performing simple Change-Data-Capture
+
+#### Cleaning Job Position Dataframe
+```{r}
+job_position <- indeed_dt %>%
+        dplyr::select(fcc_id, job_title, queried_salary, job_type, skill, company) %>%
+        dplyr::distinct() %>%
+        # create a "fcc_unique_id" after the dplyr::distinct()
+        dplyr::mutate(fcc_unique_id = paste(row_number(), fcc_id, sep = "_"))
+
+
+
+```
+
+#### Cleaning Job Post Specific
+```{r}
+job_post_specific <- sqldf("
+select df.jk_id
+, jp.fcc_unique_id
+, df.link
+, df.date_since_posted
+, df.location 
+from job_position jp
+join (
+        select jk_id, fcc_id, job_title, queried_salary, job_type, skill, company
+        , link, date_since_posted, location
+        from indeed_dt
+) df on jp.fcc_id = df.fcc_id
+and jp.job_title = df.job_title 
+and jp.queried_salary = df.queried_salary 
+and jp.job_type = df.job_type 
+and jp.skill = df.skill 
+and jp.company = df.company
+")
+```
+
+```{r, message=FALSE}
+# create a company ID
+company_index <- indeed_dt %>%
+        dplyr::select(company) %>%
+        distinct() %>% 
+        arrange(company) %>%
+        dplyr::mutate(company_id = paste("c", row_number(), sep = "_"))
+
+job_position <- job_position %>%
+        dplyr::left_join(., company_index) %>%
+        dplyr::select(fcc_unique_id, job_title, queried_salary, job_type, skill, company_id)
+
+```
+#### Cleaning Company
+```{r, message=FALSE}
+# company #
+company <- indeed_dt %>%
+        dplyr::select(company, no_of_reviews, no_of_stars, company_revenue, company_employees, company_industry) %>%
+        distinct() %>%
+        dplyr::left_join(., company_index) %>%
+        dplyr::select(company_id, everything()) %>%
+        arrange(company_id)
+
+# perform simple CDC - Chang-Data-Capture
+# get rid of multiple entries by returning the max of "no_of_stars" and "no_of_reviews" b/c we suppose that's the latest update for the company
+company <- sqldf("
+select company_id, company, company_revenue, company_employees, company_industry
+, max(no_of_stars) as no_of_stars
+, max(no_of_reviews) as no_of_reviews
+from company
+group by 1, 2, 3, 4, 5
+order by company
+"
+)    
+```
+####  Cleaning Description
+```{r}
+
+description <- indeed_dt %>%
+        select(link, description) %>%
+        distinct()
+```
+***
+
+### CSV Parser { .tabset}
+
+For the purpose of speeding up the analysis process, processed dataframe is divided in four csv files that can be analyzed independently and stored in a database later on. In addition, the 10 first rows from each dataframe is displayed separately in tabs.
+
+#### CSV creation
+```{r}
+write.csv(job_position, "job_position.csv", row.names = F)
+write.csv(job_post_specific, "job_post_specific.csv", row.names = F)
+write.csv(company, "company.csv", row.names = F)
+write.csv(description, "description.csv", row.names = F)
+```
+
+#### Job Postion
+```{r echo=FALSE}
+
+job_position %>%
+  head() %>% 
+  kable() %>%
+  kable_styling()%>%
+  scroll_box(width = "100%",height = "300px")
+
+```
+
+
+#### Job Post
+```{r echo=FALSE}
+job_post_specific %>%
+  head() %>% 
+  kable() %>%
+  kable_styling()%>%
+  scroll_box(width = "100%",height = "300px")
+
+```
+
+#### Company
+```{r echo=FALSE}
+company %>%
+  head() %>% 
+  kable() %>%
+  kable_styling()%>%
+  scroll_box(width = "100%",height = "300px")
+```
+
+
+#### Description
+```{r echo=FALSE}
+description %>%
+  head() %>% 
+  kable() %>%
+  kable_styling()%>%
+  scroll_box(width = "100%",height = "300px")
+```
+### Database Storage
+
+***
+```{r eval = FALSE, echo = FALSE, echo = FALSE}
+# #Use this connection first, if a db hasn't been created.
+# mdb <- DBI::dbConnect(
+#   RMySQL::MySQL(),
+#   host = "35.226.125.86",
+#   user = "root",
+#   password = "rootpass"#rstudioapi::askForPassword("Database password"))
+#   
+# # Create the db
+# dbSendQuery(mdb, 'CREATE SCHEMA `project3`')
+#   
+# #Connection with schema specified
+#  mdb2 <- DBI::dbConnect(
+#   RMySQL::MySQL(),
+#   dbname = 'project3',
+#   host = "35.226.125.86",
+#   user = "root",
+#   password = rstudioapi::askForPassword("Database password")
+#     
+# # Create db tables and write data frame contents
+# dbWriteTable(mdb2, 'company', company, row.names = FALSE)
+# dbWriteTable(mdb2, 'job_postion', job_position, row.names = FALSE)
+# dbWriteTable(mdb2, 'job_post_specific', job_post_specific, row.names = FALSE)
+# dbWriteTable(mdb2, 'description', description, row.names = FALSE)
+```
+
+***
+### Analysis
+
+
+Before starting the analysis, some data cleaning is needed in order to separate the skills for each company. Since we are going to work with skillsets according to industries, only the companies with a defined industry will be used.
+```{r, warning=FALSE}
+skills <-  job_position$skill  %>% str_extract_all("(?<=\\')([a-zA-Z]{1,}).*?(?=\\')")
+
+positionFinal <- data.frame(company_id = rep(job_position$company_id,sapply(skills,length)),
+                            skills=unlist(skills))
+
+positionFinal <- left_join(positionFinal,company,by="company_id")
+
+
+positionFinal <- positionFinal %>% filter(.$company_industry != "")
+
+
+```
+
+#### Skills Diversity
+***
+
+Number of skills required by different industries. As shown in the graph below, the most diverse skill set is required by industries such as consulting and business services, internet and software, and financial services and banking.
+
+```{r echo=FALSE, message=FALSE}
+
+industries <- positionFinal %>% select(skills,company_industry) %>% group_by(company_industry) %>% tally() %>%  top_n(10)
+
+```
+
+```{r echo=FALSE}
+industries %>% 
+  ggplot(aes(x = reorder(.$company_industry,.$n),y = .$n))+geom_bar(stat = "identity",fill="steelblue")+coord_flip()+labs(title = "Industries with highest diversity of skills required")+xlab("Industries")+ylab("Number of skills")
+```
+
+
+
+#### Salary Index
+***
+
+As part of our analysis, we've calculated the relative value of each skill by dividing the expected salary of each position by the number of required skills. With this measure, we hoped to determine if some data scientist roles required less popular skills which command a higher salary.
+
+Expected salary intervals were converted to a 1 to 6 scale with 6 corresponding to expected salaries >$160000. This number was divided by the total number of skills and that weight is assigned to the skill. We later aggregated the mean and sums of this values as show in the charts below.
+
+Our first chart plots the sum of the relative values and gives us a very similar result to the raw count scores from the above chart.
+
+The next chart calculates the average of relative values in this shows a very different picture. Less common skills which are associated with higher paying jobs rise to the top. This chart is heavily influenced my skills with a low job count so the results need to be interpreted with caution. Rather than using it infer general trends, a candidate might find it useful to see if a skill he or she has might  open the door to a specialized role.
+
+
+```{r Import and Wide Salary}
+dfsalary<- indeed_dt %>% 
+  select(link,no_of_skills, queried_salary, skill) %>% #Take the link as an identifier and the skills column
+  mutate(skill = stringi::stri_extract_all(skill,regex = "(?!')((?:''|[^'])*)(?=(',)|(']))"), V2 = 1) %>% #extract individual skills
+  unnest(skill, .id = "id") %>% #Skills to rows
+  spread(skill, V2, fill = 0) %>%  #Skills rows to columns
+  select (-c(`<NA>`,id)) %>% #remove unused columns
+  dplyr::rename(NLP = `Natural Language Processing`) %>%  #Makes the chart look better
+  gather(key = "skill",value = "required", 4:467) %>% 
+  filter(required == 1) %>% 
+  mutate(salindex = queried_salary) %>% 
+  mutate(salindex = str_replace(salindex, "<80000", "1")) %>%
+  mutate(salindex = str_replace(salindex, "80000-99999", "2")) %>% 
+  mutate(salindex = str_replace(salindex, "100000-119999", "3")) %>% 
+  mutate(salindex = str_replace(salindex, "120000-139999", "4")) %>% 
+  mutate(salindex = str_replace(salindex, "140000-159999", "5")) %>% 
+  mutate(salindex = str_replace(salindex, ">160000", "6")) %>% 
+  mutate(skillval = as.numeric(salindex)/no_of_skills)
+```
+
+```{r Summarise sum val, message=FALSE}
+dftopsals <- dfsalary %>% 
+  group_by(skill) %>% 
+  dplyr::summarise(valsum = sum(skillval)) %>% 
+  arrange(valsum) %>% 
+  top_n(30)
+```
+
+
+```{r eval=FALSE, fig.height=6, fig.width=4}
+p<-ggplot(data=dftopsals, aes(x=reorder(skill,valsum), y=valsum), width=.5,position = position_dodge(width = 60)) +
+  ggtitle("Sum of Relative Skill Value")+
+  geom_bar(stat="identity", fill="steelblue")+
+  theme_minimal() +
+  coord_flip() 
+p
+```
+
+
+
+```{r Summarise mean val,include = FALSE}
+dftopsalm <- dfsalary %>% 
+  group_by(skill) %>% 
+  dplyr::summarise(valmean = mean(skillval)) %>% 
+  arrange(valmean) %>% 
+  top_n(30)
+```
+
+```{r fig.width=5, fig.height=6, echo = FALSE}
+p<-ggplot(data=dftopsalm, aes(x=reorder(skill,valmean), y=valmean), width=.5,position = position_dodge(width = 60)) +
+  ggtitle("Average of Relative Skill Value")+
+  geom_bar(stat="identity", fill="steelblue")+
+  theme_minimal() +
+  coord_flip() 
+p
+```
+
+#### Data Skills
+
+***
+
+```{r Import and Wide, echo = FALSE}
+dfwide <- job_position %>% 
+  select(fcc_unique_id, skill) %>% #Take the link as an identifier and the skills column
+  mutate(skill = stringi::stri_extract_all(skill,regex = "(?!')((?:''|[^'])*)(?=(',)|(']))"), V2 = 1) %>% #extract individual skills
+  unnest(skill, .id = "id") %>% #Skills to rows
+  spread(skill, V2, fill = 0) %>%  #Skills rows to columns
+  select (-c(`<NA>`,id)) %>% #remove unused columns
+  dplyr::rename(NLP = `Natural Language Processing`) #Makes the chart look better
+```
+
+```{r Tall, echo = FALSE}
+dftall <- dfwide %>% 
+  gather(key = "skill",value = "required", 2:465)
+```
+
+```{r Summarise, echo = FALSE, message = FALSE}
+dftop <- dftall %>% 
+  group_by(skill) %>% 
+  dplyr::summarise(count = sum(required)) %>% 
+  arrange(count) %>% 
+  top_n(30)
+```
+
+The chart below tallies the the skill count across the entire data set. We see that Python is the language of choice followed by R and Java. For database related technologies, SQL is the clear choice due to it's ubiquity followed by "big data" variants such as Hadoop and Spark.
+
+```{r fig.width=4, fig.height=6, echo = FALSE}
+
+p<-ggplot(data=dftop, aes(x=reorder(skill,count), y=count), width=.5,position = position_dodge(width = 60)) +
+  ggtitle("Data Science Skills")+
+  geom_bar(stat="identity", fill="steelblue")+
+  theme_minimal() +
+  coord_flip() 
+p
+```
+
+***
+### Data Visualization Apps { .tabset}
+
+Let's filter the top ten industries from the data.
+
+```{r,message=FALSE, warning=FALSE}
+
+skillPro <- positionFinal %>% filter(.$company_industry == industries$company_industry) %>% select(skills,company_industry) %>%  group_by(company_industry)
+
+```
+
+
+#### Skills by industry 
+
+This shinny App will help you to visualize the top 20 skills required by the top 10 industry displayed as a percentage.
+
+```{r echo=FALSE, fig.width=100}
+
+industries_lab <- skillPro$company_industry %>% as.factor() %>% levels()
+
+ui <- fluidPage(
+  titlePanel("Top 20 of most desired skills per industry"),
+  selectInput(inputId = "industry","Select Industry",choices = industries_lab ),
+  
+  plotOutput("barC")
+  
+)
+
+server <- function(input, output, session) {
+  
+  output$barC <- renderPlot({
+
+    
+    top_skills <- skillPro %>%
+      filter(company_industry == input$industry) %>%
+      count() %>%
+      arrange(desc(.$freq))
+    
+    percent = sum(top_skills[1:20,"freq"])
+        
+    top_skills[1:20,] %>%
+      ggplot(aes(x = reorder(.$skills,.$freq),y = (.$freq/percent)*100, fill=.$skill))+geom_histogram(stat = "identity")+coord_flip()+labs(title = "Skills By Industry")+xlab("Skills")+ylab("Importance of skill as percentage")+theme(legend.position = "none")
+
+    })
+  
+}
+
+shinyApp(ui, server)
+```
+
+
+#### Skill Counting
+
+This Shinny app displays the top 10 skills according to a company average rating and industry.
+
+```{r echo=FALSE}
+
+# load packages
+library(tidyverse)
+library(sqldf)
+library(shiny)
+
+# # load data 
+# load("data_ETL.Rda")
+
+# extract and join data from "job_position" and "company" tables
+j <- sqldf::sqldf("
+select c.no_of_stars
+, c.company_industry
+, j.fcc_unique_id
+, j.skill
+from company c 
+join job_position j on c.company_id = j.company_id
+where c.no_of_stars is not null 
+") %>%
+        dplyr::filter(str_length(skill) >1 & str_length(company_industry) >1) %>%
+        dplyr::mutate(skill = stringr::str_extract_all(skill,
+                                                       pattern =  "(?!')((?:''|[^'])*)(?=(',)|(']))")) %>%
+        unnest(skill, .id = "fcc_unique_id") %>%
+        dplyr::select(no_of_stars, company_industry, skill)
+
+# Define UI app ----
+ui <- fluidPage(
+        
+        # App title ----
+        titlePanel(em("Counting of Skills by Company Rating")),
+        
+        # Sidebar layout with input and output definitions ----
+        verticalLayout(
+                
+                sidebarPanel(
+                        uiOutput("Out1"),
+                        selectInput("industry", "Industry:",
+                                    unique(j$company_industry) %>% sort),
+                        sliderInput("rating", h3("Company Rating"),
+                                    min = 1, max = 5, value = c(1, 5), step = 0.1)
+                )
+                
+        ),
+        
+        # Main panel for displaying output ----
+        mainPanel(
+                conditionalPanel("input.choice === 'Industry'", plotOutput("plot")),
+                conditionalPanel("input.choice === 'Overall'", plotOutput("plot2"))
+        )
+)
+
+# Define server logic to plot various variables ----
+server <- function(input, output) {
+        
+        # Conditional Panel
+        output$Out1 <- renderUI({
+                radioButtons(
+                        "choice",
+                        "Would you like to see the output by industry or overall?",
+                        choices = c("Overall", "Industry"),
+                        selected = "Overall")
+        })
+        
+        # Generate a plot by industry based on input ----
+        output$plot <- renderPlot({
+                
+                j %>%
+                        dplyr::filter(no_of_stars >= min(input$rating) & 
+                                              no_of_stars <= max(input$rating) &
+                                              company_industry == input$industry) %>%
+                        dplyr::select(skill) %>%
+                        group_by(skill) %>%
+                        dplyr::summarise(n = n()) %>%
+                        arrange(desc(n)) %>%
+                        head(15) %>%
+                        dplyr::mutate(skill = fct_reorder(skill, n)) %>%
+                        ggplot(., aes(x = skill, y = n)) +
+                        geom_bar(stat = "identity", aes(fill = skill)) + 
+                        theme(legend.position = "none") +
+                        coord_flip() +
+                        labs(x = "", y = "jobs") +
+                        ggtitle(paste("Top Skills in ", input$industry, sep = ""))
+                
+        })
+        
+        # Generate an overall plot based on input ----
+        output$plot2 <- renderPlot({
+                
+                j %>%
+                        dplyr::filter(no_of_stars >= min(input$rating) & 
+                                              no_of_stars <= max(input$rating)) %>%
+                        dplyr::select(skill) %>%
+                        group_by(skill) %>%
+                        dplyr::summarise(n = n()) %>%
+                        arrange(desc(n)) %>%
+                        head(15) %>%
+                        dplyr::mutate(skill = fct_reorder(skill, n)) %>%
+                        ggplot(., aes(x = skill, y = n)) +
+                        geom_bar(stat = "identity", aes(fill = skill)) + 
+                        theme(legend.position = "none") +
+                        coord_flip() +
+                        labs(x = "", y = "jobs") +
+                        ggtitle("Overall Top Data Science Skills")
+                
+        })
+        
+}
+
+# Create Shiny app ----
+# shinyApp(ui, server)
+shinyApp(ui, server, options = list(height = 700, width = 1000))
+
+
+
+
+```
+
+
+
+
