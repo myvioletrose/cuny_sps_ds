@@ -1,0 +1,111 @@
+---
+title: "week_9_NYT_API"
+author: "Jimmy Ng"
+date: "March 29, 2019"
+output: html_document
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE, error = TRUE)
+```
+
+## Assignment
+
+The New York Times web site provides a rich set of APIs, as described here: http://developer.nytimes.com/docs
+
+You'll need to start by signing up for an API key. Your task is to choose one of the New York Times APIs, construct an interface in R to read in the JSON data, and transform it to an R dataframe.
+
+
+```{r load_packages, include = T, message = F, warning = F}
+library(tidyverse)
+library(jsonlite)
+library(tidytext)
+library(wordcloud)
+```
+
+
+## API Key
+
+```{r}
+my_key = "8pksSbRhREVBiY5g8kDGDZMfcSsOYwQX"
+```
+****
+
+## Movie Reivews - Loading JSON into data.frame { .tabset}
+
+### Movie Reviews - all
+```{r}
+nyt_mr_df <- jsonlite::fromJSON(txt = paste0("https://api.nytimes.com/svc/movies/v2/reviews/all.json?api-key=", my_key)) %>% data.frame
+
+nyt_mr_df %>%
+        head()
+```
+
+### Movie Reviews - query "Frozen"
+```{r}
+movie = "frozen"
+
+frozen_review <- jsonlite::fromJSON(txt = paste0("https://api.nytimes.com/svc/movies/v2/reviews/search.json?query=", movie, "&api-key=", my_key)) %>% data.frame
+
+frozen_review
+```
+
+
+## Article Searches - Loading JSON into data.frame { .tabset}
+
+### Article Searches - Trump
+```{r, error = T}
+library(devtools)
+devtools::install_github("mkearney/nytimes"); library(nytimes)
+
+# let's set some parameters to look for "Trump" for past 7 days
+search = "Trump"
+begin_date <- str_replace_all(Sys.Date()-7, "-", "")
+end_date <- str_replace_all(Sys.Date(), "-", "")
+url <- paste0("http://api.nytimes.com/svc/search/v2/articlesearch.json?q=", 
+                                      search, "&begin_date=", begin_date, "&end_date=", end_date, "&facet_filter=true&api-key=", my_key)
+initialQuery <- jsonlite::fromJSON(txt = url, flatten = TRUE) %>% data.frame()
+# find max pages
+max_page <- round((initialQuery$response.meta.hits[1] / 10) -1)
+
+# set up a for-loop to scrape all the pages (not just 10 pages at a time)
+pages <- list()
+for(i in 0:10){  # manually set the max page to 10
+# for(i in 0:max_page){
+  nytSearch <- jsonlite::fromJSON(paste0(url, "&page=", i), flatten = TRUE) %>% data.frame() 
+  message("Retrieving page ", i)  # keep track of where we usually fail
+  pages[[i+1]] <- nytSearch 
+  Sys.sleep(1)  # use it to avoid being interpretted as bot
+} 
+# We often encounter this message, "Error in open.connection(con, "rb") : HTTP error 429."
+# There are unfortunately too many pages and we cannot extract them at once!
+# We have to manually set the max page to 10
+
+combined <- rbind_pages(pages) 
+print(paste0("we have successfully scrapped ", dim(combined)[1], " articles about Trump in the past 7 days"))
+```
+
+### Headline Visualization
+```{r}
+# extract and unnest tokens from headline in the past 7 days
+headline <- combined$response.docs.headline.main %>% 
+        as.character %>% 
+        as.data.frame(., stringsAsFactors = F) %>%
+        tidytext::unnest_tokens(., output = word, input = ".", token = "words") %>%
+        dplyr::mutate(word = str_replace_all(word, pattern = "[[:punct:]]", "")) %>%
+        dplyr::filter(!word %in% c(stop_words$word, "donald", "trump", "trumps")) %>%
+        arrange(word)
+
+# visualize the words (or tokens) in word cloud
+# word appears at least 3 times in all the headlines in the past 7 days
+set.seed(1234)
+wordcloud(word = arrange(plyr::count(headline, vars = "word"), -freq)$word,
+          freq = arrange(plyr::count(headline, vars = "word"), -freq)$freq,
+          min.freq = 3, colors = brewer.pal(8, "RdBu"), scale = c(4, .1), rot.per = .2)
+```
+
+
+
+
+
+

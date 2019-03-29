@@ -3,6 +3,7 @@ title: "Data Science Skills"
 author: "Jim Ng, Lewris Mota, Suma Gopal, Fernando Figueres"
 date: "March 22, 2019"
 output: html_document
+
 ---
 
 ```{r setup, include=FALSE}
@@ -254,8 +255,6 @@ description %>%
   kable_styling()%>%
   scroll_box(width = "100%",height = "300px")
 ```
-### Database Storage
-
 ***
 ```{r eval = FALSE, echo = FALSE, echo = FALSE}
 # #Use this connection first, if a db hasn't been created.
@@ -303,7 +302,7 @@ positionFinal <- positionFinal %>% filter(.$company_industry != "")
 ```
 
 #### Skills Diversity
-***
+
 
 Number of skills required by different industries. As shown in the graph below, the most diverse skill set is required by industries such as consulting and business services, internet and software, and financial services and banking.
 
@@ -321,7 +320,7 @@ industries %>%
 
 
 #### Salary Index
-***
+
 
 As part of our analysis, we've calculated the relative value of each skill by dividing the expected salary of each position by the number of required skills. With this measure, we hoped to determine if some data scientist roles required less popular skills which command a higher salary.
 
@@ -391,7 +390,6 @@ p
 
 #### Data Skills
 
-***
 
 ```{r Import and Wide, echo = FALSE}
 dfwide <- job_position %>% 
@@ -601,6 +599,8 @@ shinyApp(ui, server, options = list(height = 700, width = 1000))
 
 ```
 
+### Conclusion
 
+In conclusion, the motivation was to study what skills were the most in demand for data scientists. We observed trends across the different industries and the different rated companies in the USA wherein skills such as Python, Machine Learning, SQL, and R were some of the most consistently in demand for Data Scientists.From all the industries, the most diverse skill sets were required in industries such as consulting and business services, internet and software, and financial services and banking. However, as a part of our insights shown in our shiny applications, these required skills sets may vary depending on the industry you are focusing or the rating that such companies have in any specific industry. Perhaps, a decade into the future, the most in-demand data scientist skills may continue to be machine learning, programming languages, and SQL.
 
 
