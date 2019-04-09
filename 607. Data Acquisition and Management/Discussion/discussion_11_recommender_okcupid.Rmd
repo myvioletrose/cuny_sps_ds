@@ -1,0 +1,41 @@
+---
+title: "discussion_11_recommender_okcupid"
+author: "Jimmy Ng"
+date: "April 9, 2019"
+output: html_document
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## OkCupid
+OkCupid is one of many online dating applications where users can sign up for free. The goal is to find perfect matches among users for dating offline. A matching algorithm is the main focus of this business model. 
+
+### Target users: 
+Anyone above a legal age for consent, seeking for online/offline dating 
+
+### Key goals: 
+Find a near perfect match for every user
+
+### How to accomplish these goals: 
+Matching is based on a user's profile and sign-up questionnaire
+
+## Reverse Engineering
+During the sign-up process, a user is asked for a series of typical and seemingly random questions. The typical questions include sexual orientation, goals for relationship (long term, short term, no commitment, etc), perception of marriage, religion, age, gender, etc. These questions and responses make sense as they create a profile for a user. A user also needs to include a short description about him/herself, in addition to upload a profile picture. Here, we see how AI plays a role when uploading a picture. The picture must be a human face. For example, the app does not allow a user to upload a picture of a cat, bottle, chair or anything in random (or obscene). On the other hand, the seemingly random questions during sign-up changes from time to time. OkCupid is constantly doing A/B testing on users. There are roughly 15 random questions, and these questions are in special sequences. For example, question number 10 would be different to two different users based on their initial responses on question 1 and/or 2. These random questions come from pop culture (like music) or individual habit/preference, e.g. sleeping position. 
+
+Massive data is collected and that goes beyond the matching process. It's used for upselling opportunities, e.g. users are persuaded to upgrade their free account to premium so that they can get access to more exclusive features of OkCupid (such as checking out more users' profiles and sending/receiving unlimited messages). 
+
+## Recommendation
+How does it compete with other competitors (Tinder, PoF, eharmony)? Althouhg it operates globally, how does it compete with local competitors (such as massive markets in India or China)? Does it work well in non-English speaking countries? Or, does it target to a specific group of audience (such as English-speaking, high education and high networth indviduals aged above 35?) How does it prevent bot? How does it make users feel their experience using OkCupid is authentic? For example, someone can upload a picture of Brad Pitt and subsequently receives many messages in his inbox, and obviously these are not "real" or authentic messages. 
+
+The challenge of online dating is to create a safe, virtual space that allows fantasy runs wild but still does not completely detach individuals from reality; otherwise, that will be just called sexting. OkCupid should spend more resources in enhancing users' experiences in these areas, 1) adjust messages displayed in landing page according to users' engaging experience (such as from text mining the messages exchagned between users and determining whether someone should see a different message when he/she logs in) - this is similar to subliminal messaging; 2) users are already predefined in different segments according to their behaviors and activities on OkCupid, different messages should be used to target users by time of day and location of logging in (such as someone should see a more flirty, fun messages on Friday or Saturday afternoon versus Monday morning in the office); 3) users should be encouraged to unsubscribe and/or erased account completely once they enter a stable and commited relationship. This is never seen or done by OkCupid or other competitors, but this is an important step to reinforce the idea of finding true love by using this service, and OkCupid is not here to make profit by encouraging people to cheat (unlike Ashley Madison). In fact, OkCupid should act like a non-profit, social media app (and of course it is not), but to make profit by selling data to third party data exchange (like their mother company, "match.com" selling data to DMP like Lotame or Bombora); and 4) buy data from third party data providers or ad exchange and then create a better matching algorithm by including third party data, e.g. psychographic (OCEAN personality traits), firmographic (CSuite, non-management), demographic (household income, networth), etc. 
+
+## References
+#### https://blogs.ams.org/mathgradblog/2016/06/08/okcupid-math-online-dating/
+#### https://www.elitedaily.com/p/how-does-okcupids-algorithm-work-the-app-makes-sure-your-matches-are-compatible-15927905
+
+
+```{r OkCupid, echo=FALSE, fig.cap = "Finding true love online!?", out.width = '100%'}
+knitr::include_graphics("OkCupid.png")
+```
