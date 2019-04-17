@@ -1,0 +1,16 @@
+My final project is about scraping data from glassdoor and using it to build a personal job posting recommendation. I will set up a script and that will run daily using Window Task Scheduler and the script would do the following, 
+
+- web scrape any job posted in the past 7 or 14 days related to "data analyst", "business intelligence" and also fullfilling a set of requirements (such as location, salary)
+- extract job id and clean up messy strings from the url
+- extract and/or web scrape company info (size, headquarter, industry, revenue)
+- save it as txt file in my local machine
+- perform change-data-capture (CDC) and then append the daily txt file to the existing data collection (for example, Lyft has been posting the same job with identical job id three times in past 7 days, I only want to see the latest one appears in the data set. In addition, if there's any update associated with the company, I only care to see the latest company info)
+- I will have a single data frame that is on "job" level. That means, each row represents one job. I will collect many quantitative data points (such as salary, company size, revenue) as well as a massive text collection of job description!
+- I will personally go through such data set and flag out jobs that I am interested in or not
+- I will do text mining of the job description in addition to combine it with the quantitative data points to train a classification model (such as Support-Vector-Machine or simply Naive Bayes) to classify jobs that I would be most likely interested to apply
+- eventually, I will set up a daily email alert at the end of script: send an email to myself about any job that is posted in the past X days that most likely I would be interested in applying
+- the "alert" can be sent in text and/or chart (ggplot or plotly)
+
+The motivation behind this project is to enhance my job searching experience, in addition to build a text mining, classification/recommendation model, so that I can learn from doing this project and presenting it to my potential employers in interviews. Above is a data science work-flow that mirrors the work-flow of a typical ETL (Extract-Transform-Load) process in data warehousing and business intelligence, where we extract data from source/production, clean and massage the data (do change-data-capture), put the data in staging before loading into production database, and finally productize it (such as fueling a dashboard for insights or modeling). The data will come from web scraping (glassdoor) and txt. The data can be stored in a relational database (such as PostgreSQL); however, the size of data will be relatively small and it is unnecessary to store it in RDBMS (I don't expect to collect more than 300 jobs in such short period of time unless there's all of a sudden a huge demand for data analysts or BI developers in the past 14 days in New York City that have expected salary over 100k plus bonus...which is highly unlikely). 
+
+There will be many data transformation/wrangling throughout the process, as well as statistical analysis (such as text mining, classification) and visualization (such as word cloud from the job description). I will use Window Task Scheduler (or ScheduleR) and send email(s) to myself - which is something not covered in class. 
