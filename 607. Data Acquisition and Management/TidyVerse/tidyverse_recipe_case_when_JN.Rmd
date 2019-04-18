@@ -1,0 +1,155 @@
+---
+title: "tidyverse_recipe: dplyr::case_when"
+author: "Jimmy Ng"
+date: "April 18, 2019"
+output: html_document
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## (1) Create an Example { .tabset}
+
+Let's load the tidyverse package and then load a sample data set from my github account. The original dataset comes from [kaggle](https://www.kaggle.com/vjchoudhary7/customer-segmentation-tutorial-in-python#Mall_Customers.csv). We will look at packages under the tidyverse, functions within "dplyr", and eventually zoom in into a specific dplyr function "case_when" with a sample use case.
+
+### Set-up
+```{r set-up, include = T, message = F, warning = F}
+# load package(s)
+library(tidyverse)
+library(janitor)
+library(kableExtra)
+
+# load data
+df <- read.csv("https://raw.githubusercontent.com/myvioletrose/school_of_professional_studies/master/607.%20Data%20Acquisition%20and%20Management/%23%20misc/Mall_Customers.csv") %>% 
+        janitor::clean_names(.)  # using janitor::clean_names() to clean up column names
+
+head(df) %>% kable() %>% kable_styling()
+```
+
+
+### tidyverse packages
+```{r tidyverse_packages}
+# how many packages live under the tidyverse?
+tidyverse_packages()
+```
+
+
+### dplyr
+```{r dplyr}
+# how many functions within "dplyr"?
+ls(pos = "package:dplyr")
+```
+
+
+### dplyr::case_when
+
+Here's an official description: *This function allows you to vectorise multiple if_else() statements. It is an R equivalent of the SQL CASE WHEN statement. If no cases match, NA is returned.*
+```{r case_when}
+# let's create a new variable using case_when by transforming a numeric variable into buckets
+# let's look at the distribution - before transformation
+hist(df$annual_income_k, main = "Annual Income (before transformation)")
+
+# let's create 10 buckets to represent this numeric variable
+buckets <- cut(df$annual_income_k, breaks = 10) %>% levels
+buckets
+
+# create a new categorical variable
+df$income_bucket <- cut(df$annual_income_k, breaks = 10)
+df <- df %>%
+        dplyr::mutate(income_bucket = dplyr::case_when(income_bucket == buckets[1] ~ "income level 0",
+                                                       income_bucket == buckets[2] ~ "income level 1",
+                                                       income_bucket == buckets[3] ~ "income level 2",
+                                                       income_bucket == buckets[4] ~ "income level 3",
+                                                       income_bucket == buckets[5] ~ "income level 4",
+                                                       income_bucket == buckets[6] ~ "income level 5",
+                                                       income_bucket == buckets[7] ~ "income level 6",
+                                                       income_bucket == buckets[8] ~ "income level 7",
+                                                       income_bucket == buckets[9] ~ "income level 8",
+                                                       income_bucket == buckets[10] ~ "income level 9",
+                                                       TRUE ~ as.character(income_bucket)))
+
+head(df) %>% kable() %>% kable_styling()
+
+# let's look at the distribution - after transformation
+table(df$income_bucket) %>% barplot(., ylab = "Frequency", main = "Annual Income (after transformation)")
+```
+***
+
+## (2) Extend an Existing Example { .tabset}
+
+I want to extend an existing example from Omar Pineda ("omarp120"). Here, we are looking at [Poll data](https://raw.githubusercontent.com/fivethirtyeight/data/master/ahca-polls/ahca_polls.csv). Do we see higher apporving (or favoring) of the health care bill when "Obama" is mentioned in the question (instead of "American Health Care Act")? Omar is using "str_detect" to extract "obama" from text and create a column to flag those pollsters out. We are going to transform the data and visualize the result.
+
+### dplyr::gather
+```{r gather}
+ratings <- read.csv("https://raw.githubusercontent.com/fivethirtyeight/data/master/ahca-polls/ahca_polls.csv")
+
+ratings$obama <- str_detect(ratings$Text, "Obamacare")
+
+# before gathering
+ratings %>% head() %>% kable() %>% kable_styling()
+
+ratings.gather <- ratings %>%
+        dplyr::select(Start, End, Pollster, Favor, Oppose, obama) %>%
+        tidyr::gather(., attitude, percent, -c(Start, End, Pollster, obama)) %>%
+        arrange(Start, End, Pollster)
+
+# after gathering the Favor and Oppose columns
+ratings.gather %>% kable() %>% kable_styling()
+```
+
+
+### ggplot - when Obama is NOT mentioned
+```{r obama_F, fig.width = 16, fig.height = 12}
+ratings.gather %>%
+        dplyr::filter(obama == F & attitude == "Favor") %>%
+        ggplot(., aes(x = reorder(paste(Pollster, Start, End, sep = " - "), percent),
+                      y = percent, group = attitude)) +
+        geom_bar(stat = "identity", position = "stack", fill = "deepskyblue") + 
+        geom_hline(yintercept = mean(
+                ratings.gather$percent[ratings.gather$obama == F & 
+                                               ratings.gather$attitude == "Favor"]
+                ), 
+                col = "black", linetype = "dashed") + 
+        scale_y_continuous(limits = c(0, 40), breaks = seq(0, 40, 5)) + 
+        labs(x = "", y = "") + 
+        ggtitle("Percentage of Favoring the Health Care Bill \n- when Obama is NOT mentioned") +
+        theme(legend.position = "none", plot.title = element_text(hjust = 0.5),
+              axis.text.x = element_text(angle = 45, vjust = 0.5, hjust = 0.5)) 
+```
+
+
+### ggplot - when Obama is mentioned
+
+The result does not seem to make a big difference (when we look at the dashed line representing the average among all pollsters); in fact, mentioning "obama" seems to draw higher approval.
+
+```{r obama_T, fig.width = 16, fig.height = 12}
+ratings.gather %>%
+        dplyr::filter(obama == T & attitude == "Favor") %>%
+        ggplot(., aes(x = reorder(paste(Pollster, Start, End, sep = " - "), percent),
+                      y = percent, group = attitude)) +
+        geom_bar(stat = "identity", position = "stack", fill = "firebrick") + 
+        geom_hline(yintercept = mean(
+                ratings.gather$percent[ratings.gather$obama == T & 
+                                               ratings.gather$attitude == "Favor"]
+                ),
+                col = "black", linetype = "dashed") + 
+        scale_y_continuous(limits = c(0, 40), breaks = seq(0, 40, 5)) + 
+        labs(x = "", y = "") + 
+        ggtitle("Percentage of Favoring the Health Care Bill \n- when Obama is mentioned") +
+        theme(legend.position = "none", plot.title = element_text(hjust = 0.5),
+              axis.text.x = element_text(angle = 45, vjust = 0.5, hjust = 0.5)) 
+```
+***
+
+
+
+
+
+
+
+
+
+
+
+
