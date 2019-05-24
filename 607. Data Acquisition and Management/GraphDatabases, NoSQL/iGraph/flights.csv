@@ -1,0 +1,25 @@
+depart,arrive,flighttime
+Atlanta,Boston,147
+Atlanta,Detroit,119
+Atlanta,Pittsburgh,99
+Boston,Atlanta,147
+Boston,Detroit,108
+Boston,Pittsburgh,100
+Detroit,Atlanta,119
+Detroit,Boston,108
+Detroit,Pittsburgh,60
+Pittsburgh,Atlanta,99
+Pittsburgh,Boston,100
+Pittsburgh,Detroit,60
+Boston,San Francisco,399
+San Francisco,Boston,319
+Los Angeles,Honolulu,362
+Honolulu,Los Angeles,336
+Boston,New York,74
+New York,Boston,74
+New York,Seattle,495
+Seattle,New York,495
+Seattle,Honolulu,355
+Honolulu,Seattle,355
+Seattle,Boston,313
+Boston,Seattle,390
