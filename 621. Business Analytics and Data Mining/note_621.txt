@@ -1,0 +1,67 @@
+### 621. Business Analytics and Data Mining ###
+
+####################################################################################
+# Office Hours
+Posted on: Tuesday, January 28, 2020 4:44:37 PM EST
+
+Nasrin Khansari Office hours Tuesdays 6:00 pm - 8:00 pm
+
+Please join my meeting from your computer, tablet or smartphone.
+https://global.gotomeeting.com/join/953490213
+
+You can also dial in using your phone.
+United States: +1 (872) 240-3311
+
+Access Code: 953-490-213
+
+New to GoToMeeting? Get the app now and be ready when your first meeting starts:
+https://global.gotomeeting.com/install/953490213
+
+####################################################################################
+# Meetup Schedule and Access
+We will meet online via GoToMeeting on Tuesdays evenings from 8:00-9:00 pm EST.
+
+DATA 621 Khansari Tuesdays 8:00 pm - 9:00 pm
+
+Please join my meeting from your computer, tablet or smartphone.
+https://global.gotomeeting.com/join/743199597
+
+You can also dial in using your phone.
+United States: +1 (872) 240-3311
+
+Access Code: 743-199-597
+
+New to GoToMeeting? Get the app now and be ready when your first meeting starts:
+https://global.gotomeeting.com/install/743199597
+
+Meeting Dates:
+
+01/28
+02/11
+02/25
+03/10
+03/24
+04/21
+05/05
+
+####################################################################################
+# Books
+Posted on: Wednesday, August 28, 2019 9:02:30 AM EDT
+
+Extending the Linear Model with R
+             http://www.maths.bath.ac.uk/~jjf23/ELM/
+
+Linear Models with R
+             http://www.maths.bath.ac.uk/~jjf23/LMR/
+
+ A Modern Approach to Regression with R
+             http://gattonweb.uky.edu/sheather/book/index.php
+
+An introduction to statistical learning with applications in R
+     http://faculty.marshall.usc.edu/gareth-james/ISL/
+
+####################################################################################
+# thought...
+
+- join critical thinking group (for final project)
+- check instructor response
