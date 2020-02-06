@@ -217,8 +217,8 @@ df <- inc %>%
         dplyr::select(Industry, Employees)
 
 par(mfrow = c(2, 1))
-boxplot(Employees ~ Industry, data = df, las = 2, main = paste0("Distribution of Number of Employees by Industries in ", target_state))
-boxplot(Employees ~ Industry, data = df, las = 2, outline = FALSE, main = paste0("Distribution of Number of Employees by Industries in ", target_state, " (outliners removed)"))
+boxplot(Employees ~ Industry, data = df, las = 2, main = paste0("Distribution of Number of Employees by Industries in ", target_state), xlab = "")
+boxplot(Employees ~ Industry, data = df, las = 2, outline = FALSE, main = paste0("Distribution of Number of Employees by Industries in ", target_state, " (outliners removed)"), xlab = "")
 
 ```
 
@@ -235,8 +235,8 @@ df2 <- inc %>%
         dplyr::mutate(Revenue_per_Employee = round( (Revenue/100000) / Employees, 0 ))
         
 par(mfrow = c(2, 1))
-boxplot(Revenue_per_Employee ~ Industry, data = df2, las = 2, main = "Distribution of Revenue per Employee by Industries", ylab = "Revenue in $100k")
-boxplot(Revenue_per_Employee ~ Industry, data = df2, las = 2, outline = FALSE, main = "Distribution of Revenue per Employee by Industries (outliners removed)", ylab = "Revenue in $100k")
+boxplot(Revenue_per_Employee ~ Industry, data = df2, las = 2, main = "Distribution of Revenue per Employee by Industries", xlab = "", ylab = "Revenue in $100k")
+boxplot(Revenue_per_Employee ~ Industry, data = df2, las = 2, outline = FALSE, main = "Distribution of Revenue per Employee by Industries (outliners removed)", xlab = "", ylab = "Revenue in $100k")
 
 ```
 
