@@ -1,0 +1,204 @@
+---
+title: "R Notebook"
+output:
+  html_document: default
+  html_notebook: default
+---
+
+**Principles of Data Visualization and Introduction to ggplot2**
+
+I have provided you with data about the 5,000 fastest growing companies in the US, as compiled by Inc. magazine. lets read this in:
+
+```{r}
+
+inc <- read.csv("https://raw.githubusercontent.com/charleyferrari/CUNY_DATA_608/master/module1/Data/inc5000_data.csv", header= TRUE)
+
+```
+
+And lets preview this data:
+
+```{r}
+
+head(inc)
+
+```
+```{r}
+
+summary(inc)
+
+```
+
+Think a bit on what these summaries mean. Use the space below to add some more relevant non-visual exploratory information you think helps you understand this data:
+
+```{r}
+# turn off scientific notation
+options(scipen = 999)
+
+# load package
+library(tidyverse)
+library(knitr)
+library(purrr)
+
+# what is the structure of this data object?
+str(inc)
+
+# what is the length of unique value for each variable?
+sapply(inc, function(x) length(unique(x)))
+
+# any missing valuae?
+colSums(is.na(inc))
+
+# Let's take a look of these top companies by state, i.e. where do they locate?
+inc <- inc %>%
+        dplyr::mutate(rank_bucket = cut(inc$Rank, breaks = seq(from = 0, to = length(inc$Rank), by = 100), labels = paste0("top ", 1:50, " tier")))  # cut by every 100 companies
+
+# CA, TX followed by NY, NJ seem to have the best companies in terms of fastest growth rate
+ftable(inc$rank_bucket, inc$State)  # additionally, we can present it as heatmap
+```
+
+```{r}
+# what is the average growth rate by rank_bucket?
+inc %>% 
+        dplyr::select(Growth_Rate, rank_bucket) %>%
+        group_by(rank_bucket) %>%
+        summarise(avg.growth = round(mean(Growth_Rate), 1)) %>%
+        kable()
+
+# what is the average revenue by rank_bucket?
+inc %>% 
+        dplyr::select(Revenue, rank_bucket) %>%
+        group_by(rank_bucket) %>%
+        summarise(`avg.revenue (in million)` = round(mean(Revenue / 1000000), 1)) %>%  # divided by million
+        kable()
+
+# is there any correlation between growth rate and revenue by rank_bucket?
+tempVector <- c()
+
+for(i in 1:length(unique(inc$rank_bucket))){
+        
+        x <- inc %>% 
+                dplyr::filter(rank_bucket == unique(rank_bucket)[i]) %>%
+                dplyr::select(Growth_Rate) %>% 
+                unlist
+        
+        y <- inc %>% 
+                dplyr::filter(rank_bucket == unique(rank_bucket)[i]) %>%
+                dplyr::select(Revenue) %>% 
+                unlist
+        
+        tempResult <- cor(x, y)
+        
+        tempVector <- c(tempResult, tempVector)
+}
+
+names(tempVector) <- paste0("top tier ", 50:1)
+
+tempVector %>% 
+        as.data.frame %>%
+        dplyr::mutate(tier = paste0("top tier ", 50:1),
+                      row = row_number()) %>%
+        arrange(desc(row)) %>%
+        dplyr::select(tier, correlation = ".")
+
+# there is no correlation
+```
+
+```{r}
+# it does not seem to have a strong correlation between growth rate and revenue by rank, perhaps it makes more sense to look at the relationship by industry segment
+
+tempList <- vector(mode = "list")
+
+for(i in 1:length(unique(inc$Industry))){
+        
+        industry <- unique(inc$Industry)[i] %>% as.character()
+        
+        x <- inc %>% 
+                dplyr::filter(Industry == unique(Industry)[i]) %>%
+                dplyr::select(Growth_Rate) %>% 
+                unlist
+        
+        y <- inc %>% 
+                dplyr::filter(Industry == unique(Industry)[i]) %>%
+                dplyr::select(Revenue) %>% 
+                unlist
+        
+        correlation <- cor(x, y)
+        
+        tempDf <- list(data.frame(industry, correlation) %>%
+                dplyr::mutate(industry = as.character(industry)))
+        
+        tempList <- c(tempDf, tempList)
+}
+
+tempList %>%
+        dplyr::bind_rows() %>%
+        arrange(industry)
+
+# the only industry jumps out from the list is "Energy" and it has a modest positive correlation between growth and revenue (and it is statistically significant, i.e. cor.test(inc$Growth_Rate[inc$Industry == "Energy"], inc$Revenue[inc$Industry == "Energy"]), p-value < .000000)
+```
+
+```{r}
+# what about number of employees? Any relationship between number of employees and growth by industry?
+tempList <- vector(mode = "list")
+
+for(i in 1:length(unique(inc$Industry))){
+        
+        industry <- unique(inc$Industry)[i] %>% as.character()
+        
+        x <- inc %>% 
+                dplyr::filter(!is.na(Employees)) %>%
+                dplyr::filter(Industry == unique(Industry)[i]) %>%
+                dplyr::select(Growth_Rate) %>% 
+                unlist
+        
+        y <- inc %>% 
+                dplyr::filter(!is.na(Employees)) %>%
+                dplyr::filter(Industry == unique(Industry)[i]) %>%
+                dplyr::select(Employees) %>% 
+                unlist
+        
+        correlation <- cor(x, y)
+        
+        tempDf <- list(data.frame(industry, correlation) %>%
+                dplyr::mutate(industry = as.character(industry)))
+        
+        tempList <- c(tempDf, tempList)
+}
+
+tempList %>%
+        dplyr::bind_rows() %>%
+        arrange(industry)
+
+# the answer is no
+```
+## Question 1
+
+Create a graph that shows the distribution of companies in the dataset by State (ie how many are in each state). There are a lot of States, so consider which axis you should use. This visualization is ultimately going to be consumed on a 'portrait' oriented screen (ie taller than wide), which should further guide your layout choices.
+
+```{r}
+
+# Answer Question 1 here
+
+```
+
+## Quesiton 2
+
+Lets dig in on the state with the 3rd most companies in the data set. Imagine you work for the state and are interested in how many people are employed by companies in different industries. Create a plot that shows the average and/or median employment by industry for companies in this state (only use cases with full data, use R's `complete.cases()` function.) In addition to this, your graph should show how variable the ranges are, and you should deal with outliers.
+
+```{r}
+
+# Answer Question 2 here
+
+```
+
+## Question 3
+
+Now imagine you work for an investor and want to see which industries generate the most revenue per employee. Create a chart that makes this information clear. Once again, the distribution per industry should be shown.
+
+```{r}
+
+# Answer Question 3 here
+
+```
+
+
