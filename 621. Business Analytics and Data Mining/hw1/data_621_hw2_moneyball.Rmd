@@ -1,0 +1,218 @@
+---
+title: "data_621_hw1_moneyball"
+author: "Jimmy Ng"
+date: "2/29/2020"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r load packages}
+library(tidyverse)
+library(broom)
+library(Hmisc)
+library(tidyr)
+library(corrplot)
+library(mice)
+library(MASS)
+library(caret)
+```
+
+```{r Part I - Data Exploration, Read Data}
+# set working directory
+setwd("~/school_of_professional_studies/621. Business Analytics and Data Mining/hw1")
+
+# read data
+dfTrain <- read.csv("moneyball-training-data.csv")
+dfEval <- read.csv("moneyball-evaluation-data.csv")
+
+# head, dim
+head(dfTrain); dim(dfTrain)
+head(dfEval); dim(dfEval)
+
+# what is the difference between the two data.frames? 
+paste0(names(dfTrain)[names(dfTrain) %nin% names(dfEval)], " is not found in the evaluation data set")
+```
+
+```{r Part I (cont) - Data Exploration, EDA}
+# data structure 
+str(dfTrain)
+
+# descriptive statistics
+summary(dfTrain)
+
+# length of unique value for each variable
+sapply(dfTrain, function(x) unique(length(x)))
+
+# any missing
+colSums(is.na(dfTrain))
+```
+
+```{r Part I (cont) - Data Exploration, Boxplot, Corrplot}
+
+### Visualization of data distribution, spread, outliners and correlations among variables ###
+
+# boxplot
+dfTrain %>%
+        tidyr::gather(key, value, -INDEX) %>%
+        ggplot(aes(x = key, y = value, fill = key)) +
+        geom_boxplot() +
+        # scale_y_continuous(labels = scales::dollar) +
+        geom_boxplot(outlier.colour = "red") +
+        theme(legend.position = "none",
+              axis.title.y = element_blank()) + 
+        coord_flip()
+
+# corrplot
+dfTrain %>%
+          complete.cases() %>% 
+          dfTrain[., ] %>%                         
+          dplyr::select(-INDEX) %>%
+        cor() %>%
+        corrplot(method = "number")
+```
+
+TARGET_WINS has moderate, positive correlation with TEAM_BATTING_H (r = 0.47), TEAM_BATTING_BB (0.47), TEAM_PITCHING_H (0.47), and TEAM_PITCHING_BB (0.47). 
+
+```{r Part II - Data Preparation}
+# let's look at number of missing values again
+colSums(is.na(dfTrain))
+
+# let's impute missing values using the mice package
+dfImpute <- dfTrain %>%
+        mice::mice(m = 1,  # number of imputed data set
+                   maxit = 10,  # number of iterations to impute missing values
+                   method = "pmm",  # method used in imputation, and we choose "predictive mean matching" for all our numeric variables
+                   seed = 1234) 
+
+dfClean <- mice::complete(dfImpute)
+
+str(dfClean)
+
+# check again
+colSums(is.na(dfClean))        
+
+# split into train, test
+set.seed(1234)
+index <- sample(1:nrow(dfClean), size = nrow(dfClean) * 0.7)
+train <- dfClean[index, ]
+test <- dfClean[-index, ]
+```
+
+```{r Part III + IV - Build, Select Models}
+# build full model
+fullModel <- lm(TARGET_WINS ~., data = train %>% dplyr::select(-INDEX))
+broom::glance(fullModel)
+
+# build full model - sqrt transformation for taking care of outliners
+DV <- names(dfClean)[names(dfClean) %nin% c("INDEX", "TARGET_WINS")]
+fullModelSqrt <- lm(TARGET_WINS ~ ., data = train %>% dplyr::select(-INDEX) %>% dplyr::mutate_at(vars(DV), sqrt))
+broom::glance(fullModelSqrt)
+
+# stepwise regression - direction default to both
+step <- MASS::stepAIC(fullModel, trace = FALSE)
+step$anova
+
+# 2 degree of interactions - full model
+step2 <- MASS::stepAIC(fullModel, ~ .^2, trace = FALSE)
+step2$anova
+
+# 2 degree of interactions - sqrt transformation
+step2.1 <- MASS::stepAIC(fullModelSqrt, ~.^2, trace = FALSE)
+step2.1$anova
+
+# final model (based on the sqrt transformation)
+finalModelSqrt <- lm(
+        TARGET_WINS ~ TEAM_BATTING_H + TEAM_BATTING_2B + TEAM_BATTING_3B + 
+                TEAM_BATTING_HR + TEAM_BATTING_BB + TEAM_BATTING_SO + TEAM_BASERUN_SB + 
+                TEAM_BASERUN_CS + TEAM_BATTING_HBP + TEAM_PITCHING_H + TEAM_PITCHING_HR + 
+                TEAM_PITCHING_BB + TEAM_PITCHING_SO + TEAM_FIELDING_E + TEAM_FIELDING_DP + 
+                TEAM_BATTING_BB:TEAM_FIELDING_DP + TEAM_BASERUN_SB:TEAM_PITCHING_HR + 
+                TEAM_BATTING_SO:TEAM_BASERUN_SB + TEAM_BATTING_2B:TEAM_FIELDING_DP + 
+                TEAM_BATTING_HBP:TEAM_PITCHING_H + TEAM_BATTING_H:TEAM_FIELDING_E + 
+                TEAM_BATTING_HR:TEAM_PITCHING_H + TEAM_PITCHING_H:TEAM_PITCHING_SO + 
+                TEAM_BATTING_2B:TEAM_BATTING_HR + TEAM_BATTING_3B:TEAM_PITCHING_SO + 
+                TEAM_BATTING_H:TEAM_BATTING_HR + TEAM_BASERUN_SB:TEAM_PITCHING_H + 
+                TEAM_PITCHING_SO:TEAM_FIELDING_E + TEAM_BATTING_BB:TEAM_FIELDING_E + 
+                TEAM_BATTING_SO:TEAM_PITCHING_SO + TEAM_BATTING_3B:TEAM_PITCHING_H + 
+                TEAM_BATTING_SO:TEAM_PITCHING_H + TEAM_PITCHING_H:TEAM_PITCHING_BB + 
+                TEAM_BATTING_H:TEAM_BATTING_3B + TEAM_BATTING_HR:TEAM_BASERUN_SB + 
+                TEAM_BATTING_BB:TEAM_BASERUN_SB + TEAM_BATTING_H:TEAM_PITCHING_SO + 
+                TEAM_BASERUN_CS:TEAM_PITCHING_BB + TEAM_BATTING_3B:TEAM_FIELDING_E + 
+                TEAM_BATTING_3B:TEAM_BASERUN_SB + TEAM_BATTING_HBP:TEAM_FIELDING_E + 
+                TEAM_FIELDING_E:TEAM_FIELDING_DP + TEAM_BASERUN_SB:TEAM_PITCHING_BB + 
+                TEAM_BATTING_SO:TEAM_FIELDING_E + TEAM_PITCHING_BB:TEAM_FIELDING_E + 
+                TEAM_BATTING_HR:TEAM_BATTING_BB + TEAM_BATTING_2B:TEAM_BATTING_HBP + 
+                TEAM_BATTING_2B:TEAM_BASERUN_SB + TEAM_BASERUN_SB:TEAM_PITCHING_SO + 
+                TEAM_PITCHING_HR:TEAM_FIELDING_DP + TEAM_BASERUN_SB:TEAM_BASERUN_CS + 
+                TEAM_BASERUN_CS:TEAM_PITCHING_HR + TEAM_BASERUN_SB:TEAM_FIELDING_DP,
+        data = train %>% dplyr::select(-INDEX) %>% dplyr::mutate_at(vars(DV), sqrt)
+)
+
+broom::glance(finalModelSqrt)
+broom::tidy(finalModelSqrt) %>% arrange(p.value)
+```
+
+The final model (sqrt transformed) derived from the 2 degree of interactions between variables has considerably enhanced the adjusted R-squared from 0.377 (fullModel) to 0.543 (finalModelSqrt)!
+
+```{r Part IV (additional) - Diagnostic, Evaluation}
+# diagnostic
+par(mfrow = c(2, 2))
+plot(finalModelSqrt)
+
+# plot predicted outcomes with actuals with confidence intervals
+testFinal <- test %>%
+        dplyr::mutate(predictedOutcome = round(predict(finalModelSqrt, 
+                                                       newdata = test %>% dplyr::select(-INDEX) %>% dplyr::mutate_at(vars(DV), sqrt), 
+                                                       type = "response")))
+
+test.pred <- predict(finalModelSqrt, 
+                     newdata = test %>% dplyr::select(-INDEX) %>% dplyr::mutate_at(vars(DV), sqrt), 
+                     interval = "prediction")
+
+testCombined <- cbind(testFinal, test.pred) %>%
+        dplyr::select(-fit)
+
+test.subset <- testCombined %>%
+        dplyr::select(target_wins = TARGET_WINS, 
+                      predicted_wins = predictedOutcome,
+                      lwr,
+                      upr) %>%
+        dplyr::filter(predicted_wins >0)
+
+p <- test.subset%>%
+        ggplot(aes(target_wins, predicted_wins)) +
+        geom_point()
+
+p + geom_point(aes(y = lwr), col = "red") +
+        geom_point(aes(y = upr), col = "green") +
+        geom_abline(intercept = 0, slope = 1)
+
+# what is the correlation betweent predicted and actuals?
+cor.test(test.subset$target_wins, test.subset$predicted_wins)
+
+# what is the RMSE of this final model (sqrt transformed)?
+caret::RMSE(pred = test.subset$predicted_wins, obs = test.subset$target_wins)
+
+# finally, let's apply it to our evaluation set
+colSums(is.na(dfEval))
+
+# let's impute missing values using the mice package
+dfImpute2 <- dfEval %>%
+        mice::mice(m = 1,  # number of imputed data set
+                   maxit = 10,  # number of iterations to impute missing values
+                   method = "pmm",  # method used in imputation, and we choose "predictive mean matching" for all our numeric variables
+                   seed = 1234) 
+
+dfEvalClean <- mice::complete(dfImpute2)
+
+dfEval$evalPredictedOutcome = round(predict(finalModelSqrt, 
+                            newdata = dfEvalClean %>% dplyr::select(-INDEX) %>% dplyr::mutate_at(vars(DV), sqrt),
+                            type = "response"))
+
+head(dfEval)
+```

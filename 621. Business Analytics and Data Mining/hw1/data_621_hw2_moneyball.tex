@@ -1,0 +1,1313 @@
+\PassOptionsToPackage{unicode=true}{hyperref} % options for packages loaded elsewhere
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provides euro and other symbols
+\else % if luatex or xelatex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\hypersetup{
+  pdftitle={data\_621\_hw1\_moneyball},
+  pdfauthor={Jimmy Ng},
+  pdfborder={0 0 0},
+  breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
+\usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-2}
+% Redefines (sub)paragraphs to behave more like sections
+\ifx\paragraph\undefined\else
+  \let\oldparagraph\paragraph
+  \renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+  \let\oldsubparagraph\subparagraph
+  \renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+
+% set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+
+
+\title{data\_621\_hw1\_moneyball}
+\author{Jimmy Ng}
+\date{2/29/2020}
+
+\begin{document}
+\maketitle
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(tidyverse)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning: package 'tidyverse' was built under R version 3.6.2
+\end{verbatim}
+
+\begin{verbatim}
+## -- Attaching packages ----------------------------------------------------------- tidyverse 1.3.0 --
+\end{verbatim}
+
+\begin{verbatim}
+## v ggplot2 3.2.1     v purrr   0.3.3
+## v tibble  2.1.3     v dplyr   0.8.4
+## v tidyr   1.0.2     v stringr 1.4.0
+## v readr   1.3.1     v forcats 0.4.0
+\end{verbatim}
+
+\begin{verbatim}
+## Warning: package 'ggplot2' was built under R version 3.6.2
+\end{verbatim}
+
+\begin{verbatim}
+## Warning: package 'tibble' was built under R version 3.6.2
+\end{verbatim}
+
+\begin{verbatim}
+## Warning: package 'tidyr' was built under R version 3.6.2
+\end{verbatim}
+
+\begin{verbatim}
+## Warning: package 'readr' was built under R version 3.6.2
+\end{verbatim}
+
+\begin{verbatim}
+## Warning: package 'purrr' was built under R version 3.6.2
+\end{verbatim}
+
+\begin{verbatim}
+## Warning: package 'dplyr' was built under R version 3.6.2
+\end{verbatim}
+
+\begin{verbatim}
+## Warning: package 'stringr' was built under R version 3.6.2
+\end{verbatim}
+
+\begin{verbatim}
+## Warning: package 'forcats' was built under R version 3.6.2
+\end{verbatim}
+
+\begin{verbatim}
+## -- Conflicts -------------------------------------------------------------- tidyverse_conflicts() --
+## x dplyr::filter() masks stats::filter()
+## x dplyr::lag()    masks stats::lag()
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(broom)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning: package 'broom' was built under R version 3.6.2
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(Hmisc)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning: package 'Hmisc' was built under R version 3.6.2
+\end{verbatim}
+
+\begin{verbatim}
+## Loading required package: lattice
+\end{verbatim}
+
+\begin{verbatim}
+## Loading required package: survival
+\end{verbatim}
+
+\begin{verbatim}
+## Warning: package 'survival' was built under R version 3.6.2
+\end{verbatim}
+
+\begin{verbatim}
+## Loading required package: Formula
+\end{verbatim}
+
+\begin{verbatim}
+## 
+## Attaching package: 'Hmisc'
+\end{verbatim}
+
+\begin{verbatim}
+## The following objects are masked from 'package:dplyr':
+## 
+##     src, summarize
+\end{verbatim}
+
+\begin{verbatim}
+## The following objects are masked from 'package:base':
+## 
+##     format.pval, units
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(tidyr)}
+\KeywordTok{library}\NormalTok{(corrplot)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning: package 'corrplot' was built under R version 3.6.2
+\end{verbatim}
+
+\begin{verbatim}
+## corrplot 0.84 loaded
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(mice)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning: package 'mice' was built under R version 3.6.2
+\end{verbatim}
+
+\begin{verbatim}
+## 
+## Attaching package: 'mice'
+\end{verbatim}
+
+\begin{verbatim}
+## The following objects are masked from 'package:base':
+## 
+##     cbind, rbind
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(MASS)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Attaching package: 'MASS'
+\end{verbatim}
+
+\begin{verbatim}
+## The following object is masked from 'package:dplyr':
+## 
+##     select
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(caret)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning: package 'caret' was built under R version 3.6.2
+\end{verbatim}
+
+\begin{verbatim}
+## 
+## Attaching package: 'caret'
+\end{verbatim}
+
+\begin{verbatim}
+## The following object is masked from 'package:survival':
+## 
+##     cluster
+\end{verbatim}
+
+\begin{verbatim}
+## The following object is masked from 'package:purrr':
+## 
+##     lift
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# set working directory}
+\KeywordTok{setwd}\NormalTok{(}\StringTok{"~/school_of_professional_studies/621. Business Analytics and Data Mining/hw1"}\NormalTok{)}
+
+\CommentTok{# read data}
+\NormalTok{dfTrain <-}\StringTok{ }\KeywordTok{read.csv}\NormalTok{(}\StringTok{"moneyball-training-data.csv"}\NormalTok{)}
+\NormalTok{dfEval <-}\StringTok{ }\KeywordTok{read.csv}\NormalTok{(}\StringTok{"moneyball-evaluation-data.csv"}\NormalTok{)}
+
+\CommentTok{# head, dim}
+\KeywordTok{head}\NormalTok{(dfTrain); }\KeywordTok{dim}\NormalTok{(dfTrain)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##   INDEX TARGET_WINS TEAM_BATTING_H TEAM_BATTING_2B TEAM_BATTING_3B
+## 1     1          39           1445             194              39
+## 2     2          70           1339             219              22
+## 3     3          86           1377             232              35
+## 4     4          70           1387             209              38
+## 5     5          82           1297             186              27
+## 6     6          75           1279             200              36
+##   TEAM_BATTING_HR TEAM_BATTING_BB TEAM_BATTING_SO TEAM_BASERUN_SB
+## 1              13             143             842              NA
+## 2             190             685            1075              37
+## 3             137             602             917              46
+## 4              96             451             922              43
+## 5             102             472             920              49
+## 6              92             443             973             107
+##   TEAM_BASERUN_CS TEAM_BATTING_HBP TEAM_PITCHING_H TEAM_PITCHING_HR
+## 1              NA               NA            9364               84
+## 2              28               NA            1347              191
+## 3              27               NA            1377              137
+## 4              30               NA            1396               97
+## 5              39               NA            1297              102
+## 6              59               NA            1279               92
+##   TEAM_PITCHING_BB TEAM_PITCHING_SO TEAM_FIELDING_E TEAM_FIELDING_DP
+## 1              927             5456            1011               NA
+## 2              689             1082             193              155
+## 3              602              917             175              153
+## 4              454              928             164              156
+## 5              472              920             138              168
+## 6              443              973             123              149
+\end{verbatim}
+
+\begin{verbatim}
+## [1] 2276   17
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{head}\NormalTok{(dfEval); }\KeywordTok{dim}\NormalTok{(dfEval)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##   INDEX TEAM_BATTING_H TEAM_BATTING_2B TEAM_BATTING_3B TEAM_BATTING_HR
+## 1     9           1209             170              33              83
+## 2    10           1221             151              29              88
+## 3    14           1395             183              29              93
+## 4    47           1539             309              29             159
+## 5    60           1445             203              68               5
+## 6    63           1431             236              53              10
+##   TEAM_BATTING_BB TEAM_BATTING_SO TEAM_BASERUN_SB TEAM_BASERUN_CS
+## 1             447            1080              62              50
+## 2             516             929              54              39
+## 3             509             816              59              47
+## 4             486             914             148              57
+## 5              95             416              NA              NA
+## 6             215             377              NA              NA
+##   TEAM_BATTING_HBP TEAM_PITCHING_H TEAM_PITCHING_HR TEAM_PITCHING_BB
+## 1               NA            1209               83              447
+## 2               NA            1221               88              516
+## 3               NA            1395               93              509
+## 4               42            1539              159              486
+## 5               NA            3902               14              257
+## 6               NA            2793               20              420
+##   TEAM_PITCHING_SO TEAM_FIELDING_E TEAM_FIELDING_DP
+## 1             1080             140              156
+## 2              929             135              164
+## 3              816             156              153
+## 4              914             124              154
+## 5             1123             616              130
+## 6              736             572              105
+\end{verbatim}
+
+\begin{verbatim}
+## [1] 259  16
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# what is the difference between the two data.frames? }
+\KeywordTok{paste0}\NormalTok{(}\KeywordTok{names}\NormalTok{(dfTrain)[}\KeywordTok{names}\NormalTok{(dfTrain) }\OperatorTok{%nin%}\StringTok{ }\KeywordTok{names}\NormalTok{(dfEval)], }\StringTok{" is not found in the evaluation data set"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "TARGET_WINS is not found in the evaluation data set"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# data structure }
+\KeywordTok{str}\NormalTok{(dfTrain)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 'data.frame':    2276 obs. of  17 variables:
+##  $ INDEX           : int  1 2 3 4 5 6 7 8 11 12 ...
+##  $ TARGET_WINS     : int  39 70 86 70 82 75 80 85 86 76 ...
+##  $ TEAM_BATTING_H  : int  1445 1339 1377 1387 1297 1279 1244 1273 1391 1271 ...
+##  $ TEAM_BATTING_2B : int  194 219 232 209 186 200 179 171 197 213 ...
+##  $ TEAM_BATTING_3B : int  39 22 35 38 27 36 54 37 40 18 ...
+##  $ TEAM_BATTING_HR : int  13 190 137 96 102 92 122 115 114 96 ...
+##  $ TEAM_BATTING_BB : int  143 685 602 451 472 443 525 456 447 441 ...
+##  $ TEAM_BATTING_SO : int  842 1075 917 922 920 973 1062 1027 922 827 ...
+##  $ TEAM_BASERUN_SB : int  NA 37 46 43 49 107 80 40 69 72 ...
+##  $ TEAM_BASERUN_CS : int  NA 28 27 30 39 59 54 36 27 34 ...
+##  $ TEAM_BATTING_HBP: int  NA NA NA NA NA NA NA NA NA NA ...
+##  $ TEAM_PITCHING_H : int  9364 1347 1377 1396 1297 1279 1244 1281 1391 1271 ...
+##  $ TEAM_PITCHING_HR: int  84 191 137 97 102 92 122 116 114 96 ...
+##  $ TEAM_PITCHING_BB: int  927 689 602 454 472 443 525 459 447 441 ...
+##  $ TEAM_PITCHING_SO: int  5456 1082 917 928 920 973 1062 1033 922 827 ...
+##  $ TEAM_FIELDING_E : int  1011 193 175 164 138 123 136 112 127 131 ...
+##  $ TEAM_FIELDING_DP: int  NA 155 153 156 168 149 186 136 169 159 ...
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# descriptive statistics}
+\KeywordTok{summary}\NormalTok{(dfTrain)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##      INDEX         TARGET_WINS     TEAM_BATTING_H TEAM_BATTING_2B
+##  Min.   :   1.0   Min.   :  0.00   Min.   : 891   Min.   : 69.0  
+##  1st Qu.: 630.8   1st Qu.: 71.00   1st Qu.:1383   1st Qu.:208.0  
+##  Median :1270.5   Median : 82.00   Median :1454   Median :238.0  
+##  Mean   :1268.5   Mean   : 80.79   Mean   :1469   Mean   :241.2  
+##  3rd Qu.:1915.5   3rd Qu.: 92.00   3rd Qu.:1537   3rd Qu.:273.0  
+##  Max.   :2535.0   Max.   :146.00   Max.   :2554   Max.   :458.0  
+##                                                                  
+##  TEAM_BATTING_3B  TEAM_BATTING_HR  TEAM_BATTING_BB TEAM_BATTING_SO 
+##  Min.   :  0.00   Min.   :  0.00   Min.   :  0.0   Min.   :   0.0  
+##  1st Qu.: 34.00   1st Qu.: 42.00   1st Qu.:451.0   1st Qu.: 548.0  
+##  Median : 47.00   Median :102.00   Median :512.0   Median : 750.0  
+##  Mean   : 55.25   Mean   : 99.61   Mean   :501.6   Mean   : 735.6  
+##  3rd Qu.: 72.00   3rd Qu.:147.00   3rd Qu.:580.0   3rd Qu.: 930.0  
+##  Max.   :223.00   Max.   :264.00   Max.   :878.0   Max.   :1399.0  
+##                                                    NA's   :102     
+##  TEAM_BASERUN_SB TEAM_BASERUN_CS TEAM_BATTING_HBP TEAM_PITCHING_H
+##  Min.   :  0.0   Min.   :  0.0   Min.   :29.00    Min.   : 1137  
+##  1st Qu.: 66.0   1st Qu.: 38.0   1st Qu.:50.50    1st Qu.: 1419  
+##  Median :101.0   Median : 49.0   Median :58.00    Median : 1518  
+##  Mean   :124.8   Mean   : 52.8   Mean   :59.36    Mean   : 1779  
+##  3rd Qu.:156.0   3rd Qu.: 62.0   3rd Qu.:67.00    3rd Qu.: 1682  
+##  Max.   :697.0   Max.   :201.0   Max.   :95.00    Max.   :30132  
+##  NA's   :131     NA's   :772     NA's   :2085                    
+##  TEAM_PITCHING_HR TEAM_PITCHING_BB TEAM_PITCHING_SO  TEAM_FIELDING_E 
+##  Min.   :  0.0    Min.   :   0.0   Min.   :    0.0   Min.   :  65.0  
+##  1st Qu.: 50.0    1st Qu.: 476.0   1st Qu.:  615.0   1st Qu.: 127.0  
+##  Median :107.0    Median : 536.5   Median :  813.5   Median : 159.0  
+##  Mean   :105.7    Mean   : 553.0   Mean   :  817.7   Mean   : 246.5  
+##  3rd Qu.:150.0    3rd Qu.: 611.0   3rd Qu.:  968.0   3rd Qu.: 249.2  
+##  Max.   :343.0    Max.   :3645.0   Max.   :19278.0   Max.   :1898.0  
+##                                    NA's   :102                       
+##  TEAM_FIELDING_DP
+##  Min.   : 52.0   
+##  1st Qu.:131.0   
+##  Median :149.0   
+##  Mean   :146.4   
+##  3rd Qu.:164.0   
+##  Max.   :228.0   
+##  NA's   :286
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# length of unique value for each variable}
+\KeywordTok{sapply}\NormalTok{(dfTrain, }\ControlFlowTok{function}\NormalTok{(x) }\KeywordTok{unique}\NormalTok{(}\KeywordTok{length}\NormalTok{(x)))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##            INDEX      TARGET_WINS   TEAM_BATTING_H  TEAM_BATTING_2B 
+##             2276             2276             2276             2276 
+##  TEAM_BATTING_3B  TEAM_BATTING_HR  TEAM_BATTING_BB  TEAM_BATTING_SO 
+##             2276             2276             2276             2276 
+##  TEAM_BASERUN_SB  TEAM_BASERUN_CS TEAM_BATTING_HBP  TEAM_PITCHING_H 
+##             2276             2276             2276             2276 
+## TEAM_PITCHING_HR TEAM_PITCHING_BB TEAM_PITCHING_SO  TEAM_FIELDING_E 
+##             2276             2276             2276             2276 
+## TEAM_FIELDING_DP 
+##             2276
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# any missing}
+\KeywordTok{colSums}\NormalTok{(}\KeywordTok{is.na}\NormalTok{(dfTrain))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##            INDEX      TARGET_WINS   TEAM_BATTING_H  TEAM_BATTING_2B 
+##                0                0                0                0 
+##  TEAM_BATTING_3B  TEAM_BATTING_HR  TEAM_BATTING_BB  TEAM_BATTING_SO 
+##                0                0                0              102 
+##  TEAM_BASERUN_SB  TEAM_BASERUN_CS TEAM_BATTING_HBP  TEAM_PITCHING_H 
+##              131              772             2085                0 
+## TEAM_PITCHING_HR TEAM_PITCHING_BB TEAM_PITCHING_SO  TEAM_FIELDING_E 
+##                0                0              102                0 
+## TEAM_FIELDING_DP 
+##              286
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{### Visualization of data distribution, spread, outliners and correlations among variables }\AlertTok{###}
+
+\CommentTok{# boxplot}
+\NormalTok{dfTrain }\OperatorTok{%>%}
+\StringTok{        }\NormalTok{tidyr}\OperatorTok{::}\KeywordTok{gather}\NormalTok{(key, value, }\OperatorTok{-}\NormalTok{INDEX) }\OperatorTok{%>%}
+\StringTok{        }\KeywordTok{ggplot}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ key, }\DataTypeTok{y =}\NormalTok{ value, }\DataTypeTok{fill =}\NormalTok{ key)) }\OperatorTok{+}
+\StringTok{        }\KeywordTok{geom_boxplot}\NormalTok{() }\OperatorTok{+}
+\StringTok{        }\CommentTok{# scale_y_continuous(labels = scales::dollar) +}
+\StringTok{        }\KeywordTok{geom_boxplot}\NormalTok{(}\DataTypeTok{outlier.colour =} \StringTok{"red"}\NormalTok{) }\OperatorTok{+}
+\StringTok{        }\KeywordTok{theme}\NormalTok{(}\DataTypeTok{legend.position =} \StringTok{"none"}\NormalTok{,}
+              \DataTypeTok{axis.title.y =} \KeywordTok{element_blank}\NormalTok{()) }\OperatorTok{+}\StringTok{ }
+\StringTok{        }\KeywordTok{coord_flip}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning: Removed 3478 rows containing non-finite values (stat_boxplot).
+
+## Warning: Removed 3478 rows containing non-finite values (stat_boxplot).
+\end{verbatim}
+
+\includegraphics{data_621_hw2_moneyball_files/figure-latex/Part I (cont) - Data Exploration, Boxplot, Corrplot-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# corrplot}
+\NormalTok{dfTrain }\OperatorTok{%>%}
+\StringTok{          }\KeywordTok{complete.cases}\NormalTok{() }\OperatorTok{%>%}\StringTok{ }
+\StringTok{          }\NormalTok{dfTrain[., ] }\OperatorTok{%>%}\StringTok{                         }
+\StringTok{          }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{select}\NormalTok{(}\OperatorTok{-}\NormalTok{INDEX) }\OperatorTok{%>%}
+\StringTok{        }\KeywordTok{cor}\NormalTok{() }\OperatorTok{%>%}
+\StringTok{        }\KeywordTok{corrplot}\NormalTok{(}\DataTypeTok{method =} \StringTok{"number"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{data_621_hw2_moneyball_files/figure-latex/Part I (cont) - Data Exploration, Boxplot, Corrplot-2.pdf}
+
+TARGET\_WINS has moderate, positive correlation with TEAM\_BATTING\_H (r
+= 0.47), TEAM\_BATTING\_BB (0.47), TEAM\_PITCHING\_H (0.47), and
+TEAM\_PITCHING\_BB (0.47).
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# let's look at number of missing values again}
+\KeywordTok{colSums}\NormalTok{(}\KeywordTok{is.na}\NormalTok{(dfTrain))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##            INDEX      TARGET_WINS   TEAM_BATTING_H  TEAM_BATTING_2B 
+##                0                0                0                0 
+##  TEAM_BATTING_3B  TEAM_BATTING_HR  TEAM_BATTING_BB  TEAM_BATTING_SO 
+##                0                0                0              102 
+##  TEAM_BASERUN_SB  TEAM_BASERUN_CS TEAM_BATTING_HBP  TEAM_PITCHING_H 
+##              131              772             2085                0 
+## TEAM_PITCHING_HR TEAM_PITCHING_BB TEAM_PITCHING_SO  TEAM_FIELDING_E 
+##                0                0              102                0 
+## TEAM_FIELDING_DP 
+##              286
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# let's impute missing values using the mice package}
+\NormalTok{dfImpute <-}\StringTok{ }\NormalTok{dfTrain }\OperatorTok{%>%}
+\StringTok{        }\NormalTok{mice}\OperatorTok{::}\KeywordTok{mice}\NormalTok{(}\DataTypeTok{m =} \DecValTok{1}\NormalTok{,  }\CommentTok{# number of imputed data set}
+                   \DataTypeTok{maxit =} \DecValTok{10}\NormalTok{,  }\CommentTok{# number of iterations to impute missing values}
+                   \DataTypeTok{method =} \StringTok{"pmm"}\NormalTok{,  }\CommentTok{# method used in imputation, and we choose "predictive mean matching" for all our numeric variables}
+                   \DataTypeTok{seed =} \DecValTok{1234}\NormalTok{) }
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##  iter imp variable
+##   1   1  TEAM_BATTING_SO  TEAM_BASERUN_SB  TEAM_BASERUN_CS  TEAM_BATTING_HBP  TEAM_PITCHING_SO  TEAM_FIELDING_DP
+##   2   1  TEAM_BATTING_SO  TEAM_BASERUN_SB  TEAM_BASERUN_CS  TEAM_BATTING_HBP  TEAM_PITCHING_SO  TEAM_FIELDING_DP
+##   3   1  TEAM_BATTING_SO  TEAM_BASERUN_SB  TEAM_BASERUN_CS  TEAM_BATTING_HBP  TEAM_PITCHING_SO  TEAM_FIELDING_DP
+##   4   1  TEAM_BATTING_SO  TEAM_BASERUN_SB  TEAM_BASERUN_CS  TEAM_BATTING_HBP  TEAM_PITCHING_SO  TEAM_FIELDING_DP
+##   5   1  TEAM_BATTING_SO  TEAM_BASERUN_SB  TEAM_BASERUN_CS  TEAM_BATTING_HBP  TEAM_PITCHING_SO  TEAM_FIELDING_DP
+##   6   1  TEAM_BATTING_SO  TEAM_BASERUN_SB  TEAM_BASERUN_CS  TEAM_BATTING_HBP  TEAM_PITCHING_SO  TEAM_FIELDING_DP
+##   7   1  TEAM_BATTING_SO  TEAM_BASERUN_SB  TEAM_BASERUN_CS  TEAM_BATTING_HBP  TEAM_PITCHING_SO  TEAM_FIELDING_DP
+##   8   1  TEAM_BATTING_SO  TEAM_BASERUN_SB  TEAM_BASERUN_CS  TEAM_BATTING_HBP  TEAM_PITCHING_SO  TEAM_FIELDING_DP
+##   9   1  TEAM_BATTING_SO  TEAM_BASERUN_SB  TEAM_BASERUN_CS  TEAM_BATTING_HBP  TEAM_PITCHING_SO  TEAM_FIELDING_DP
+##   10   1  TEAM_BATTING_SO  TEAM_BASERUN_SB  TEAM_BASERUN_CS  TEAM_BATTING_HBP  TEAM_PITCHING_SO  TEAM_FIELDING_DP
+\end{verbatim}
+
+\begin{verbatim}
+## Warning: Number of logged events: 10
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{dfClean <-}\StringTok{ }\NormalTok{mice}\OperatorTok{::}\KeywordTok{complete}\NormalTok{(dfImpute)}
+
+\KeywordTok{str}\NormalTok{(dfClean)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 'data.frame':    2276 obs. of  17 variables:
+##  $ INDEX           : int  1 2 3 4 5 6 7 8 11 12 ...
+##  $ TARGET_WINS     : int  39 70 86 70 82 75 80 85 86 76 ...
+##  $ TEAM_BATTING_H  : int  1445 1339 1377 1387 1297 1279 1244 1273 1391 1271 ...
+##  $ TEAM_BATTING_2B : int  194 219 232 209 186 200 179 171 197 213 ...
+##  $ TEAM_BATTING_3B : int  39 22 35 38 27 36 54 37 40 18 ...
+##  $ TEAM_BATTING_HR : int  13 190 137 96 102 92 122 115 114 96 ...
+##  $ TEAM_BATTING_BB : int  143 685 602 451 472 443 525 456 447 441 ...
+##  $ TEAM_BATTING_SO : int  842 1075 917 922 920 973 1062 1027 922 827 ...
+##  $ TEAM_BASERUN_SB : int  251 37 46 43 49 107 80 40 69 72 ...
+##  $ TEAM_BASERUN_CS : int  160 28 27 30 39 59 54 36 27 34 ...
+##  $ TEAM_BATTING_HBP: int  51 57 58 52 44 45 55 54 51 42 ...
+##  $ TEAM_PITCHING_H : int  9364 1347 1377 1396 1297 1279 1244 1281 1391 1271 ...
+##  $ TEAM_PITCHING_HR: int  84 191 137 97 102 92 122 116 114 96 ...
+##  $ TEAM_PITCHING_BB: int  927 689 602 454 472 443 525 459 447 441 ...
+##  $ TEAM_PITCHING_SO: int  5456 1082 917 928 920 973 1062 1033 922 827 ...
+##  $ TEAM_FIELDING_E : int  1011 193 175 164 138 123 136 112 127 131 ...
+##  $ TEAM_FIELDING_DP: int  219 155 153 156 168 149 186 136 169 159 ...
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# check again}
+\KeywordTok{colSums}\NormalTok{(}\KeywordTok{is.na}\NormalTok{(dfClean))        }
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##            INDEX      TARGET_WINS   TEAM_BATTING_H  TEAM_BATTING_2B 
+##                0                0                0                0 
+##  TEAM_BATTING_3B  TEAM_BATTING_HR  TEAM_BATTING_BB  TEAM_BATTING_SO 
+##                0                0                0                0 
+##  TEAM_BASERUN_SB  TEAM_BASERUN_CS TEAM_BATTING_HBP  TEAM_PITCHING_H 
+##                0                0                0                0 
+## TEAM_PITCHING_HR TEAM_PITCHING_BB TEAM_PITCHING_SO  TEAM_FIELDING_E 
+##                0                0                0                0 
+## TEAM_FIELDING_DP 
+##                0
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# split into train, test}
+\KeywordTok{set.seed}\NormalTok{(}\DecValTok{1234}\NormalTok{)}
+\NormalTok{index <-}\StringTok{ }\KeywordTok{sample}\NormalTok{(}\DecValTok{1}\OperatorTok{:}\KeywordTok{nrow}\NormalTok{(dfClean), }\DataTypeTok{size =} \KeywordTok{nrow}\NormalTok{(dfClean) }\OperatorTok{*}\StringTok{ }\FloatTok{0.7}\NormalTok{)}
+\NormalTok{train <-}\StringTok{ }\NormalTok{dfClean[index, ]}
+\NormalTok{test <-}\StringTok{ }\NormalTok{dfClean[}\OperatorTok{-}\NormalTok{index, ]}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# build full model}
+\NormalTok{fullModel <-}\StringTok{ }\KeywordTok{lm}\NormalTok{(TARGET_WINS }\OperatorTok{~}\NormalTok{., }\DataTypeTok{data =}\NormalTok{ train }\OperatorTok{%>%}\StringTok{ }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{select}\NormalTok{(}\OperatorTok{-}\NormalTok{INDEX))}
+\NormalTok{broom}\OperatorTok{::}\KeywordTok{glance}\NormalTok{(fullModel)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 1 x 11
+##   r.squared adj.r.squared sigma statistic   p.value    df logLik    AIC    BIC
+##       <dbl>         <dbl> <dbl>     <dbl>     <dbl> <int>  <dbl>  <dbl>  <dbl>
+## 1     0.377         0.371  12.3      63.5 9.88e-150    16 -6254. 12542. 12633.
+## # ... with 2 more variables: deviance <dbl>, df.residual <int>
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# build full model - sqrt transformation for taking care of outliners}
+\NormalTok{DV <-}\StringTok{ }\KeywordTok{names}\NormalTok{(dfClean)[}\KeywordTok{names}\NormalTok{(dfClean) }\OperatorTok{%nin%}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"INDEX"}\NormalTok{, }\StringTok{"TARGET_WINS"}\NormalTok{)]}
+\NormalTok{fullModelSqrt <-}\StringTok{ }\KeywordTok{lm}\NormalTok{(TARGET_WINS }\OperatorTok{~}\StringTok{ }\NormalTok{., }\DataTypeTok{data =}\NormalTok{ train }\OperatorTok{%>%}\StringTok{ }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{select}\NormalTok{(}\OperatorTok{-}\NormalTok{INDEX) }\OperatorTok{%>%}\StringTok{ }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{mutate_at}\NormalTok{(}\KeywordTok{vars}\NormalTok{(DV), sqrt))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Note: Using an external vector in selections is ambiguous.
+## i Use `all_of(DV)` instead of `DV` to silence this message.
+## i See <https://tidyselect.r-lib.org/reference/faq-external-vector.html>.
+## This message is displayed once per session.
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{broom}\OperatorTok{::}\KeywordTok{glance}\NormalTok{(fullModelSqrt)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 1 x 11
+##   r.squared adj.r.squared sigma statistic   p.value    df logLik    AIC    BIC
+##       <dbl>         <dbl> <dbl>     <dbl>     <dbl> <int>  <dbl>  <dbl>  <dbl>
+## 1     0.385         0.379  12.2      65.8 2.62e-154    16 -6243. 12520. 12612.
+## # ... with 2 more variables: deviance <dbl>, df.residual <int>
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# stepwise regression - direction default to both}
+\NormalTok{step <-}\StringTok{ }\NormalTok{MASS}\OperatorTok{::}\KeywordTok{stepAIC}\NormalTok{(fullModel, }\DataTypeTok{trace =} \OtherTok{FALSE}\NormalTok{)}
+\NormalTok{step}\OperatorTok{$}\NormalTok{anova}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Stepwise Model Path 
+## Analysis of Deviance Table
+## 
+## Initial Model:
+## TARGET_WINS ~ TEAM_BATTING_H + TEAM_BATTING_2B + TEAM_BATTING_3B + 
+##     TEAM_BATTING_HR + TEAM_BATTING_BB + TEAM_BATTING_SO + TEAM_BASERUN_SB + 
+##     TEAM_BASERUN_CS + TEAM_BATTING_HBP + TEAM_PITCHING_H + TEAM_PITCHING_HR + 
+##     TEAM_PITCHING_BB + TEAM_PITCHING_SO + TEAM_FIELDING_E + TEAM_FIELDING_DP
+## 
+## Final Model:
+## TARGET_WINS ~ TEAM_BATTING_H + TEAM_BATTING_2B + TEAM_BATTING_3B + 
+##     TEAM_BATTING_HR + TEAM_BATTING_BB + TEAM_BATTING_SO + TEAM_BASERUN_SB + 
+##     TEAM_PITCHING_H + TEAM_PITCHING_BB + TEAM_PITCHING_SO + TEAM_FIELDING_E + 
+##     TEAM_FIELDING_DP
+## 
+## 
+##                 Step Df   Deviance Resid. Df Resid. Dev      AIC
+## 1                                       1577   239744.5 8019.230
+## 2  - TEAM_BASERUN_CS  1   9.360252      1578   239753.8 8017.292
+## 3 - TEAM_PITCHING_HR  1  68.955644      1579   239822.8 8015.750
+## 4 - TEAM_BATTING_HBP  1 131.239698      1580   239954.0 8014.621
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# 2 degree of interactions - full model}
+\NormalTok{step2 <-}\StringTok{ }\NormalTok{MASS}\OperatorTok{::}\KeywordTok{stepAIC}\NormalTok{(fullModel, }\OperatorTok{~}\StringTok{ }\NormalTok{.}\OperatorTok{^}\DecValTok{2}\NormalTok{, }\DataTypeTok{trace =} \OtherTok{FALSE}\NormalTok{)}
+\NormalTok{step2}\OperatorTok{$}\NormalTok{anova}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Stepwise Model Path 
+## Analysis of Deviance Table
+## 
+## Initial Model:
+## TARGET_WINS ~ TEAM_BATTING_H + TEAM_BATTING_2B + TEAM_BATTING_3B + 
+##     TEAM_BATTING_HR + TEAM_BATTING_BB + TEAM_BATTING_SO + TEAM_BASERUN_SB + 
+##     TEAM_BASERUN_CS + TEAM_BATTING_HBP + TEAM_PITCHING_H + TEAM_PITCHING_HR + 
+##     TEAM_PITCHING_BB + TEAM_PITCHING_SO + TEAM_FIELDING_E + TEAM_FIELDING_DP
+## 
+## Final Model:
+## TARGET_WINS ~ TEAM_BATTING_H + TEAM_BATTING_2B + TEAM_BATTING_3B + 
+##     TEAM_BATTING_HR + TEAM_BATTING_BB + TEAM_BATTING_SO + TEAM_BASERUN_SB + 
+##     TEAM_BASERUN_CS + TEAM_BATTING_HBP + TEAM_PITCHING_H + TEAM_PITCHING_HR + 
+##     TEAM_PITCHING_BB + TEAM_PITCHING_SO + TEAM_FIELDING_E + TEAM_FIELDING_DP + 
+##     TEAM_BATTING_BB:TEAM_FIELDING_DP + TEAM_BATTING_H:TEAM_BATTING_BB + 
+##     TEAM_BATTING_2B:TEAM_FIELDING_DP + TEAM_BATTING_BB:TEAM_FIELDING_E + 
+##     TEAM_BATTING_3B:TEAM_BATTING_SO + TEAM_BATTING_BB:TEAM_BASERUN_SB + 
+##     TEAM_PITCHING_HR:TEAM_PITCHING_SO + TEAM_BATTING_HR:TEAM_BASERUN_SB + 
+##     TEAM_BATTING_HR:TEAM_BATTING_BB + TEAM_BATTING_SO:TEAM_PITCHING_BB + 
+##     TEAM_BATTING_BB:TEAM_PITCHING_SO + TEAM_BATTING_H:TEAM_PITCHING_H + 
+##     TEAM_BATTING_2B:TEAM_BATTING_HR + TEAM_BATTING_BB:TEAM_BASERUN_CS + 
+##     TEAM_BATTING_HBP:TEAM_PITCHING_H + TEAM_BASERUN_CS:TEAM_PITCHING_HR + 
+##     TEAM_BATTING_HBP:TEAM_FIELDING_E + TEAM_BATTING_2B:TEAM_PITCHING_BB + 
+##     TEAM_BATTING_H:TEAM_FIELDING_E + TEAM_BATTING_H:TEAM_BATTING_SO + 
+##     TEAM_BATTING_3B:TEAM_BASERUN_SB + TEAM_BATTING_HR:TEAM_BASERUN_CS + 
+##     TEAM_BASERUN_CS:TEAM_PITCHING_BB + TEAM_BATTING_BB:TEAM_BATTING_SO + 
+##     TEAM_BATTING_H:TEAM_PITCHING_BB + TEAM_BATTING_2B:TEAM_BATTING_SO + 
+##     TEAM_BATTING_2B:TEAM_PITCHING_SO + TEAM_BATTING_2B:TEAM_BATTING_BB + 
+##     TEAM_BATTING_3B:TEAM_PITCHING_SO + TEAM_PITCHING_H:TEAM_PITCHING_HR + 
+##     TEAM_BATTING_H:TEAM_PITCHING_SO + TEAM_BATTING_SO:TEAM_PITCHING_H + 
+##     TEAM_BATTING_2B:TEAM_PITCHING_HR + TEAM_BATTING_HR:TEAM_FIELDING_E + 
+##     TEAM_BATTING_2B:TEAM_BASERUN_SB + TEAM_PITCHING_SO:TEAM_FIELDING_E + 
+##     TEAM_PITCHING_BB:TEAM_FIELDING_E + TEAM_BASERUN_SB:TEAM_FIELDING_DP + 
+##     TEAM_PITCHING_HR:TEAM_FIELDING_E
+## 
+## 
+##                                   Step Df     Deviance Resid. Df Resid. Dev
+## 1                                                           1577   239744.5
+## 2   + TEAM_BATTING_BB:TEAM_FIELDING_DP  1 15004.269138      1576   224740.2
+## 3     + TEAM_BATTING_H:TEAM_BATTING_BB  1  5070.688320      1575   219669.5
+## 4   + TEAM_BATTING_2B:TEAM_FIELDING_DP  1  3033.652228      1574   216635.8
+## 5    + TEAM_BATTING_BB:TEAM_FIELDING_E  1  2116.761370      1573   214519.1
+## 6    + TEAM_BATTING_3B:TEAM_BATTING_SO  1  2512.142515      1572   212006.9
+## 7    + TEAM_BATTING_BB:TEAM_BASERUN_SB  1  2519.492435      1571   209487.5
+## 8  + TEAM_PITCHING_HR:TEAM_PITCHING_SO  1  3023.933100      1570   206463.5
+## 9    + TEAM_BATTING_HR:TEAM_BASERUN_SB  1  3440.618163      1569   203022.9
+## 10   + TEAM_BATTING_HR:TEAM_BATTING_BB  1  1610.728931      1568   201412.2
+## 11  + TEAM_BATTING_SO:TEAM_PITCHING_BB  1  1638.727143      1567   199773.4
+## 12  + TEAM_BATTING_BB:TEAM_PITCHING_SO  1  2452.343130      1566   197321.1
+## 13  + TEAM_BASERUN_SB:TEAM_BATTING_HBP  1  1315.504382      1565   196005.6
+## 14    + TEAM_BATTING_H:TEAM_PITCHING_H  1  1054.715640      1564   194950.9
+## 15   + TEAM_BATTING_2B:TEAM_BATTING_HR  1   788.531985      1563   194162.3
+## 16   + TEAM_BASERUN_SB:TEAM_BASERUN_CS  1   641.631898      1562   193520.7
+## 17   + TEAM_BATTING_BB:TEAM_BASERUN_CS  1   639.258891      1561   192881.5
+## 18  + TEAM_PITCHING_BB:TEAM_FIELDING_E  1   538.975644      1560   192342.5
+## 19  + TEAM_BATTING_HBP:TEAM_PITCHING_H  1   708.613055      1559   191633.9
+## 20  + TEAM_BASERUN_CS:TEAM_PITCHING_HR  1   474.472323      1558   191159.4
+## 21   + TEAM_BATTING_H:TEAM_FIELDING_DP  1   414.611034      1557   190744.8
+## 22  + TEAM_BATTING_HBP:TEAM_FIELDING_E  1   457.467627      1556   190287.3
+## 23  + TEAM_BATTING_2B:TEAM_PITCHING_BB  1   391.884725      1555   189895.4
+## 24   + TEAM_BATTING_SO:TEAM_FIELDING_E  1   363.858099      1554   189531.6
+## 25    + TEAM_BATTING_H:TEAM_FIELDING_E  1   710.391280      1553   188821.2
+## 26    + TEAM_BATTING_H:TEAM_BATTING_SO  1   479.053977      1552   188342.1
+## 27   + TEAM_BATTING_3B:TEAM_BASERUN_SB  1   528.972852      1551   187813.2
+## 28   + TEAM_BATTING_2B:TEAM_FIELDING_E  1   377.949029      1550   187435.2
+## 29   + TEAM_BATTING_HR:TEAM_BASERUN_CS  1   385.148586      1549   187050.1
+## 30  + TEAM_BASERUN_CS:TEAM_PITCHING_BB  1  1612.853299      1548   185437.2
+## 31   + TEAM_BATTING_BB:TEAM_BATTING_SO  1   495.978066      1547   184941.2
+## 32  - TEAM_PITCHING_BB:TEAM_FIELDING_E  1    29.990816      1548   184971.2
+## 33   + TEAM_BATTING_H:TEAM_PITCHING_BB  1   457.305156      1547   184513.9
+## 34   + TEAM_BATTING_2B:TEAM_BATTING_SO  1   327.289613      1546   184186.6
+## 35  + TEAM_BATTING_2B:TEAM_PITCHING_SO  1  1026.235684      1545   183160.4
+## 36   + TEAM_BATTING_2B:TEAM_BATTING_BB  1   947.061018      1544   182213.3
+## 37  + TEAM_BATTING_3B:TEAM_PITCHING_SO  1   623.930903      1543   181589.4
+## 38  + TEAM_PITCHING_H:TEAM_PITCHING_HR  1   409.808122      1542   181179.6
+## 39   + TEAM_BATTING_H:TEAM_PITCHING_SO  1   657.657058      1541   180521.9
+## 40   + TEAM_BATTING_SO:TEAM_PITCHING_H  1   406.557562      1540   180115.4
+## 41  + TEAM_BATTING_2B:TEAM_PITCHING_HR  1   394.359244      1539   179721.0
+## 42  - TEAM_BASERUN_SB:TEAM_BATTING_HBP  1   108.827484      1540   179829.8
+## 43   + TEAM_BATTING_HR:TEAM_FIELDING_E  1   334.334825      1539   179495.5
+## 44   + TEAM_BATTING_2B:TEAM_BASERUN_SB  1   382.703284      1538   179112.8
+## 45   - TEAM_BATTING_2B:TEAM_FIELDING_E  1     1.965609      1539   179114.8
+## 46  + TEAM_PITCHING_SO:TEAM_FIELDING_E  1   312.059711      1538   178802.7
+## 47   - TEAM_BATTING_SO:TEAM_FIELDING_E  1    24.601189      1539   178827.3
+## 48  + TEAM_PITCHING_BB:TEAM_FIELDING_E  1   376.199962      1538   178451.1
+## 49  + TEAM_BASERUN_SB:TEAM_FIELDING_DP  1   387.224502      1537   178063.9
+## 50   - TEAM_BASERUN_SB:TEAM_BASERUN_CS  1    33.996087      1538   178097.9
+## 51   - TEAM_BATTING_H:TEAM_FIELDING_DP  1    94.697723      1539   178192.6
+## 52  + TEAM_PITCHING_HR:TEAM_FIELDING_E  1   224.807668      1538   177967.8
+##         AIC
+## 1  8019.230
+## 2  7918.276
+## 3  7883.923
+## 4  7863.770
+## 5  7850.128
+## 6  7833.363
+## 7  7816.318
+## 8  7795.156
+## 9  7770.386
+## 10 7759.697
+## 11 7748.683
+## 12 7731.007
+## 13 7722.351
+## 14 7715.756
+## 15 7711.299
+## 16 7708.026
+## 17 7704.756
+## 18 7702.298
+## 19 7698.418
+## 20 7696.469
+## 21 7695.010
+## 22 7693.185
+## 23 7691.901
+## 24 7690.846
+## 25 7686.864
+## 26 7684.817
+## 27 7682.337
+## 28 7681.128
+## 29 7679.851
+## 30 7668.056
+## 31 7665.790
+## 32 7664.048
+## 33 7662.105
+## 34 7661.276
+## 35 7654.376
+## 36 7648.118
+## 37 7644.654
+## 38 7643.054
+## 39 7639.262
+## 40 7637.670
+## 41 7636.178
+## 42 7635.143
+## 43 7634.178
+## 44 7632.778
+## 45 7630.796
+## 46 7630.018
+## 47 7628.237
+## 48 7626.882
+## 49 7625.422
+## 50 7623.726
+## 51 7622.573
+## 52 7622.562
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# 2 degree of interactions - sqrt transformation}
+\NormalTok{step2}\FloatTok{.1}\NormalTok{ <-}\StringTok{ }\NormalTok{MASS}\OperatorTok{::}\KeywordTok{stepAIC}\NormalTok{(fullModelSqrt, }\OperatorTok{~}\NormalTok{.}\OperatorTok{^}\DecValTok{2}\NormalTok{, }\DataTypeTok{trace =} \OtherTok{FALSE}\NormalTok{)}
+\NormalTok{step2}\FloatTok{.1}\OperatorTok{$}\NormalTok{anova}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Stepwise Model Path 
+## Analysis of Deviance Table
+## 
+## Initial Model:
+## TARGET_WINS ~ TEAM_BATTING_H + TEAM_BATTING_2B + TEAM_BATTING_3B + 
+##     TEAM_BATTING_HR + TEAM_BATTING_BB + TEAM_BATTING_SO + TEAM_BASERUN_SB + 
+##     TEAM_BASERUN_CS + TEAM_BATTING_HBP + TEAM_PITCHING_H + TEAM_PITCHING_HR + 
+##     TEAM_PITCHING_BB + TEAM_PITCHING_SO + TEAM_FIELDING_E + TEAM_FIELDING_DP
+## 
+## Final Model:
+## TARGET_WINS ~ TEAM_BATTING_H + TEAM_BATTING_2B + TEAM_BATTING_3B + 
+##     TEAM_BATTING_HR + TEAM_BATTING_BB + TEAM_BATTING_SO + TEAM_BASERUN_SB + 
+##     TEAM_BASERUN_CS + TEAM_BATTING_HBP + TEAM_PITCHING_H + TEAM_PITCHING_HR + 
+##     TEAM_PITCHING_BB + TEAM_PITCHING_SO + TEAM_FIELDING_E + TEAM_FIELDING_DP + 
+##     TEAM_BATTING_BB:TEAM_FIELDING_DP + TEAM_BASERUN_SB:TEAM_PITCHING_HR + 
+##     TEAM_BATTING_SO:TEAM_BASERUN_SB + TEAM_BATTING_2B:TEAM_FIELDING_DP + 
+##     TEAM_BATTING_HBP:TEAM_PITCHING_H + TEAM_BATTING_H:TEAM_FIELDING_E + 
+##     TEAM_BATTING_HR:TEAM_PITCHING_H + TEAM_PITCHING_H:TEAM_PITCHING_SO + 
+##     TEAM_BATTING_2B:TEAM_BATTING_HR + TEAM_BATTING_3B:TEAM_PITCHING_SO + 
+##     TEAM_BATTING_H:TEAM_BATTING_HR + TEAM_BASERUN_SB:TEAM_PITCHING_H + 
+##     TEAM_PITCHING_SO:TEAM_FIELDING_E + TEAM_BATTING_BB:TEAM_FIELDING_E + 
+##     TEAM_BATTING_SO:TEAM_PITCHING_SO + TEAM_BATTING_3B:TEAM_PITCHING_H + 
+##     TEAM_BATTING_SO:TEAM_PITCHING_H + TEAM_PITCHING_H:TEAM_PITCHING_BB + 
+##     TEAM_BATTING_H:TEAM_BATTING_3B + TEAM_BATTING_HR:TEAM_BASERUN_SB + 
+##     TEAM_BATTING_BB:TEAM_BASERUN_SB + TEAM_BATTING_H:TEAM_PITCHING_SO + 
+##     TEAM_BASERUN_CS:TEAM_PITCHING_BB + TEAM_BATTING_3B:TEAM_FIELDING_E + 
+##     TEAM_BATTING_3B:TEAM_BASERUN_SB + TEAM_BATTING_HBP:TEAM_FIELDING_E + 
+##     TEAM_FIELDING_E:TEAM_FIELDING_DP + TEAM_BASERUN_SB:TEAM_PITCHING_BB + 
+##     TEAM_BATTING_SO:TEAM_FIELDING_E + TEAM_PITCHING_BB:TEAM_FIELDING_E + 
+##     TEAM_BATTING_HR:TEAM_BATTING_BB + TEAM_BATTING_2B:TEAM_BATTING_HBP + 
+##     TEAM_BATTING_2B:TEAM_BASERUN_SB + TEAM_BASERUN_SB:TEAM_PITCHING_SO + 
+##     TEAM_PITCHING_HR:TEAM_FIELDING_DP + TEAM_BASERUN_SB:TEAM_BASERUN_CS + 
+##     TEAM_BASERUN_CS:TEAM_PITCHING_HR + TEAM_BASERUN_SB:TEAM_FIELDING_DP
+## 
+## 
+##                                   Step Df     Deviance Resid. Df Resid. Dev
+## 1                                                           1577   236519.2
+## 2   + TEAM_BATTING_BB:TEAM_FIELDING_DP  1 11235.510742      1576   225283.7
+## 3    + TEAM_BATTING_2B:TEAM_FIELDING_E  1  5837.131422      1575   219446.5
+## 4   + TEAM_BASERUN_SB:TEAM_PITCHING_HR  1  5548.780379      1574   213897.8
+## 5    + TEAM_BATTING_SO:TEAM_BASERUN_SB  1  3539.064939      1573   210358.7
+## 6   + TEAM_BASERUN_SB:TEAM_BATTING_HBP  1  2335.849121      1572   208022.8
+## 7   + TEAM_BATTING_2B:TEAM_FIELDING_DP  1  1723.783607      1571   206299.1
+## 8   + TEAM_BATTING_HBP:TEAM_PITCHING_H  1  1170.555810      1570   205128.5
+## 9   + TEAM_BASERUN_SB:TEAM_FIELDING_DP  1  1230.911801      1569   203897.6
+## 10    + TEAM_BATTING_H:TEAM_FIELDING_E  1   847.175424      1568   203050.4
+## 11   + TEAM_BATTING_HR:TEAM_PITCHING_H  1  1528.480283      1567   201521.9
+## 12  + TEAM_PITCHING_H:TEAM_PITCHING_SO  1  1082.786411      1566   200439.1
+## 13   + TEAM_BATTING_2B:TEAM_BATTING_HR  1  1259.863720      1565   199179.3
+## 14  + TEAM_BATTING_3B:TEAM_PITCHING_BB  1   801.537395      1564   198377.7
+## 15  + TEAM_BATTING_3B:TEAM_PITCHING_SO  1  1244.096517      1563   197133.7
+## 16    + TEAM_BATTING_H:TEAM_PITCHING_H  1   952.543878      1562   196181.1
+## 17    + TEAM_BATTING_H:TEAM_BATTING_HR  1  1401.821856      1561   194779.3
+## 18   + TEAM_BASERUN_SB:TEAM_PITCHING_H  1  1353.568725      1560   193425.7
+## 19  + TEAM_PITCHING_SO:TEAM_FIELDING_E  1   660.014384      1559   192765.7
+## 20   + TEAM_BATTING_BB:TEAM_FIELDING_E  1   713.269933      1558   192052.4
+## 21  + TEAM_BATTING_3B:TEAM_BATTING_HBP  1   630.409805      1557   191422.0
+## 22  + TEAM_BATTING_SO:TEAM_PITCHING_SO  1   488.222477      1556   190933.8
+## 23    + TEAM_BATTING_H:TEAM_BATTING_SO  1   864.248744      1555   190069.6
+## 24   + TEAM_BATTING_3B:TEAM_PITCHING_H  1   837.988380      1554   189231.6
+## 25   + TEAM_BATTING_SO:TEAM_PITCHING_H  1   983.134553      1553   188248.4
+## 26  + TEAM_PITCHING_H:TEAM_PITCHING_BB  1  1090.365465      1552   187158.1
+## 27    + TEAM_BATTING_H:TEAM_BATTING_3B  1  1296.354267      1551   185861.7
+## 28   + TEAM_BATTING_HR:TEAM_BASERUN_SB  1   624.190113      1550   185237.5
+## 29   + TEAM_BATTING_BB:TEAM_BASERUN_SB  1   613.068132      1549   184624.5
+## 30   + TEAM_BATTING_H:TEAM_PITCHING_SO  1   652.318536      1548   183972.1
+## 31  + TEAM_BASERUN_CS:TEAM_PITCHING_BB  1   838.582157      1547   183133.6
+## 32  + TEAM_BASERUN_CS:TEAM_PITCHING_SO  1   710.824867      1546   182422.7
+## 33    - TEAM_BATTING_H:TEAM_PITCHING_H  1     7.397843      1547   182430.1
+## 34   + TEAM_BATTING_3B:TEAM_FIELDING_E  1   434.563535      1546   181995.6
+## 35   + TEAM_BATTING_3B:TEAM_BASERUN_SB  1   503.525743      1545   181492.0
+## 36  + TEAM_BATTING_HBP:TEAM_FIELDING_E  1   580.620713      1544   180911.4
+## 37  + TEAM_FIELDING_E:TEAM_FIELDING_DP  1   500.384918      1543   180411.0
+## 38  + TEAM_BASERUN_SB:TEAM_PITCHING_BB  1   470.736901      1542   179940.3
+## 39   + TEAM_BATTING_SO:TEAM_FIELDING_E  1   451.902701      1541   179488.4
+## 40  + TEAM_PITCHING_BB:TEAM_FIELDING_E  1  1661.374759      1540   177827.0
+## 41   + TEAM_BATTING_HR:TEAM_BATTING_BB  1   524.255734      1539   177302.8
+## 42  - TEAM_BATTING_3B:TEAM_PITCHING_BB  1    20.202348      1540   177323.0
+## 43  - TEAM_BASERUN_SB:TEAM_FIELDING_DP  1    46.616343      1541   177369.6
+## 44    - TEAM_BATTING_H:TEAM_BATTING_SO  1   107.380324      1542   177477.0
+## 45  + TEAM_BATTING_2B:TEAM_BATTING_HBP  1   364.215651      1541   177112.7
+## 46  - TEAM_BATTING_3B:TEAM_BATTING_HBP  1   112.450583      1542   177225.2
+## 47   + TEAM_BATTING_2B:TEAM_BASERUN_SB  1   272.853465      1541   176952.3
+## 48   - TEAM_BATTING_2B:TEAM_FIELDING_E  1    76.780363      1542   177029.1
+## 49  + TEAM_BASERUN_SB:TEAM_PITCHING_SO  1   352.938525      1541   176676.2
+## 50 + TEAM_PITCHING_HR:TEAM_FIELDING_DP  1   338.905567      1540   176337.3
+## 51   + TEAM_BASERUN_SB:TEAM_BASERUN_CS  1   310.593928      1539   176026.7
+## 52  + TEAM_BASERUN_CS:TEAM_PITCHING_HR  1   460.875181      1538   175565.8
+## 53  - TEAM_BASERUN_SB:TEAM_BATTING_HBP  1   160.838823      1539   175726.6
+## 54  - TEAM_BASERUN_CS:TEAM_PITCHING_SO  1   146.814584      1540   175873.5
+## 55  + TEAM_BASERUN_SB:TEAM_FIELDING_DP  1   270.911471      1539   175602.5
+##         AIC
+## 1  7997.654
+## 2  7922.124
+## 3  7882.305
+## 4  7843.507
+## 5  7818.930
+## 6  7803.142
+## 7  7791.887
+## 8  7784.822
+## 9  7777.234
+## 10 7772.602
+## 11 7762.565
+## 12 7755.982
+## 13 7747.938
+## 14 7743.515
+## 15 7735.493
+## 16 7729.777
+## 17 7720.353
+## 18 7711.244
+## 19 7707.799
+## 20 7703.894
+## 21 7700.656
+## 22 7698.588
+## 23 7693.361
+## 24 7688.322
+## 25 7682.025
+## 26 7674.771
+## 27 7665.699
+## 28 7662.340
+## 29 7659.059
+## 30 7655.420
+## 31 7650.142
+## 32 7645.947
+## 33 7644.012
+## 34 7642.213
+## 35 7639.799
+## 36 7636.695
+## 37 7634.283
+## 38 7632.121
+## 39 7630.115
+## 40 7617.301
+## 41 7614.598
+## 42 7612.779
+## 43 7611.198
+## 44 7610.162
+## 45 7608.890
+## 46 7607.901
+## 47 7607.446
+## 48 7606.137
+## 49 7604.958
+## 50 7603.900
+## 51 7603.091
+## 52 7600.915
+## 53 7600.374
+## 54 7599.704
+## 55 7599.248
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# final model (based on the sqrt transformation)}
+\NormalTok{finalModelSqrt <-}\StringTok{ }\KeywordTok{lm}\NormalTok{(}
+\NormalTok{        TARGET_WINS }\OperatorTok{~}\StringTok{ }\NormalTok{TEAM_BATTING_H }\OperatorTok{+}\StringTok{ }\NormalTok{TEAM_BATTING_2B }\OperatorTok{+}\StringTok{ }\NormalTok{TEAM_BATTING_3B }\OperatorTok{+}\StringTok{ }
+\StringTok{                }\NormalTok{TEAM_BATTING_HR }\OperatorTok{+}\StringTok{ }\NormalTok{TEAM_BATTING_BB }\OperatorTok{+}\StringTok{ }\NormalTok{TEAM_BATTING_SO }\OperatorTok{+}\StringTok{ }\NormalTok{TEAM_BASERUN_SB }\OperatorTok{+}\StringTok{ }
+\StringTok{                }\NormalTok{TEAM_BASERUN_CS }\OperatorTok{+}\StringTok{ }\NormalTok{TEAM_BATTING_HBP }\OperatorTok{+}\StringTok{ }\NormalTok{TEAM_PITCHING_H }\OperatorTok{+}\StringTok{ }\NormalTok{TEAM_PITCHING_HR }\OperatorTok{+}\StringTok{ }
+\StringTok{                }\NormalTok{TEAM_PITCHING_BB }\OperatorTok{+}\StringTok{ }\NormalTok{TEAM_PITCHING_SO }\OperatorTok{+}\StringTok{ }\NormalTok{TEAM_FIELDING_E }\OperatorTok{+}\StringTok{ }\NormalTok{TEAM_FIELDING_DP }\OperatorTok{+}\StringTok{ }
+\StringTok{                }\NormalTok{TEAM_BATTING_BB}\OperatorTok{:}\NormalTok{TEAM_FIELDING_DP }\OperatorTok{+}\StringTok{ }\NormalTok{TEAM_BASERUN_SB}\OperatorTok{:}\NormalTok{TEAM_PITCHING_HR }\OperatorTok{+}\StringTok{ }
+\StringTok{                }\NormalTok{TEAM_BATTING_SO}\OperatorTok{:}\NormalTok{TEAM_BASERUN_SB }\OperatorTok{+}\StringTok{ }\NormalTok{TEAM_BATTING_2B}\OperatorTok{:}\NormalTok{TEAM_FIELDING_DP }\OperatorTok{+}\StringTok{ }
+\StringTok{                }\NormalTok{TEAM_BATTING_HBP}\OperatorTok{:}\NormalTok{TEAM_PITCHING_H }\OperatorTok{+}\StringTok{ }\NormalTok{TEAM_BATTING_H}\OperatorTok{:}\NormalTok{TEAM_FIELDING_E }\OperatorTok{+}\StringTok{ }
+\StringTok{                }\NormalTok{TEAM_BATTING_HR}\OperatorTok{:}\NormalTok{TEAM_PITCHING_H }\OperatorTok{+}\StringTok{ }\NormalTok{TEAM_PITCHING_H}\OperatorTok{:}\NormalTok{TEAM_PITCHING_SO }\OperatorTok{+}\StringTok{ }
+\StringTok{                }\NormalTok{TEAM_BATTING_2B}\OperatorTok{:}\NormalTok{TEAM_BATTING_HR }\OperatorTok{+}\StringTok{ }\NormalTok{TEAM_BATTING_3B}\OperatorTok{:}\NormalTok{TEAM_PITCHING_SO }\OperatorTok{+}\StringTok{ }
+\StringTok{                }\NormalTok{TEAM_BATTING_H}\OperatorTok{:}\NormalTok{TEAM_BATTING_HR }\OperatorTok{+}\StringTok{ }\NormalTok{TEAM_BASERUN_SB}\OperatorTok{:}\NormalTok{TEAM_PITCHING_H }\OperatorTok{+}\StringTok{ }
+\StringTok{                }\NormalTok{TEAM_PITCHING_SO}\OperatorTok{:}\NormalTok{TEAM_FIELDING_E }\OperatorTok{+}\StringTok{ }\NormalTok{TEAM_BATTING_BB}\OperatorTok{:}\NormalTok{TEAM_FIELDING_E }\OperatorTok{+}\StringTok{ }
+\StringTok{                }\NormalTok{TEAM_BATTING_SO}\OperatorTok{:}\NormalTok{TEAM_PITCHING_SO }\OperatorTok{+}\StringTok{ }\NormalTok{TEAM_BATTING_3B}\OperatorTok{:}\NormalTok{TEAM_PITCHING_H }\OperatorTok{+}\StringTok{ }
+\StringTok{                }\NormalTok{TEAM_BATTING_SO}\OperatorTok{:}\NormalTok{TEAM_PITCHING_H }\OperatorTok{+}\StringTok{ }\NormalTok{TEAM_PITCHING_H}\OperatorTok{:}\NormalTok{TEAM_PITCHING_BB }\OperatorTok{+}\StringTok{ }
+\StringTok{                }\NormalTok{TEAM_BATTING_H}\OperatorTok{:}\NormalTok{TEAM_BATTING_3B }\OperatorTok{+}\StringTok{ }\NormalTok{TEAM_BATTING_HR}\OperatorTok{:}\NormalTok{TEAM_BASERUN_SB }\OperatorTok{+}\StringTok{ }
+\StringTok{                }\NormalTok{TEAM_BATTING_BB}\OperatorTok{:}\NormalTok{TEAM_BASERUN_SB }\OperatorTok{+}\StringTok{ }\NormalTok{TEAM_BATTING_H}\OperatorTok{:}\NormalTok{TEAM_PITCHING_SO }\OperatorTok{+}\StringTok{ }
+\StringTok{                }\NormalTok{TEAM_BASERUN_CS}\OperatorTok{:}\NormalTok{TEAM_PITCHING_BB }\OperatorTok{+}\StringTok{ }\NormalTok{TEAM_BATTING_3B}\OperatorTok{:}\NormalTok{TEAM_FIELDING_E }\OperatorTok{+}\StringTok{ }
+\StringTok{                }\NormalTok{TEAM_BATTING_3B}\OperatorTok{:}\NormalTok{TEAM_BASERUN_SB }\OperatorTok{+}\StringTok{ }\NormalTok{TEAM_BATTING_HBP}\OperatorTok{:}\NormalTok{TEAM_FIELDING_E }\OperatorTok{+}\StringTok{ }
+\StringTok{                }\NormalTok{TEAM_FIELDING_E}\OperatorTok{:}\NormalTok{TEAM_FIELDING_DP }\OperatorTok{+}\StringTok{ }\NormalTok{TEAM_BASERUN_SB}\OperatorTok{:}\NormalTok{TEAM_PITCHING_BB }\OperatorTok{+}\StringTok{ }
+\StringTok{                }\NormalTok{TEAM_BATTING_SO}\OperatorTok{:}\NormalTok{TEAM_FIELDING_E }\OperatorTok{+}\StringTok{ }\NormalTok{TEAM_PITCHING_BB}\OperatorTok{:}\NormalTok{TEAM_FIELDING_E }\OperatorTok{+}\StringTok{ }
+\StringTok{                }\NormalTok{TEAM_BATTING_HR}\OperatorTok{:}\NormalTok{TEAM_BATTING_BB }\OperatorTok{+}\StringTok{ }\NormalTok{TEAM_BATTING_2B}\OperatorTok{:}\NormalTok{TEAM_BATTING_HBP }\OperatorTok{+}\StringTok{ }
+\StringTok{                }\NormalTok{TEAM_BATTING_2B}\OperatorTok{:}\NormalTok{TEAM_BASERUN_SB }\OperatorTok{+}\StringTok{ }\NormalTok{TEAM_BASERUN_SB}\OperatorTok{:}\NormalTok{TEAM_PITCHING_SO }\OperatorTok{+}\StringTok{ }
+\StringTok{                }\NormalTok{TEAM_PITCHING_HR}\OperatorTok{:}\NormalTok{TEAM_FIELDING_DP }\OperatorTok{+}\StringTok{ }\NormalTok{TEAM_BASERUN_SB}\OperatorTok{:}\NormalTok{TEAM_BASERUN_CS }\OperatorTok{+}\StringTok{ }
+\StringTok{                }\NormalTok{TEAM_BASERUN_CS}\OperatorTok{:}\NormalTok{TEAM_PITCHING_HR }\OperatorTok{+}\StringTok{ }\NormalTok{TEAM_BASERUN_SB}\OperatorTok{:}\NormalTok{TEAM_FIELDING_DP,}
+        \DataTypeTok{data =}\NormalTok{ train }\OperatorTok{%>%}\StringTok{ }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{select}\NormalTok{(}\OperatorTok{-}\NormalTok{INDEX) }\OperatorTok{%>%}\StringTok{ }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{mutate_at}\NormalTok{(}\KeywordTok{vars}\NormalTok{(DV), sqrt)}
+\NormalTok{)}
+
+\NormalTok{broom}\OperatorTok{::}\KeywordTok{glance}\NormalTok{(finalModelSqrt)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 1 x 11
+##   r.squared adj.r.squared sigma statistic   p.value    df logLik    AIC    BIC
+##       <dbl>         <dbl> <dbl>     <dbl>     <dbl> <int>  <dbl>  <dbl>  <dbl>
+## 1     0.543         0.528  10.7      34.6 1.49e-221    54 -6006. 12122. 12418.
+## # ... with 2 more variables: deviance <dbl>, df.residual <int>
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{broom}\OperatorTok{::}\KeywordTok{tidy}\NormalTok{(finalModelSqrt) }\OperatorTok{%>%}\StringTok{ }\KeywordTok{arrange}\NormalTok{(p.value)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 54 x 5
+##    term                             estimate std.error statistic  p.value
+##    <chr>                               <dbl>     <dbl>     <dbl>    <dbl>
+##  1 TEAM_PITCHING_H:TEAM_PITCHING_BB  -0.171     0.0218     -7.84 8.55e-15
+##  2 TEAM_PITCHING_HR                 -68.1       9.38       -7.26 6.30e-13
+##  3 TEAM_BATTING_BB:TEAM_FIELDING_E   -0.860     0.119      -7.24 7.22e-13
+##  4 TEAM_PITCHING_H:TEAM_PITCHING_SO   0.0863    0.0137      6.28 4.44e-10
+##  5 TEAM_BATTING_3B:TEAM_PITCHING_H   -0.226     0.0366     -6.18 7.95e-10
+##  6 TEAM_BATTING_HR                   64.3      10.6         6.07 1.58e- 9
+##  7 TEAM_FIELDING_E                  -16.0       2.68       -5.96 3.06e- 9
+##  8 TEAM_BATTING_HR:TEAM_PITCHING_H    1.25      0.217       5.73 1.20e- 8
+##  9 TEAM_BATTING_H:TEAM_PITCHING_SO    0.360     0.0633      5.69 1.48e- 8
+## 10 TEAM_BATTING_SO:TEAM_FIELDING_E    0.562     0.0990      5.68 1.62e- 8
+## # ... with 44 more rows
+\end{verbatim}
+
+The final model (sqrt transformed) derived from the 2 degree of
+interactions between variables has considerably enhanced the adjusted
+R-squared from 0.377 (fullModel) to 0.543 (finalModelSqrt)!
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# diagnostic}
+\KeywordTok{par}\NormalTok{(}\DataTypeTok{mfrow =} \KeywordTok{c}\NormalTok{(}\DecValTok{2}\NormalTok{, }\DecValTok{2}\NormalTok{))}
+\KeywordTok{plot}\NormalTok{(finalModelSqrt)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning in sqrt(crit * p * (1 - hh)/hh): NaNs produced
+
+## Warning in sqrt(crit * p * (1 - hh)/hh): NaNs produced
+\end{verbatim}
+
+\includegraphics{data_621_hw2_moneyball_files/figure-latex/Part IV (additional) - Diagnostic, Evaluation-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# plot predicted outcomes with actuals with confidence intervals}
+\NormalTok{testFinal <-}\StringTok{ }\NormalTok{test }\OperatorTok{%>%}
+\StringTok{        }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{predictedOutcome =} \KeywordTok{round}\NormalTok{(}\KeywordTok{predict}\NormalTok{(finalModelSqrt, }
+                                                       \DataTypeTok{newdata =}\NormalTok{ test }\OperatorTok{%>%}\StringTok{ }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{select}\NormalTok{(}\OperatorTok{-}\NormalTok{INDEX) }\OperatorTok{%>%}\StringTok{ }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{mutate_at}\NormalTok{(}\KeywordTok{vars}\NormalTok{(DV), sqrt), }
+                                                       \DataTypeTok{type =} \StringTok{"response"}\NormalTok{)))}
+
+\NormalTok{test.pred <-}\StringTok{ }\KeywordTok{predict}\NormalTok{(finalModelSqrt, }
+                     \DataTypeTok{newdata =}\NormalTok{ test }\OperatorTok{%>%}\StringTok{ }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{select}\NormalTok{(}\OperatorTok{-}\NormalTok{INDEX) }\OperatorTok{%>%}\StringTok{ }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{mutate_at}\NormalTok{(}\KeywordTok{vars}\NormalTok{(DV), sqrt), }
+                     \DataTypeTok{interval =} \StringTok{"prediction"}\NormalTok{)}
+
+\NormalTok{testCombined <-}\StringTok{ }\KeywordTok{cbind}\NormalTok{(testFinal, test.pred) }\OperatorTok{%>%}
+\StringTok{        }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{select}\NormalTok{(}\OperatorTok{-}\NormalTok{fit)}
+
+\NormalTok{test.subset <-}\StringTok{ }\NormalTok{testCombined }\OperatorTok{%>%}
+\StringTok{        }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{select}\NormalTok{(}\DataTypeTok{target_wins =}\NormalTok{ TARGET_WINS, }
+                      \DataTypeTok{predicted_wins =}\NormalTok{ predictedOutcome,}
+\NormalTok{                      lwr,}
+\NormalTok{                      upr) }\OperatorTok{%>%}
+\StringTok{        }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{filter}\NormalTok{(predicted_wins }\OperatorTok{>}\DecValTok{0}\NormalTok{)}
+
+\NormalTok{p <-}\StringTok{ }\NormalTok{test.subset}\OperatorTok{%>%}
+\StringTok{        }\KeywordTok{ggplot}\NormalTok{(}\KeywordTok{aes}\NormalTok{(target_wins, predicted_wins)) }\OperatorTok{+}
+\StringTok{        }\KeywordTok{geom_point}\NormalTok{()}
+
+\NormalTok{p }\OperatorTok{+}\StringTok{ }\KeywordTok{geom_point}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{y =}\NormalTok{ lwr), }\DataTypeTok{col =} \StringTok{"red"}\NormalTok{) }\OperatorTok{+}
+\StringTok{        }\KeywordTok{geom_point}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{y =}\NormalTok{ upr), }\DataTypeTok{col =} \StringTok{"green"}\NormalTok{) }\OperatorTok{+}
+\StringTok{        }\KeywordTok{geom_abline}\NormalTok{(}\DataTypeTok{intercept =} \DecValTok{0}\NormalTok{, }\DataTypeTok{slope =} \DecValTok{1}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{data_621_hw2_moneyball_files/figure-latex/Part IV (additional) - Diagnostic, Evaluation-2.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# what is the correlation betweent predicted and actuals?}
+\KeywordTok{cor.test}\NormalTok{(test.subset}\OperatorTok{$}\NormalTok{target_wins, test.subset}\OperatorTok{$}\NormalTok{predicted_wins)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##  Pearson's product-moment correlation
+## 
+## data:  test.subset$target_wins and test.subset$predicted_wins
+## t = 18.067, df = 681, p-value < 2.2e-16
+## alternative hypothesis: true correlation is not equal to 0
+## 95 percent confidence interval:
+##  0.5162526 0.6178620
+## sample estimates:
+##       cor 
+## 0.5692268
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# what is the RMSE of this final model (sqrt transformed)?}
+\NormalTok{caret}\OperatorTok{::}\KeywordTok{RMSE}\NormalTok{(}\DataTypeTok{pred =}\NormalTok{ test.subset}\OperatorTok{$}\NormalTok{predicted_wins, }\DataTypeTok{obs =}\NormalTok{ test.subset}\OperatorTok{$}\NormalTok{target_wins)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 13.73734
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# finally, let's apply it to our evaluation set}
+\KeywordTok{colSums}\NormalTok{(}\KeywordTok{is.na}\NormalTok{(dfEval))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##            INDEX   TEAM_BATTING_H  TEAM_BATTING_2B  TEAM_BATTING_3B 
+##                0                0                0                0 
+##  TEAM_BATTING_HR  TEAM_BATTING_BB  TEAM_BATTING_SO  TEAM_BASERUN_SB 
+##                0                0               18               13 
+##  TEAM_BASERUN_CS TEAM_BATTING_HBP  TEAM_PITCHING_H TEAM_PITCHING_HR 
+##               87              240                0                0 
+## TEAM_PITCHING_BB TEAM_PITCHING_SO  TEAM_FIELDING_E TEAM_FIELDING_DP 
+##                0               18                0               31
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# let's impute missing values using the mice package}
+\NormalTok{dfImpute2 <-}\StringTok{ }\NormalTok{dfEval }\OperatorTok{%>%}
+\StringTok{        }\NormalTok{mice}\OperatorTok{::}\KeywordTok{mice}\NormalTok{(}\DataTypeTok{m =} \DecValTok{1}\NormalTok{,  }\CommentTok{# number of imputed data set}
+                   \DataTypeTok{maxit =} \DecValTok{10}\NormalTok{,  }\CommentTok{# number of iterations to impute missing values}
+                   \DataTypeTok{method =} \StringTok{"pmm"}\NormalTok{,  }\CommentTok{# method used in imputation, and we choose "predictive mean matching" for all our numeric variables}
+                   \DataTypeTok{seed =} \DecValTok{1234}\NormalTok{) }
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##  iter imp variable
+##   1   1  TEAM_BATTING_SO  TEAM_BASERUN_SB  TEAM_BASERUN_CS  TEAM_BATTING_HBP  TEAM_PITCHING_SO  TEAM_FIELDING_DP
+##   2   1  TEAM_BATTING_SO  TEAM_BASERUN_SB  TEAM_BASERUN_CS  TEAM_BATTING_HBP  TEAM_PITCHING_SO  TEAM_FIELDING_DP
+##   3   1  TEAM_BATTING_SO  TEAM_BASERUN_SB  TEAM_BASERUN_CS  TEAM_BATTING_HBP  TEAM_PITCHING_SO  TEAM_FIELDING_DP
+##   4   1  TEAM_BATTING_SO  TEAM_BASERUN_SB  TEAM_BASERUN_CS  TEAM_BATTING_HBP  TEAM_PITCHING_SO  TEAM_FIELDING_DP
+##   5   1  TEAM_BATTING_SO  TEAM_BASERUN_SB  TEAM_BASERUN_CS  TEAM_BATTING_HBP  TEAM_PITCHING_SO  TEAM_FIELDING_DP
+##   6   1  TEAM_BATTING_SO  TEAM_BASERUN_SB  TEAM_BASERUN_CS  TEAM_BATTING_HBP  TEAM_PITCHING_SO  TEAM_FIELDING_DP
+##   7   1  TEAM_BATTING_SO  TEAM_BASERUN_SB  TEAM_BASERUN_CS  TEAM_BATTING_HBP  TEAM_PITCHING_SO  TEAM_FIELDING_DP
+##   8   1  TEAM_BATTING_SO  TEAM_BASERUN_SB  TEAM_BASERUN_CS  TEAM_BATTING_HBP  TEAM_PITCHING_SO  TEAM_FIELDING_DP
+##   9   1  TEAM_BATTING_SO  TEAM_BASERUN_SB  TEAM_BASERUN_CS  TEAM_BATTING_HBP  TEAM_PITCHING_SO  TEAM_FIELDING_DP
+##   10   1  TEAM_BATTING_SO  TEAM_BASERUN_SB  TEAM_BASERUN_CS  TEAM_BATTING_HBP  TEAM_PITCHING_SO  TEAM_FIELDING_DP
+\end{verbatim}
+
+\begin{verbatim}
+## Warning: Number of logged events: 20
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{dfEvalClean <-}\StringTok{ }\NormalTok{mice}\OperatorTok{::}\KeywordTok{complete}\NormalTok{(dfImpute2)}
+
+\NormalTok{dfEval}\OperatorTok{$}\NormalTok{evalPredictedOutcome =}\StringTok{ }\KeywordTok{round}\NormalTok{(}\KeywordTok{predict}\NormalTok{(finalModelSqrt, }
+                            \DataTypeTok{newdata =}\NormalTok{ dfEvalClean }\OperatorTok{%>%}\StringTok{ }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{select}\NormalTok{(}\OperatorTok{-}\NormalTok{INDEX) }\OperatorTok{%>%}\StringTok{ }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{mutate_at}\NormalTok{(}\KeywordTok{vars}\NormalTok{(DV), sqrt),}
+                            \DataTypeTok{type =} \StringTok{"response"}\NormalTok{))}
+
+\KeywordTok{head}\NormalTok{(dfEval)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##   INDEX TEAM_BATTING_H TEAM_BATTING_2B TEAM_BATTING_3B TEAM_BATTING_HR
+## 1     9           1209             170              33              83
+## 2    10           1221             151              29              88
+## 3    14           1395             183              29              93
+## 4    47           1539             309              29             159
+## 5    60           1445             203              68               5
+## 6    63           1431             236              53              10
+##   TEAM_BATTING_BB TEAM_BATTING_SO TEAM_BASERUN_SB TEAM_BASERUN_CS
+## 1             447            1080              62              50
+## 2             516             929              54              39
+## 3             509             816              59              47
+## 4             486             914             148              57
+## 5              95             416              NA              NA
+## 6             215             377              NA              NA
+##   TEAM_BATTING_HBP TEAM_PITCHING_H TEAM_PITCHING_HR TEAM_PITCHING_BB
+## 1               NA            1209               83              447
+## 2               NA            1221               88              516
+## 3               NA            1395               93              509
+## 4               42            1539              159              486
+## 5               NA            3902               14              257
+## 6               NA            2793               20              420
+##   TEAM_PITCHING_SO TEAM_FIELDING_E TEAM_FIELDING_DP evalPredictedOutcome
+## 1             1080             140              156                   60
+## 2              929             135              164                   66
+## 3              816             156              153                   70
+## 4              914             124              154                   78
+## 5             1123             616              130                   53
+## 6              736             572              105                   74
+\end{verbatim}
+
+\end{document}
