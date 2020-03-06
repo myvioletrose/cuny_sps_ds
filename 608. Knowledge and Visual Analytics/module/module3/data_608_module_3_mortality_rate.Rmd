@@ -1,0 +1,240 @@
+---
+title: "data_608_module_3"
+author: "Jimmy Ng"
+date: "3/3/2020"
+output: html_document
+runtime: shiny
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r preparation, collapse = TRUE}
+# load packages
+invisible( pacman::p_load("sf", "tidyverse", "choroplethrMaps", "choroplethr", "knitr", "RCurl", "ggrepel", "gridExtra", "sqldf", "shiny", "kableExtra", "wrapr") )
+
+# load df
+data_url <- "https://raw.githubusercontent.com/charleyferrari/CUNY_DATA_608/master/module3/data/cleaned-cdc-mortality-1999-2010-2.csv"
+
+df <- read.csv(data_url)
+
+# split df by disease
+dfList <- df %>% arrange(ICD.Chapter, State, Year) %>% split(., .$ICD.Chapter)
+
+print(paste0("There are ", length(dfList), " ICD chapters in the data set."))
+
+# assign global variables by disease
+list2env(dfList, envir = .GlobalEnv) %>% invisible
+```
+
+Question 1: As a researcher, you frequently compare mortality rates from particular causes across different States. You need a visualization that will let you see (for 2010 only) the crude mortality rate, across all States, from one cause (for example, Neoplasms, which are effectively cancers). Create a visualization that allows you to rank States by crude mortality for each cause of death.  
+
+```{r question_1, echo = TRUE, eval = TRUE, fig.width = 45, fig.height = 60}
+# Define UI
+ui <- fluidPage(
+        
+        # App title 
+        titlePanel("ICD Crude Mortality Rate (Y2010)"),
+        
+        # Sidebar layout with input and output definitions 
+        verticalLayout(
+                
+                # Sidebar panel for inputs 
+                sidebarPanel(
+                        
+                        # Input: Selector for variable to plot 
+                        selectInput("icd", 
+                                    "ICD Chapter (Y2010 only):",
+                                    c(df %>% 
+                                      dplyr::filter(Year == 2010) %>% 
+                                      dplyr::mutate(ICD.Chapter = as.character(ICD.Chapter)) %>%
+                                      dplyr::select(ICD.Chapter) %>% 
+                                      unique() %.>%
+                                      .$ICD.Chapter %>%
+                                      sort()
+                                      )
+                        )
+                        
+                ),
+                
+                # Main panel for displaying outputs 
+                mainPanel(
+                        # add tabs
+                        tabsetPanel(
+                        # Outputs: 
+                        tabPanel("Crude Mortality Rate by State - plot", plotOutput("statePlot")),
+                        tabPanel("Crude Mortality Rate by State - table", tableOutput("stateTable"))
+                        )
+                )
+        )
+)
+
+# Define server logic to plot various variables 
+server <- function(input, output) {
+        
+        datasetInput <- reactive({
+                switch(input$icd,
+                       "Certain conditions originating in the perinatal period" = `Certain conditions originating in the perinatal period`, 
+                        "Certain infectious and parasitic diseases" = `Certain infectious and parasitic diseases`, 
+                        "Congenital malformations, deformations and chromosomal abnormalities" = `Congenital malformations, deformations and chromosomal abnormalities`, 
+                        "Diseases of the blood and blood-forming organs and certain disorders involving the immune mechanism" = `Diseases of the blood and blood-forming organs and certain disorders involving the immune mechanism`, 
+                        "Diseases of the circulatory system" = `Diseases of the circulatory system`, 
+                        "Diseases of the digestive system" = `Diseases of the digestive system`, 
+                        "Diseases of the genitourinary system" = `Diseases of the genitourinary system`, 
+                        "Diseases of the musculoskeletal system and connective tissue" = `Diseases of the musculoskeletal system and connective tissue`, 
+                        "Diseases of the nervous system" = `Diseases of the nervous system`, 
+                        "Diseases of the respiratory system" = `Diseases of the respiratory system`, 
+                        "Diseases of the skin and subcutaneous tissue" = `Diseases of the skin and subcutaneous tissue`, 
+                        "Endocrine, nutritional and metabolic diseases" = `Endocrine, nutritional and metabolic diseases`, 
+                        "External causes of morbidity and mortality" = `External causes of morbidity and mortality`, 
+                        "Mental and behavioural disorders" = `Mental and behavioural disorders`, 
+                        "Neoplasms" = `Neoplasms`, 
+                        "Pregnancy, childbirth and the puerperium" = `Pregnancy, childbirth and the puerperium`, 
+                        "Symptoms, signs and abnormal clinical and laboratory findings, not elsewhere classified" = `Symptoms, signs and abnormal clinical and laboratory findings, not elsewhere classified`
+                       ) %>%
+                dplyr::filter(Year == 2010)
+        })
+        
+        
+        # Generate a plot of the requested variable 
+        output$statePlot <- renderPlot({
+
+                ggplot(datasetInput(),
+                       aes(x = reorder(State, Crude.Rate), y = Crude.Rate)) +
+                        labs(x = "State", y = "Crude Mortality Rate") +                        
+                        geom_point(stat = "identity", color = "grey",
+                                   aes(fill = factor(Crude.Rate))) +
+                        coord_flip() +
+                        geom_label_repel(aes(State, Crude.Rate, fill = factor(Crude.Rate),
+                                             label = State),
+                                         size = 3, fontface = 'bold', color = 'white',
+                                         box.padding = unit(0.1, "lines"),
+                                         point.padding = unit(0.1, "lines"),
+                                         segment.color = 'grey50', segment.size = 1,
+                                         force = 10) +
+                        geom_text_repel(aes(label = Crude.Rate),
+                                        size = 3.5, color = 'red',
+                                        force = 30) +
+                        theme_bw() +
+                        theme(legend.position = "none",
+                              axis.text.x = element_text(angle = 0, hjust = 1),
+                              plot.title = element_text(hjust = 0.5)) +
+                        ggtitle(input$icd)
+
+        })
+        
+        # print table output
+        output$stateTable <- renderTable({          
+                datasetInput() %>% dplyr::select(-ICD.Chapter) %>%
+                        dplyr::arrange(desc(Crude.Rate)) %>%
+                        dplyr::mutate(Rank = 1:nrow(.)) %>%
+                        dplyr::select(Rank, State, Deaths, Population, `Crude Mortality Rate` = Crude.Rate)
+                        
+        })
+        
+}
+
+# Create Shiny app 
+shinyApp(ui, server, options = list(width = 1800, height = 1200))
+```
+
+Question 2: Often you are asked whether particular States are improving their mortality rates (per cause) faster than, or slower than, the national average. Create a visualization that lets your clients see this for themselves for one cause of death at the time. Keep in mind that the national average should be weighted by the national population. 
+
+```{r question_2, echo = TRUE, eval = TRUE, fig.width = 45, fig.height = 60}
+# Define UI
+ui <- fluidPage(
+        
+        # App title 
+        titlePanel("ICD Crude Mortality Rate"),
+        
+        # Sidebar layout with input and output definitions 
+        verticalLayout(
+                
+                # Sidebar panel for inputs 
+                sidebarPanel(
+                        
+                        # Input: Selector for variable to plot 
+                        selectInput("state", 
+                                    "State:",
+                                    c(levels(df$State)),
+                                    selected = "NY"
+                        ),
+                        
+                        selectInput("icd", 
+                                    "ICD Chapter:",
+                                    c(names(dfList))
+                        )
+                        
+                ),
+                
+                # Main panel for displaying outputs 
+                mainPanel(
+                        # add tabs
+                        tabsetPanel(
+                        # Outputs: 
+                        tabPanel("Crude Mortality Rate by State, Year", plotOutput("StateYearPlot"))                        
+                        )
+                )
+        )
+)
+
+# Define server logic to plot various variables 
+server <- function(input, output) {
+        
+        datasetInput <- reactive({
+                switch(input$icd,
+                       "Certain conditions originating in the perinatal period" = `Certain conditions originating in the perinatal period`, 
+                        "Certain infectious and parasitic diseases" = `Certain infectious and parasitic diseases`, 
+                        "Codes for special purposes" = `Codes for special purposes`,
+                        "Congenital malformations, deformations and chromosomal abnormalities" = `Congenital malformations, deformations and chromosomal abnormalities`, 
+                        "Diseases of the blood and blood-forming organs and certain disorders involving the immune mechanism" = `Diseases of the blood and blood-forming organs and certain disorders involving the immune mechanism`, 
+                        "Diseases of the circulatory system" = `Diseases of the circulatory system`, 
+                        "Diseases of the digestive system" = `Diseases of the digestive system`, 
+                        "Diseases of the ear and mastoid process" = `Diseases of the ear and mastoid process`,
+                        "Diseases of the genitourinary system" = `Diseases of the genitourinary system`, 
+                        "Diseases of the musculoskeletal system and connective tissue" = `Diseases of the musculoskeletal system and connective tissue`, 
+                        "Diseases of the nervous system" = `Diseases of the nervous system`, 
+                        "Diseases of the respiratory system" = `Diseases of the respiratory system`, 
+                        "Diseases of the skin and subcutaneous tissue" = `Diseases of the skin and subcutaneous tissue`, 
+                        "Endocrine, nutritional and metabolic diseases" = `Endocrine, nutritional and metabolic diseases`, 
+                        "External causes of morbidity and mortality" = `External causes of morbidity and mortality`, 
+                        "Mental and behavioural disorders" = `Mental and behavioural disorders`, 
+                        "Neoplasms" = `Neoplasms`, 
+                        "Pregnancy, childbirth and the puerperium" = `Pregnancy, childbirth and the puerperium`, 
+                        "Symptoms, signs and abnormal clinical and laboratory findings, not elsewhere classified" = `Symptoms, signs and abnormal clinical and laboratory findings, not elsewhere classified`
+                       )
+        })
+        
+        
+        # Generate a plot of the requested variable 
+        output$StateYearPlot <- renderPlot({
+
+        nationalAverage <- datasetInput() %>%
+                        dplyr::select(Year, Deaths, Population) %>%
+                        group_by(Year) %>%                         
+                        summarise(d = sum(Deaths), 
+                                  p = sum(as.numeric(Population))) %>% 
+                        dplyr::mutate(Avg = round((d / p) * 10^5, 1)) %>% 
+                        dplyr::select(Year, Avg)
+
+                datasetInput() %>%
+                        dplyr::filter(State == input$state) %>%
+                        ggplot(., aes(x = State, y = Crude.Rate)) +
+                        geom_bar(stat = "identity", aes(fill = Year)) +
+                        labs(x = "", y = "crude mortality rate") +                        
+                        ggtitle(paste0(input$state, ": ", input$icd, "\n**Red Line indicated national average**")) +
+                        theme_bw() +
+                        theme(legend.position = "none",
+                              axis.text.x = element_text(angle = 30, hjust = 1),
+                              plot.title = element_text(hjust = 0.5)) +
+                        facet_grid(~Year) +
+                        geom_hline(data = nationalAverage, aes(yintercept = Avg, color = "red", linetype = "longdash"))
+
+        })        
+        
+}
+
+# Create Shiny app 
+shinyApp(ui, server, options = list(width = 1800, height = 1200))
+```

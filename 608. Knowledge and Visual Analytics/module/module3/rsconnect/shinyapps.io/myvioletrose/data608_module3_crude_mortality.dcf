@@ -1,0 +1,12 @@
+name: data608_module3_crude_mortality
+title: data608_module3_crude_mortality
+username:
+account: myvioletrose
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 1911630
+bundleId: 2855735
+url: https://myvioletrose.shinyapps.io/data608_module3_crude_mortality/
+when: 1583459628.7625
+asMultiple: FALSE
+asStatic: FALSE
