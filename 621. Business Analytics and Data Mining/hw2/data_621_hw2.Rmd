@@ -1,0 +1,252 @@
+---
+title: "data_621_hw2"
+author: "Jimmy Ng"
+date: "3/14/2020"
+output:
+  pdf_document: default
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r load packages, include = FALSE}
+library(tidyverse)
+library(caret)
+library(pROC)
+```
+
+```{r (1) download data}
+df <- read.csv("classification-output-data.csv", header = TRUE)
+```
+
+```{r (2) table() function, collapse = TRUE}
+dfSubset <- df %>% dplyr::select(class, scored.class, scored.probability)
+rawConfusionMatrix <- with(dfSubset, table(scored.class, class))
+rawConfusionMatrix
+```
+The confusion matrix summarizes the classification output. The columns represent the actuals (class), whereas the rows represent the predicted (scored.class). There are 30 false negatives in contrast to 5 false positives.
+
+```{r (3) accuracy, collapse = TRUE}
+accuracy <- function(x, actual = "actual", predicted = "predicted"){
+        
+        x <- as.data.frame(x) %>%
+                dplyr::select(bquote(.(actual)), bquote(.(predicted))) %>%
+                dplyr::mutate(TP = dplyr::case_when(class == 1 & scored.class == 1 ~ 1, TRUE ~ 0),
+                              TN = dplyr::case_when(class == 0 & scored.class == 0 ~ 1, TRUE ~ 0))
+        
+        a <- sum(x$TP, x$TN) / nrow(df)
+        return(a)
+        
+}
+
+print(paste0("The accuracy is ", accuracy(df, actual = 'class', predicted = 'scored.class')))
+```
+
+```{r (4) classification error rate, collapse = TRUE}
+classError <- function(x, actual = "actual", predicted = "predicted"){
+        
+        x <- as.data.frame(x) %>%
+                dplyr::select(bquote(.(actual)), bquote(.(predicted))) %>%
+                dplyr::mutate(FP = dplyr::case_when(class == 0 & scored.class == 1 ~ 1, TRUE ~ 0),
+                              FN = dplyr::case_when(class == 1 & scored.class == 0 ~ 1, TRUE ~ 0))
+        
+        e <- sum(x$FP, x$FN) / nrow(df)
+        return(e)
+        
+}
+
+print(paste0("The classification error rate (which is equivalent to 1 minus the accuracy) is ", classError(df, actual = 'class', predicted = 'scored.class')))
+
+# verification
+if(accuracy(df, "class", "scored.class") + classError(df, "class", "scored.class") == 1){
+        print("Verification Success: accuracy plus classification error rate is equal to 1.")
+}
+```
+
+```{r (5) precision, collapse = TRUE}
+precision <- function(x, actual = "actual", predicted = "predicted"){
+        
+        x <- as.data.frame(x) %>%
+                dplyr::select(bquote(.(actual)), bquote(.(predicted))) %>%
+                dplyr::mutate(TP = dplyr::case_when(class == 1 & scored.class == 1 ~ 1, TRUE ~ 0),
+                              FP = dplyr::case_when(class == 0 & scored.class == 1 ~ 1, TRUE ~ 0))
+        
+        p <- sum(x$TP)/ sum(x$TP, x$FP)
+        return(p)
+        
+}
+
+print(paste0("The precision is ", precision(df, actual = 'class', predicted = 'scored.class')))
+```
+
+```{r (6) sensitivity, collapse = TRUE}
+sensitivity <- function(x, actual = "actual", predicted = "predicted"){
+        
+        x <- as.data.frame(x) %>%
+                dplyr::select(bquote(.(actual)), bquote(.(predicted))) %>%
+                dplyr::mutate(TP = dplyr::case_when(class == 1 & scored.class == 1 ~ 1, TRUE ~ 0),
+                              FN = dplyr::case_when(class == 1 & scored.class == 0 ~ 1, TRUE ~ 0))
+        
+        s <- sum(x$TP)/ sum(x$TP, x$FN)
+        return(s)
+        
+}
+
+print(paste0("The sensitivity aka recall is ", sensitivity(df, actual = 'class', predicted = 'scored.class')))
+```
+
+```{r (7) specificity, collapse = TRUE}
+specificity <- function(x, actual = "actual", predicted = "predicted"){
+        
+        x <- as.data.frame(x) %>%
+                dplyr::select(bquote(.(actual)), bquote(.(predicted))) %>%
+                dplyr::mutate(TN = dplyr::case_when(class == 0 & scored.class == 0 ~ 1, TRUE ~ 0),
+                              FP = dplyr::case_when(class == 0 & scored.class == 1 ~ 1, TRUE ~ 0))
+        
+        sp <- sum(x$TN)/ sum(x$TN, x$FP)
+        return(sp)
+        
+}
+
+print(paste0("The specificity is ", specificity(df, actual = 'class', predicted = 'scored.class')))
+```
+
+```{r (8) F1 score, collapse = TRUE}
+f1Score <- function(x, actual = "actual", predicted = "predicted"){
+        
+        p = precision(x, actual, predicted)
+        s = sensitivity(x, actual, predicted)
+        
+        f1 = (2 * p * s) / (p + s)
+        return(f1)
+        
+}
+
+print(paste0("The F1 score is ", f1Score(df, actual = 'class', predicted = 'scored.class')))
+```
+
+```{r (9) F1 score bounds between 0 and 1, collapse = TRUE, echo = FALSE}
+# Let's consider few hypothetical situations.
+
+print("####### 1) Let's assume we have classified n true positives and no false negatives or false positives.")
+
+print("Assume that TP is non zero and FN and FP are equal to zero, then the formula becomes:")
+
+print("F1 Score = { 2TP }{ 2TP + 0 + 0 } = { 2TP }{ 2TP } = 1")
+
+print("####### 2) Let's assume there is no true positives and n false negatives with m false positives or 0 false negatives with m false positives, or n false negatives with 0 false positives, then our F1 output would become as follows:")
+
+print("F1 Score = { 2TP }{ 2TP + FN + FP } = { 0 }{ 0 + FN + FP } = 0")
+
+print("F1 Score = { 2TP }{ 2TP + FN + FP } = { 0 }{ 0 + FN + 0 } = 0")
+
+print("F1 Score = { 2TP }{ 2TP + FN + FP } = { 0 }{ 0 + 0 + FP } = 0")
+
+print("####### 3) The third situation is if TP, FN, and FP are all non zero. The denominator is always greater than the numerator, hence the F1 score will always be a value between zero and one.")
+
+print("0 < { 2TP }{ 2TP + FN + FP } < 1")
+```
+
+```{r (10) ROC curve, collapse = TRUE}
+ROC <- function(x, actual = "actual", prob = "prob"){
+        
+        # df
+        df <- as.data.frame(x) %>%
+                dplyr::select(bquote(.(actual)), bquote(.(prob)))
+        
+        # define threshold
+        t <- seq(0, 1, by = 0.01)
+        
+        # temp data frame
+        d <- data.frame(temp = 1:nrow(df))
+        x <- seq_along(t)
+        y <- seq_along(t)
+        
+        for(i in t){
+                prob.df <- as.numeric(df[[2]] >i)
+                d <- cbind(d, prob.df)
+        }
+        
+        for(j in 1:length(t)){
+                classes.type.df = factor(df[[1]], levels = c(0, 1))
+                prediciton_types.df = factor(d[, j], levels = c(0, 1))
+                ct = table(classes.type.df, prediciton_types.df)
+                
+                sen_a = ct[2,2] / (ct[2,2] + ct[2,1])
+                spe_a = ct[1,1] / (ct[1,1] + ct[1,2])
+                y[j] = sen_a
+                x[j] = 1 - spe_a
+        }
+        
+        roc.df = data.frame(false_positive_rate = x, true_positive_rate = y)
+        roc.visuals = ggplot(roc.df, aes(x = false_positive_rate, y = true_positive_rate)) + 
+                geom_step() + 
+                geom_abline(slope = 1, intercept = c(0, 0), colour = "red", lty = 2)   
+        
+        myauc <- function(outcome, prob){
+                n = length(prob)
+                positives_sum = sum(outcome)
+                z <- data.frame(out = outcome, prob = prob)
+                z <- z[order(-z$prob), ] %>% dplyr::mutate(above = (1:n) - cumsum(out))
+                return(1 - sum(z$above * z$out) / (positives_sum * (n - positives_sum)))
+        }       
+        
+        auc_final = myauc(df[[1]], df[[2]])
+        
+        results = list("Area under curve" = auc_final, "Plot" = roc.visuals)
+        
+        results
+}
+```
+
+```{r (11) classification metrics, collapse = TRUE, echo = FALSE}
+# metrics
+print(paste0("The accuracy is ", accuracy(df, actual = 'class', predicted = 'scored.class')))
+print(paste0("The classification error rate is ", classError(df, actual = 'class', predicted = 'scored.class')))
+print(paste0("The precision is ", precision(df, actual = 'class', predicted = 'scored.class')))
+print(paste0("The sensitivity is ", sensitivity(df, actual = 'class', predicted = 'scored.class')))
+print(paste0("The specificity is ", specificity(df, actual = 'class', predicted = 'scored.class')))
+print(paste0("The F1 score is ", f1Score(df, actual = 'class', predicted = 'scored.class')))
+print(paste0("The AUC is ", ROC(df, 'class', 'scored.probability')$`Area under curve`))
+
+# plot
+ROC(df, 'class', 'scored.probability')$Plot
+```
+
+```{r (12) caret, collapse = TRUE}
+caret_matrix <- caret::confusionMatrix(rawConfusionMatrix[2:1, 2:1])
+
+print(caret_matrix)
+
+caret_matrix$table
+```
+Comparing with my function outputs, the result is identical. 
+
+```{r (13) pROC, collapse = TRUE}
+# AUC
+print(paste0("The AUC is ", pROC::auc(pROC::roc(df$class, df$scored.probability))))
+
+# plot
+plot(pROC::roc(df$class, df$scored.probability), main = "pROC package : ROC Curve")
+
+```
+The result is also identical; however, ggplot seems to create better looking visualization.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
