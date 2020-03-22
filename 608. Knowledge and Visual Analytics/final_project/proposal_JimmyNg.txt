@@ -1,0 +1,3 @@
+Recent coronavirus pandemic sent a shockwave to global financial market. Stock prices plummet and the global market basically is in freefall and nowhere we can see the end of the tunnel. I am proposing to visualize stock prices volatility. Stock prices data is public and retrievable via R package quantmod. Data can be cleaned and transformed with various packages, e.g. tidyverse, tidyquant. I am very interested to visualize whether there's any ominous sign ahead of significant market turmoil, such as any date where we can say that's the end of bull and entrance of bear market. 
+
+See https://www.quantmod.com/ 
