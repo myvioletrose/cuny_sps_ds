@@ -1,0 +1,119 @@
+<html>
+
+<!--
+    
+    Note to Students:
+
+        This is a very short introduction to using Javascript in the browser.
+
+        To see this as a webpage, you have to start a *Local Web Server*. There are many ways to do this: since you all have python installed, we will use python.
+
+        - Open terminal
+
+        - 'cd' into the directory where this html file is (js_in_webpage.html)
+
+        - Type the following into the terminal and hit 'enter':
+            python -m SimpleHTTPServer
+
+            your server should read something like: Serving HTTP on 0.0.0.0 port 8000 ...
+
+        - now go to any browser and type in the HTTP address and the filename: something like:
+
+            http://0.0.0.0:8000/js_in_webpage.html
+
+            or
+
+            http://localhost:8000/js_in_webpage.html
+        
+        - Congrats: you now have a local HTTP server running. Now, every time you change this file and save it, when you reload the browser you will see your changes!
+-->
+
+<head><title>Data 608 : Module 5</title></head>
+
+<body>
+
+<h1>Jimmy Ng</h1>
+<h2>All of the below is created with Javascript. </h2>
+
+<script type="text/javascript">
+
+document.write('<br><p>1a) Reverse Any String')
+
+function reverseString(str) {
+
+    return str.split("").reverse().join("");
+
+};
+
+function calc(){
+
+    var t = document.getElementById("target");
+
+    t.innerHTML = reverseString(document.getElementById('str').value);
+
+}
+
+</script>
+
+<script type="text/javascript">
+
+document.write('<br><p>1b) 5x4 table with 20 multiples')
+
+function table(n){
+
+var array = [n, n*2, n*3, n*4, n*5, n*6, n*7, n*8, n*9, n*10, n*11, n*12, n*13, n*14, n*15, n*16, n*17, n*18, n*19, n*20];
+
+var result = "<table border=1>";
+
+result += "<tr>";
+
+for (var j = 0; j < array.length; j++){
+
+    result += "<td>" + array[j] + "</td>";
+
+    if ((j + 1) % 4 == 0){
+        result += "</tr><tr>";
+    }
+
+}
+
+result += "</tr>";
+result += "</table>";
+--> document.body.innerHTML = result;
+
+return result;
+
+}
+
+function printTable(){
+
+    var t = document.getElementById("target");
+    t.innerHTML = table(document.getElementById('n').value);
+
+}
+
+</script>
+
+
+<p>
+
+<form>
+    <input id="str" type="string">
+    <input type="button" value="reverse!" onClick="calc();">
+</form>
+
+<form>
+    <input id="n" type="number">
+    <input type="button" value="5x4 table" onClick="printTable();">
+</form>
+
+</p>
+
+<div id="target"></div>
+
+<script type="text/javascript" src="other_script.js"></script>
+
+<script type="text/javascript"> document.write(myScript());</script>
+
+</body>
+</html>
