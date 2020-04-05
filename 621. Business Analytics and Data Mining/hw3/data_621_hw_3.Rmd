@@ -1,0 +1,205 @@
+---
+title: "data_621_hw_3"
+author: "Jimmy Ng"
+date: "4/4/2020"
+output: 
+        html_document: default
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## load packages, data
+
+```{r get_ready, collapse = TRUE}
+# load packages
+if(!require(pacman)){install.packages("pacman"); require(pacman)}
+packages <- c('tidyverse', 'glue', 'broom', 'MASS', 'caret', 'InformationValue', 'Hmisc', 'kableExtra', 'corrplot', 'ROCR')
+pacman::p_load(char = packages)
+
+# get data
+dfTrain <- read_csv("crime-training-data_modified.csv")
+dfEval <- read_csv("crime-evaluation-data_modified.csv")
+```
+
+## Part I & II : Data Exploration, Preparation
+
+```{r, data_exploration, collapse = TRUE}
+dim(dfTrain)
+head(dfTrain)
+summary(dfTrain)
+str(dfTrain)
+
+# number of unique values for each variable
+sapply(dfTrain, function(x) unique(x) %>% length)
+
+# any missing
+colSums(is.na(dfTrain))
+
+# let's look at distribution of each variable by target variable
+categorical_vars <- c("chas", "rad")
+quantitative_vars <- names(dfTrain)[names(dfTrain) %nin% categorical_vars]
+dfGather <- dfTrain %>%
+        dplyr::select(all_of(quantitative_vars)) %>%
+        dplyr::mutate(target = as.factor(target)) %>%
+        tidyr::gather(key, value, -target)
+
+ggplot(dfGather, aes(value, color = target)) +
+        geom_density() +
+        geom_vline(data = aggregate(value ~ target + key, dfGather, median), 
+                   aes(xintercept = value,
+                       color = target),
+                   linetype = "dashed") +
+        facet_wrap(~ key, nrow = 5, scales = "free")
+
+# let's look at other categorical variables        
+with(dfTrain, ftable(target) %>% prop.table()) %>% round(., 2)
+with(dfTrain, ftable(target, chas) %>% prop.table(., margin = 2) %>% round(., 2))
+with(dfTrain, ftable(target, rad) %>% prop.table(., margin = 2) %>% round(., 2))
+```
+*** Good news is that we do not have any missing data. The proportion for the target variable is almost the same between 0 and 1. The ggplot and crosstab tables indicate that majority of these variables contribute to the differences for the target variable. 'rm' (average number of rooms per dwelling) alone is probably the only variable that is definitely NOT related to the target variable. The dashline inside each subplot is the median (not the mean) for dealing with skewed distribution. Next, we should look at the correlation among all variables by using a corrplot.
+
+```{r corrplot, collapse = TRUE}
+dfTrain %>%
+        cor() %>%
+        corrplot(method = "number", type = "upper", order = "hclust")
+```
+
+*** 'tax' and 'rad' are strongly positively correlated with each other, whereas 'nox' and 'dis' are moderately negatively correlated. The most interesting part would be 'target' and 'dis' are moderately negatively correlated. Would that because the further apart between a neighborhood and an employment center, the less likely residents would need help for seeking a job (because they already have ones or they have better white collar jobs), thus less crimes happen? 
+
+
+## Part III : Build Models
+
+```{r build_models, collapse = TRUE}
+# split dfTrain into train and test sets
+set.seed(1234)
+index <- sample(1:nrow(dfTrain), nrow(dfTrain) * 0.7)
+train <- dfTrain[index, ]
+test <- dfTrain[-index, ]
+
+# model 1 - full model
+fullModel <- glm(target ~ ., data = train, family = binomial(link = "logit"))        
+broom::glance(fullModel)
+
+# model 2 - sqrt transformation for taking care of outliners
+DV <- names(dfTrain)[names(train) %nin% c(categorical_vars, 'target')]
+fullModelSqrt <- glm(target ~ ., data = train %>% dplyr::mutate_at(vars(DV), sqrt), family = binomial(link = "logit"))
+broom::glance(fullModelSqrt)
+
+# model 3 - stepwise (direction default to both)
+step <- MASS::stepAIC(fullModel, trace = FALSE)
+step$anova
+stepModel <- glm(target ~ zn + nox + dis + rad + tax + ptratio + lstat + medv, data = train, family = binomial(link = "logit"))
+broom::glance(stepModel)
+
+# model 4 - repeated, k-fold cross-validation
+set.seed(1234)
+train.control <- caret::trainControl(method = "repeatedcv", number = 10, repeats = 10)        
+index <- sample(1:nrow(dfTrain), size = nrow(dfTrain) * 0.7)
+kFoldModel <- caret::train(as.factor(target) ~ zn + nox + dis + rad + tax + ptratio + lstat + medv,
+                           data = train, method = "glm", trControl = train.control)        
+summary(kFoldModel)
+```
+
+
+*** We have built 4 logistics regression models using different approaches. First, we built a full model using an entire data set. Second, we applied a square root transformation on all continuous predictors to see if there's any improvement. Third, we applied stepwise approach and looked at both directions (forward, backward). Finally, after we came up with a final model from the stepwise approach, we applied it with kfold cross validation. We built a 10-fold, repeated (10 times) cross validation using the formula from the stepwise model. We compared across the four models using Akaike Information Criterion (AIC). We finally settled with the formula proposed by the stepwise approach (target ~ zn + nox + age + dis + rad + tax + ptratio + medv) and tried it again with the kfold cross validation. We acheived the lowest AIC 156.16 (brought down from the full model of 161.8) and the result looks reasonable. For example, 'rm' should be removed because the average number of rooms per dwelling doesn't seem to make any logical indication to the target variable (crime rate). Likewise, the stepwise approach droppped other variables that do not make sense (such as whether the suburb borders at the Charles River or proportion of non-retail business acres per suburb). Let's turn to further evaluation of each model before applying the model on our evaluaton data set for prediction.
+
+
+## Part IV : Select Models
+```{r select_models, collapse = TRUE}
+# set threshold
+optCutOff <- 0.5
+
+# prediction for each model
+predicted_1 <- list(predict(fullModel, test, type = "response"))
+predicted_2 <- list(predict(fullModelSqrt, test, type = "response"))
+predicted_3 <- list(predict(stepModel, test, type = "response"))
+predicted_4 <- list(predict(kFoldModel, test, type = "raw"))
+predictions <- list(predicted_1, predicted_2, predicted_3, predicted_4)
+
+# diagnostic - Confusion Matrix, i.e. the columns are actuals, while rows are predicteds
+cm_1 <- InformationValue::confusionMatrix(test$target, predicted = predicted_1 %>% unlist, threshold = optCutOff)
+cm_2 <- InformationValue::confusionMatrix(test$target, predicted = predicted_2 %>% unlist, threshold = optCutOff)
+cm_3 <- InformationValue::confusionMatrix(test$target, predicted = predicted_3 %>% unlist, threshold = optCutOff)
+cm_4 <- ftable(predicted_4 %>% unlist, test$target)
+
+cm_1
+cm_2
+cm_3
+cm_4
+
+# diagnostic - AUROC, misClassification, precision, sensitivity, specificity
+modelResultList <- vector(mode = "list", length = 3)
+names(modelResultList) <- c("full", "full - sqrt transformed", "stepwise")
+
+for(i in 1:length(modelResultList)){
+        
+        # metrics
+        auroc <- InformationValue::AUROC(test$target, predictions[[i]] %>% unlist)
+        misCE <- InformationValue::misClassError(test$target, predictions[[i]] %>% unlist, threshold = optCutOff)
+        pre <- InformationValue::precision(test$target, predictions[[i]] %>% unlist, threshold = optCutOff)
+        sen <- InformationValue::sensitivity(test$target, predictions[[i]] %>% unlist, threshold = optCutOff)
+        spe <- InformationValue::specificity(test$target, predictions[[i]] %>% unlist, threshold = optCutOff)
+        cm <- InformationValue::confusionMatrix(test$target, predictions[[i]] %>% unlist, threshold = optCutOff)
+        TN <- cm[1, 1]
+        FN <- cm[1, 2]
+        FP <- cm[2, 1]
+        TP <- cm[2, 2]
+        
+        # diagnostic output
+        tempList <- list(
+                data.frame(model = names(modelResultList)[i],
+                           auroc = round(auroc, 2),
+                           misClass = round(misCE, 2),
+                           precision = round(pre, 2),
+                           sensitivity = round(sen, 2),
+                           specificity = round(spe, 2),
+                           `True Positive` = TP,
+                           `True Negative` = TN,
+                           `False Positive` = FP,
+                           `False Negative` = FN,
+                           accuracy = round((TP + TN) / (TP + TN + FP + FN), 2), 
+                           F1 = round(2 * ((pre * sen) / (pre + sen)), 2))
+        )
+
+        # put together
+        modelResultList <- c(modelResultList, tempList)
+        
+}
+
+modelResultDf <- modelResultList %>% dplyr::bind_rows()
+modelResultDf %>% kableExtra::kable()
+
+# ROC Curve
+par(mfrow = c(1, 3))
+pred <- prediction(predicted_1 %>% unlist, test$target)
+perf <- performance(pred, "tpr", "fpr")
+plot(perf, colorize = TRUE, main = "Full Model")
+
+pred <- prediction(predicted_2 %>% unlist, test$target)
+perf <- performance(pred, "tpr", "fpr")
+plot(perf, colorize = TRUE, main = "Full Model - Sqrt")
+
+pred <- prediction(predicted_3 %>% unlist, test$target)
+perf <- performance(pred, "tpr", "fpr")
+plot(perf, colorize = TRUE, main = "Step Model")
+
+# Final print of the stepModel
+tidy(stepModel)
+
+# Prediction for Evaluation Set
+dfEval <- dfEval %>%
+        dplyr::mutate(prediction = predict(stepModel, dfEval, type = "response"),
+                      prediction = ifelse(prediction > optCutOff, 1, 0))
+table(dfEval$prediction)
+```
+
+
+*** Above results indicated that approach 3 and 4 (stepModel, kFoldModel) shared the identical confusion matrix. Essentially, they are not different, thus we removed it from the for() loop for comparison. Surprisingly, the fullModel is slightly better than the stepModel in terms of area under the ROC curve, less misclassification error, more sensitive and accurate and so forth. However, we decide to go with the stewpwise approach because the model is more elegant and trim off irrelevant variables and that became more parsimonious.
+
+
+
+
+
+
