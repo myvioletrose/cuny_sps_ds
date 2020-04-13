@@ -54,7 +54,7 @@ Extending the Linear Model with R
 Linear Models with R
              http://www.maths.bath.ac.uk/~jjf23/LMR/
 
- A Modern Approach to Regression with R
+A Modern Approach to Regression with R
              http://gattonweb.uky.edu/sheather/book/index.php
 
 An introduction to statistical learning with applications in R

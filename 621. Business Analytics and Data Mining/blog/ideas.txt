@@ -1,0 +1,5 @@
+################ Blog posts ideas
+
+# beta binomial regression
+# time series analysis
+# KNN
