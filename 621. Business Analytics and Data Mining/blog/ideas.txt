@@ -3,3 +3,4 @@
 # beta binomial regression
 # time series analysis
 # KNN
+# Odds Ratio
