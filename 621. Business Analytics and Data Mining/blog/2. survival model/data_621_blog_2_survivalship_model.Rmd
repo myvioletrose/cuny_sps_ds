@@ -1,0 +1,166 @@
+---
+title: "data_621_blog_2"
+author: "Jimmy Ng"
+date: "4/20/2020"
+output: html_document
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Survival model
+
+This is a simple tutorial of building a survival model for a subscription business. The use case is that a media company offers various subscription plan to its customers. Each plan is associated with different price and billing period, e.g. Annual, Month, Semi-Annual, Two-Year, etc. We need to infer from billing period associated with churn rate to estimate the average number of extended payments that a subscription is likely to have left in order to estimate LTV (life-time value) and project revenue. For example, someone already paid his/her fifteenth payment is more likely to pay additional two, three or more payments than someone just finished paying his/her second payment. Generally speaking, the likelihood of paying the twenty-first payment is higher for this cohort than new subscribers. This type of analysis is very commnn in medical or actuarial science (such as life insurance). For each subscription, the goal is to predict how many more payments (on average) that the subscription is likely to have left based on billing period and existing number of payments. For simplicity, we only rely on "billing period" to build this survivalship model, and we also only estimate "periods_remaining" (aka lifetime) for new subscriptions. 
+
+```{r load_packages}
+# load packages
+if(!require(pacman)){install.packages("pacman"); require(pacman)}
+packages <- c('tidyverse', 'sqldf', 'broom', 'survival', 'survminer', 'kableExtra')
+pacman::p_load(char = packages)
+```
+
+## Read data
+
+Each row represents a subscription. "sub_id" represents unique id for each subscription; "billing_period" is referred to the frequency of payment; "lifetime" is referred to the number of payment already paid by the subscription; and lastly, "status" is referred to the current subscription status. Disclaimer: this is a made-up dataset for building this tutorial. 
+
+```{r read_data, collapse = TRUE}
+# head, dim
+df <- read.csv("df.csv")
+head(df)
+dim(df)
+```
+
+```{r check_data, collapse = TRUE}
+# check missing
+colSums(is.na(df))
+
+# billing periods
+unique(df$billing_period)
+
+# billing periods x status
+ftable(df$billing_period, df$status)
+
+# average number of payment received by billing period
+aggregate(lifetime ~ billing_period, data = df, FUN = mean)
+```
+
+## Nest data
+
+Nesting data for each billing period. Each data set contains only status and lifetime. An important step is to apply 'case_when' statement to convert status into value of 1 or 2, i.e. 'Active' == 1, 'Cancelled' == 2. Subsequently, we can apply survival model on each subset (by billing period). 
+
+```{r nest_data, collapse = TRUE}
+# nest data, i.e. data = c(status, lifetime)
+dfNest <- df %>%
+        dplyr::select(billing_period, status, lifetime) %>%
+        dplyr::mutate(status = dplyr::case_when(status == 'Active' ~ 1, TRUE ~ 2)) %>%
+        nest(., data = c(status, lifetime)) %>%
+        arrange(billing_period)
+
+dfNest
+```
+
+## Model
+
+We build a survival model for each billing period and then combine the output together into one data frame. All we care is the "estimate" column, which tells us the chance of surviving the corresponding lifetime (given the subscribers have survived the previous stages). For example, for 'Annual' billing, the chance of reaching the third payment is roughly 71% (given they successfully made the previous payments). 
+
+```{r model, collapse = TRUE}
+# build model for overall survival - (estimate lifetime for new subscriptions)
+overall_survival <- lapply(dfNest$data, function(x) survfit(Surv(lifetime, status) ~ 1, data = x))
+
+names(overall_survival) <- dfNest$billing_period
+
+# tidy result output
+overall_survival_result <- lapply(1:length(overall_survival), 
+                                  function(x) tidy(overall_survival[[x]]) %>% 
+                                          dplyr::mutate(billing_period = names(overall_survival[x])))
+
+# combine results (from list) into one dataframe
+overall_survival_result <- overall_survival_result %>% 
+        dplyr::bind_rows(.) %>%
+        dplyr::select(billing_period, lifetime = time, everything())
+
+overall_survival_result %>% kable()
+```
+
+## Visualization
+
+It's easier to visualize the outcome by plotting a survival curve. Once subscribers make certain number of payments, their chance of continuously paying (recurring payment) will become stablized. The goal of business becomes clearer, which is either to find a better way to get people to reach certain number of payments (let's say 12 for 'Month'), or bring the "finish line" closer to the subscribers, e.g. find a way to shorten the number of payments in order to flatten, stablize the survival curve. In the long run, keeping customers to stay longer with us by reducing churn or increasing retention rate is the key to grow profit for the business. 
+
+```{r survival_curve, collapse = TRUE}
+ggsurvplot(
+        fit = survfit(Surv(lifetime, status) ~ billing_period, data = unnest(dfNest)), 
+        xlab = "Payments", 
+        ylab = "Overall survival probability")
+
+```
+
+## How about expecting life expectancy? 
+
+To answer this question, we can simply sum up the area under the curve to find the expected value. However, we do not collect future data and we can only expect (or wish) them to pay us indefinitely. For example, subscribers signed up for our monthly plan, since we roughly launched our business for two years, the maximum number of payments that they can pay us is 24 and we can see that there is a long tail trailing to the right. We still have to come up with a reasonable "stop" or "end point" to the x-axis.
+
+Therefore, there are two things we can do. First option, we can sum up the esimate to get the expected value (lifetime expectancy) for each billing period. That's the lifetime expectancy for now (our second year), but as we continue to grow our business (into our third, fourth, fifth year and so forth), the expectancy will change and prolong. Although the outcome is flexible (because it will change and shift once we get more data), we may want to have something more concrete so that we can use it in another process (such as calculating lifetime value based on lifetime expectancy). Second option, we can set up a hard "stop" for each payment cohort. This is the part completely based on business acumen or experts' opinion. For example, we only expect people to pay us for the maximum of next four years regardless of how many payments that they have made or whatever subscription plan that they have signed up for. For example, for people who already made their first monthly payment, we expect the maximum number of payments that they would have pay us is 48. Similarly, for people already paid their twenty-fourth monthly payment, the maximum number of extended payments (which is how many more that they will pay us in the future) is also 48.
+
+```{r lifetime_expectancy, collapse = TRUE}
+# option 1
+option_1 <- overall_survival_result %>% group_by(billing_period) %>% summarise(lifetime = sum(estimate))
+
+option_1 <- option_1 %>% dplyr::mutate(lifetime = floor(lifetime))
+
+option_1
+
+# option 2
+# create 'expectancy' table - a fixed number of outcomes (possible number of payments) for each payment cohort
+billing_periods_list <- list("Annual", "Month", "Semi_Annual", "Two_Years")
+
+# set the maximum number of payment equal to 4 years
+lifetime_list <- list(Annual = c(0:4), Month = c(0:48), Semi_Annual = c(0:8), Two_Years = c(0:2))  
+
+expectancy <- purrr::map2(billing_periods_list, lifetime_list, function(x, y) expand.grid(x, y)) %>%
+        dplyr::bind_rows(.) %>%
+        dplyr::select(billing_period = Var1,
+                      lifetime = Var2)
+
+# left join with the above model result output
+modelOutput <- expectancy %>%
+        dplyr::left_join(., overall_survival_result, by = c("billing_period" = "billing_period", "lifetime", "lifetime")) %>%
+        dplyr::select(billing_period, lifetime, estimate) %>%
+        arrange(billing_period, lifetime)
+
+modelOutput %>% kable()
+```
+
+## Deacy function
+
+For option 2, once we do a left join with the model output using the expectancy table that we created, we need the fill the NA by fitting a decay function. That's just the last value multiplies the change in previous two values. Once we fill up the gaps (filling all the NA with the decay function), we can sum up the estimate to return us the expected value. 
+
+```{r decay_function, collapse = TRUE}
+# decay function
+for(i in 1:nrow(modelOutput)){
+        
+        if(!is.na(modelOutput$estimate[i])) {
+                next
+        } else {
+                modelOutput$estimate[i] <- dplyr::lag(modelOutput$estimate, 1)[i] / dplyr::lag(modelOutput$estimate, 2)[i] * dplyr::lag(modelOutput$estimate, 1)[i]
+        }        
+        
+}
+
+modelOutput %>% kable()
+
+# sum up the estimate to get E(x)
+option_2 <- modelOutput %>%
+        dplyr::mutate(estimate = dplyr::case_when(is.nan(estimate) ~ 0,
+                                                  TRUE ~ estimate)) %>%
+        group_by(billing_period) %>%
+        summarise(periods_remaining = sum(estimate)) %>%
+        dplyr::mutate(periods_remaining = floor(periods_remaining))
+
+# comparison between option 1 and 2
+option_1
+option_2
+```
+
+## Thoughts
+
+This exercise probably is a mix of math and art. For example, we apply floor() in both option_1 and option_2 to round down the numbers, so that our numbers would become more conservative (as we don't want to overestimate lifetime value of our customers). We rather want to forecast less revenue than grossly overestimate how much we can get from our subscription business. At the end, it's also based on business acumen and expert judgement. 

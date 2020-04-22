@@ -1,0 +1,7 @@
+################ Blog posts ideas
+
+# Logistic Regression
+# Survival Model
+# Time Series Analysis (hotel adr / daily subscription)
+# Ensembling
+# ?

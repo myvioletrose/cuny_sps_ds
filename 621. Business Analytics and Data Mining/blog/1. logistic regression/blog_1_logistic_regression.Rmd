@@ -1,0 +1,107 @@
+---
+title: "data_621_blog_1"
+author: "Jimmy Ng"
+date: "4/18/2020"
+output: html_document
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Logistic Regression
+
+Logistic regression is a very common tool to solve classification problem. Given a binary outcome, we would like to classify whether an event would occur based on a set of quantitative or qualitative variables. In this blog post, we would like to use a public dataset to classify loan status based on various social demographic data.
+
+```{r load_packages}
+# load packages
+if(!require(pacman)){install.packages("pacman"); require(pacman)}
+packages <- c('tidyverse', 'caret', 'broom', 'Hmisc', 'kableExtra')
+pacman::p_load(char = packages)
+```
+
+```{r read_data, collapse = TRUE}
+# read data
+df <- read.csv(url('https://datahack-prod.s3.ap-south-1.amazonaws.com/train_file/train_u6lujuX_CVtuZ9i.csv'))
+
+# check missing
+colSums(is.na(df))
+
+# impute dataset
+preProcValues <- preProcess(df, method = c("medianImpute", "center", "scale"))
+df_processed <- predict(preProcValues, df)
+
+# check again
+colSums(is.na(df_processed))
+```
+
+```{r check_data, collapse = TRUE}
+# check distribution
+broom::glance(df_processed)
+table(df_processed$Loan_Status)
+prop.table(ftable(df_processed$Loan_Status)) %>% round(., 1)
+
+# head df
+head(df_processed) %>% kable(.)
+
+# str(), dim()
+str(df_processed)
+dim(df_processed)
+
+# make changes to the "Loan_Status" level, label
+levels(df_processed$Loan_Status)
+df_processed <- df_processed %>% dplyr::mutate(Loan_Status = Loan_Status %>% 
+                                                       factor(., levels = c("Y", "N"), labels = c("Yes", "No")))
+levels(df_processed$Loan_Status)
+```
+
+```{r split_data, collapse = TRUE}
+# set seed
+set.seed(1234)
+
+# split data
+index <- caret::createDataPartition(df_processed$Loan_Status, p = 0.7, list = FALSE)
+trainSet <- df_processed[index, ]
+testSet <- df_processed[-index, ]
+
+# define the training control - let's do 10-fold cross-validation
+train.control <- caret::trainControl(
+        method = "cv",
+        number = 10,
+        savePredictions = 'final',
+        classProbs = TRUE)
+
+# define IVs, DV
+IV <- names(df_processed)[names(df_processed) %nin% c("Loan_ID", "Loan_Status")]
+DV <- "Loan_Status"
+```
+
+```{r build_model, collapse = TRUE}
+# build model
+model <- caret::train(trainSet[, IV], trainSet[, DV], method = 'glm', trControl = train.control)
+
+# summary model output
+summary(model)
+
+# making prediction using above model
+testSet$prediction <- predict(object = model, testSet[, IV], type = "prob")$Yes
+
+# add result prediction
+testSet <- testSet %>%
+        dplyr::mutate(Loan_Status_Predicted = ifelse(prediction > .5, "Y", "N") %>%
+                              factor(., levels = c("Y", "N"), labels = c("Yes", "No")))
+
+# confusion matrix
+caret::confusionMatrix(testSet$Loan_Status, testSet$Loan_Status_Predicted)
+
+# tidy result
+result <- broom::tidy(caret::confusionMatrix(testSet$Loan_Status, testSet$Loan_Status_Predicted))
+result %>% kable(.)
+```
+
+
+
+## Summary
+
+Above simple example demonstrates the easiness of building a logistic regression model with few lines of code. From the model summary output, we see that credit history is the most significant predictor of loan status (not surprising). Without tuning any parameter or conducting any feature engineering, our base model is able to achieve 85% accuracy, 82% sensitivity, 100% specificity, 100% precision and 90% f1 score. Of course, there's a lot of room for improvement, but that's a very good start. The next step is to eliminate features that we don't need and we should compare this algorithm with other classification algorithms to come up with better solution.
+
