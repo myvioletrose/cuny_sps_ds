@@ -1,0 +1,10 @@
+name: Publish Document
+title:
+username:
+account: rpubs
+server: rpubs.com
+hostUrl: rpubs.com
+appId: https://api.rpubs.com/api/v1/document/604454/7177451b43534b839200ce5617b6bd61
+bundleId: https://api.rpubs.com/api/v1/document/604454/7177451b43534b839200ce5617b6bd61
+url: http://rpubs.com/myvioletrose/604454
+when: 1587800721.53181

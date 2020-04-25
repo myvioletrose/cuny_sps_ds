@@ -1,0 +1,400 @@
+---
+title: "data_621_hw_4"
+author: "Jimmy Ng"
+date: "4/23/2020"
+output: html_document
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+This homework exercise is to build a logistic regression model and a multiple regression model that will estimate the likelihood of car accident, and if so, we try to predict the cost when such accidents happen. We have two response variables, i.e. TARGET_FLAG and TARGET_AMT. TARGET_FLAG is a binary field where 1 is equal to crash, and 0 is equal to no crash. TARGET_AMT, on the other hand, is the amount of time spent on repairs given there is a car crash accident. TARGET_FLAG is the response variable for our logistic regression model, whereas TARGET_AMT is the response variable for multiple regression.
+
+```{r load_packages, collapse = TRUE}
+# load packages
+if(!require(pacman)){install.packages("pacman"); require(pacman)}
+packages <- c('tidyverse', 'sqldf', 'broom', 'caret', 'kableExtra', 'janitor', 'Hmisc', 'MASS', 'corrplot', 'Metrics')
+pacman::p_load(char = packages)
+```
+
+## EDA
+
+```{r read_data, collapse = TRUE}
+# read data
+dfTrain <- read.csv("insurance_training_data.csv", header = TRUE)
+dfEval <- read.csv("insurance-evaluation-data.csv", header = TRUE)
+
+# check dim
+dim(dfTrain); dim(dfEval)
+
+# are they compatible?
+if(!any(names(dfTrain) == names(dfEval))){print("the two data sets are different, please check for consistency")}
+
+# clean names
+dfTrain <- dfTrain %>% janitor::clean_names()
+dfEval <- dfEval %>% janitor::clean_names()
+
+# head
+head(dfTrain) %>% kable()
+
+# target flag - proportion
+with(dfTrain, prop.table(ftable(target_flag), 1))
+
+# target amt - distribution
+hist(dfTrain$target_amt)
+
+# target amt - log transformed
+boxplot(log(dfTrain$target_amt) ~ dfTrain$target_flag)
+```
+
+## DATA PREP
+
+```{r data_prep, collapse = TRUE}
+# length of unique values of each variable from dfTrain
+sapply(dfTrain, function(x) length(unique(x)))
+
+# quickly glance at the class of each variable
+fields <- data.frame(fields = names(dfTrain),
+                     class = sapply(dfTrain, class) %>% unlist %>% as.vector)
+fields
+
+# mutate target_flag
+# mutate these 4 factors - "income", "home_val", "bluebook", "oldclaim"
+# these should be numeric variables, not factor
+dfTrain <- dfTrain %>%
+        dplyr::mutate(target_flag = dplyr::case_when(target_flag == 1 ~ "Y", 
+                                              TRUE ~ "N") %>%
+                              factor(., levels = c("Y", "N"), labels = c("Yes", "No")),
+                      income = as.numeric(income),
+                      home_val = as.numeric(home_val),
+                      bluebook = as.numeric(bluebook),
+                      oldclaim = as.numeric(oldclaim))
+
+dfEval <- dfEval %>%
+        dplyr::mutate(target_flag = dplyr::case_when(target_flag == 1 ~ "Y", 
+                                              TRUE ~ "N") %>%
+                              factor(., levels = c("Y", "N"), labels = c("Yes", "No")),
+                      income = as.numeric(income),
+                      home_val = as.numeric(home_val),
+                      bluebook = as.numeric(bluebook),
+                      oldclaim = as.numeric(oldclaim))
+
+# rerun
+fields <- data.frame(fields = names(dfTrain),
+                     class = sapply(dfTrain, class) %>% unlist %>% as.vector)
+fields
+
+# set variables
+binary_var <- "target_flag"
+quant_var <- "target_amt"
+variables <- names(dfTrain)[names(dfTrain) %nin% c(binary_var, quant_var, "index")]
+
+# check missing
+colSums(is.na(dfTrain))
+colSums(is.na(dfEval))
+
+# fix missing - train
+preProcValuesTrain <- caret::preProcess(dfTrain[, variables], method = c("medianImpute", "center", "scale"))
+dfTrain <- predict(preProcValuesTrain, dfTrain)
+colSums(is.na(dfTrain))
+
+# fix missing - eval
+preProcValuesEval <- caret::preProcess(dfEval[, variables], method = c("medianImpute", "center", "scale"))
+dfEval <- predict(preProcValuesEval, dfEval)
+colSums(is.na(dfEval))
+
+# split data into train (70%), test (30%) sets
+set.seed(1234)
+index <- caret::createDataPartition(dfTrain$target_flag, p = 0.7, list = FALSE)
+trainSet <- dfTrain[index, ]
+testSet <- dfTrain[-index, ]
+
+# trainSetControl - let's do 10-fold cross-validation 
+trainSet.control <- caret::trainControl(method = "cv", number = 10, savePredictions = 'final', classProbs = TRUE)
+```
+
+## MODEL - CLASSIFICATION PROBLEM (TARGET_FLAG)
+
+We will first build three classification models and then two multi-linear regression models. Besides logistic regression, let's try two different classification algorithms, i.e. naivey bayes and random forest. In addition, let's try to improve our accuracy by 1) doing 10-fold cross-validation, and 2) ensembling our models, i.e. using glm (generalized linear model), nb (naive bayes) and rf (random forest) as our base layer and stacking on top by building a top layer using glm, nb, in addition gbm (gradient boosting machine).
+
+```{r classification_model, collapse = TRUE, results = 'hide', message = FALSE, warning = FALSE}
+# turn off warning
+options(warn = -1)
+
+# count time - start
+start <- Sys.time()
+
+# set seed
+set.seed(1234)
+
+# methods
+baseTrainMethods <- c("glm", "nb", "rf")
+topTrainMethods <- c("glm", "nb", "gbm")
+
+# output
+modelSummaryList <- vector(mode = "list")
+
+# train base layer
+for(baseLayer in baseTrainMethods){
+        
+        # set parameters
+        ml = baseLayer
+        model = paste0("model_base_", ml)
+        OOF_prediction = paste0("OOF_pred_", ml)
+        prediction = paste0("pred_", ml)
+        result = paste0("result_", ml)
+        
+        # model
+        assign(bquote(.(model)), caret::train(trainSet[, variables], trainSet[, binary_var], 
+                                              method = ml, 
+                                              trControl = trainSet.control,
+                                              trace = FALSE))
+        
+        # Out-Of-Fold probability predictions - trainSet    
+        if(ml == "glm"){trainSet$OOF_pred_glm = eval(sym(model))$pred$Y[order(eval(sym(model))$pred$rowIndex)]}        
+        if(ml == "nb"){trainSet$OOF_pred_nb = eval(sym(model))$pred$Y[order(eval(sym(model))$pred$rowIndex)]}        
+        if(ml == "rf"){trainSet$OOF_pred_rf = eval(sym(model))$pred$Y[order(eval(sym(model))$pred$rowIndex)]}
+        
+        # Out-Of-Fold probability predictions - testSet 
+        assign(bquote(.(OOF_prediction)), predict(eval(sym(model)), testSet[, variables], type = "prob")$Y)
+        if(ml == "glm"){testSet$OOF_pred_glm = eval(sym(OOF_prediction))}        
+        if(ml == "nb"){testSet$OOF_pred_nb = eval(sym(OOF_prediction))}        
+        if(ml == "rf"){testSet$OOF_pred_rf = eval(sym(OOF_prediction))}
+        
+        # Y/N predictions for Confusion Matrix - testSet    
+        assign(bquote(.(prediction)), predict(eval(sym(model)), testSet[, variables]))
+        if(ml == "glm"){testSet$pred_glm = eval(sym(prediction))}        
+        if(ml == "nb"){testSet$pred_nb = eval(sym(prediction))}        
+        if(ml == "rf"){testSet$pred_rf = eval(sym(prediction))}
+        
+        # output
+        assign(bquote(.(result)), broom::tidy(caret::confusionMatrix(testSet[, prediction], testSet[, binary_var])) %>%
+                       dplyr::mutate(trainMethod = ml) %>%
+                       dplyr::select(trainMethod, everything()))
+        
+        # store output into a list
+        tempModelList <- list(eval(sym(result)))
+        modelSummaryList <<- c(modelSummaryList, tempModelList)        
+        
+}
+
+# train top layer
+for(topLayer in topTrainMethods){
+        
+        # set parameters
+        ml = topLayer
+        model = paste0("model_top_", ml)        
+        OOF_predictors_top = c("OOF_pred_glm", "OOF_pred_nb", "OOF_pred_rf")
+        OOF_prediction_top = paste0("OOF_pred_top_", ml)
+        prediction_top = paste0("pred_top_", ml)
+        result = paste0("result_top_", ml)
+        
+        # model
+        assign(bquote(.(model)), caret::train(trainSet[, OOF_predictors_top], trainSet[, binary_var], 
+                                              method = ml, 
+                                              trControl = trainSet.control))
+        
+        # Out-Of-Fold probability predictions - testSet 
+        assign(bquote(.(OOF_prediction_top)), predict(eval(sym(model)), testSet[, OOF_predictors_top], type = "prob")$Y)
+        if(ml == "glm"){testSet$OOF_pred_top_glm = eval(sym(OOF_prediction_top))}
+        if(ml == "nb"){testSet$OOF_pred_top_nb = eval(sym(OOF_prediction_top))}
+        if(ml == "gbm"){testSet$OOF_pred_top_gbm = eval(sym(OOF_prediction_top))}
+        
+        # Y/N predictions for Confusion Matrix - testSet    
+        assign(bquote(.(prediction_top)), predict(eval(sym(model)), testSet[, OOF_predictors_top]))
+        if(ml == "glm"){testSet$pred_top_glm = eval(sym(prediction_top))}
+        if(ml == "nb"){testSet$pred_top_nb = eval(sym(prediction_top))}
+        if(ml == "gbm"){testSet$pred_top_gbm = eval(sym(prediction_top))}
+        
+        # output
+        assign(bquote(.(result)), broom::tidy(caret::confusionMatrix(testSet[, prediction_top], testSet[, binary_var])) %>%
+                       dplyr::mutate(trainMethod = paste0(ml, " - top layer")) %>%
+                       dplyr::select(trainMethod, everything()))
+        
+        # store output into a list
+        tempModelList <- list(eval(sym(result)))
+        modelSummaryList <<- c(modelSummaryList, tempModelList)
+        
+}
+
+# put together - averaging the OOF prediction probability
+testSet <- testSet %>%
+        dplyr::mutate(pred_final_prob_avg = (OOF_pred_top_glm + OOF_pred_top_nb + OOF_pred_top_gbm) / length(topTrainMethods),
+                      pred_final = ifelse(pred_final_prob_avg > 0.5, "Y", "N") %>%
+                              factor(., levels = c("Y", "N"), labels = c("Yes", "No")))
+
+finalResult <- broom::tidy(caret::confusionMatrix(testSet$pred_final, testSet$target_flag)) %>%
+        dplyr::mutate(trainMethod = "final - averaging") %>%
+        dplyr::select(trainMethod, everything())
+
+# store finalResult output into a list
+tempModelList <- list(finalResult)
+modelSummaryList <<- c(modelSummaryList, tempModelList)
+
+# count time - finish
+finish <- Sys.time()
+```
+
+## MODEL SELECTION - CLASSIFICATION PROBLEM (TARGET_FLAG)
+
+First, we build a base layer (using glm, nb and rf) to predict the "target_flag" using all the variables (minus the index and target_amt) from the train set. Second, we build a top layer (using glm, nb and gbm) to predict the "target_flag" based on the outcomes (OOF or Out-Of-Fold prediction) of our base layer. In other words, we make prediction (of the target variable) based on the predictions of our base models. Finally, we simply average the outcome probabilities of our top layer to get our final probability and decision using 0.5 as cut-off.
+
+Take a look of our results, i.e. modelSummaryDf, we decide to apply the final model (averaging) for our evaluation set because of the highest f1 score displayed for the final result from the test set. Looking at the results, "nb" from the base layer did the worst in terms of sensitivity, but did the best among all models in precision. All three models from the top layer can significantly enhance accuracy, sensitivy and f1 score. The final result is far from perfect but better than relying on just a single classification algorithm. Lastly, when we compare the distribution between train and evaluation set, we see that that the proportion is very similar, i.e. Yes from evaluation (21.4%) vs Yes from train set (26.4%). Although it improved accuracy, the downside of ensembling is that the result is hard to interpret and communicate with stakeholder (such as what contributed more significantly to causing an accident). 
+
+```{r classification_model_selection, collapse = TRUE}
+# let's look at the time it finished running the models
+print(paste0("The models ensembling exercise took roughly ", round(finish - start, 1), " mins to run"))
+
+# let's look at the result
+modelSummaryDf <- modelSummaryList %>% 
+        dplyr::bind_rows() %>% 
+        dplyr::select(trainMethod, term, estimate) %>%
+        tidyr::spread(term, estimate) %>%
+        arrange(desc(f1))
+
+modelSummaryDf %>% kable()
+```
+
+```{r classification_model_eval, collapse = TRUE, results = 'hide', message = FALSE, warning = FALSE}
+options(warn = -1)
+
+# let's fit the dfEval using the final averaging method
+
+# base layer
+dfEval <- dfEval %>%
+        dplyr::mutate(OOF_pred_glm = predict(model_base_glm, dfEval[, variables], type = "prob")$Y,
+                      OOF_pred_nb = predict(model_base_nb, dfEval[, variables], type = "prob")$Y,
+                      OOF_pred_rf = predict(model_base_rf, dfEval[, variables], type = "prob")$Y)
+
+# top layer
+dfEval <- dfEval %>%
+        dplyr::mutate(OOF_pred_top_glm = predict(model_top_glm, dfEval[, c("OOF_pred_glm", "OOF_pred_nb", "OOF_pred_rf")], type = "prob")$Y,
+                      OOF_pred_top_nb = predict(model_top_nb, dfEval[, c("OOF_pred_glm", "OOF_pred_nb", "OOF_pred_rf")], type = "prob")$Y,
+                      OOF_pred_top_gbm = predict(model_top_gbm, dfEval[, c("OOF_pred_glm", "OOF_pred_nb", "OOF_pred_rf")], type = "prob")$Y)
+
+# final predicion
+dfEval <- dfEval %>%
+        dplyr::mutate(target_flag_prob = round((OOF_pred_top_glm + OOF_pred_top_nb + OOF_pred_top_gbm) / 3, 3),
+                      target_flag = ifelse(target_flag_prob > 0.5, "Y", "N") %>%
+                              factor(., levels = c("Y", "N"), labels = c("Yes", "No")))
+```
+
+```{r classification_model_eval_results, collapse = TRUE}
+# see prediction
+evalTable <- ftable(dfEval$target_flag)
+evalTable
+
+# comparison between evaluation and train set
+with(dfEval, prop.table(evalTable, 1))  # evaluation
+with(dfTrain, prop.table(ftable(dfTrain$target_flag)))  # train
+
+# dfEval
+dfEval %>% dplyr::select(index, target_flag, target_flag_prob, everything()) %>% head() %>% kable()
+```
+
+## MODEL - MULTILINEAR REGRESSION (TARGET_AMT)
+
+Let's turn our focus to build two multilinear regression models using the same data. Interestingly, the variables do not seem to correlate with the target variable in this exercise. Nothing seems to indicate anything relevant to "target_amt".
+
+```{r multilinear_regression_model, collapse = TRUE}
+# corrplot - quantitative variables
+trainSet %>%
+        dplyr::filter(target_flag == "Yes") %>%
+        dplyr::select(fields %>% dplyr::filter(class != 'factor') %>% .$fields) %>% 
+        dplyr::select(-index) %>%
+        cor %>%
+        corrplot(method = "number", type = "upper", order = "hclust")
+
+# density - categorical variables
+dfGather <- trainSet %>%
+        dplyr::filter(target_flag == "Yes") %>%
+        dplyr::select(fields %>% dplyr::filter(class == 'factor') %>% .$fields, target_amt) %>% 
+        tidyr::gather(key, value, -target_amt) 
+
+dfGather %>%
+        ggplot(aes(target_amt, color = value)) +
+        geom_density() +
+        geom_vline(data = aggregate(target_amt ~ key + value, dfGather, median), 
+                   aes(xintercept = target_amt,
+                       color = value),
+                   linetype = "dashed") +
+        facet_wrap(~ key, nrow = 5, scales = "free") + 
+        theme(legend.position = "none") + 
+        ggtitle("Distribution of Target Amount by Various Categorical Variables")
+
+# build full model
+fullModel <- lm(target_amt ~., data = trainSet %>% 
+                        dplyr::filter(target_flag == "Yes") %>% 
+                        dplyr::select(variables, quant_var))
+summary(fullModel)
+
+# stepwise regression - direction default to both
+step <- MASS::stepAIC(fullModel, trace = FALSE)
+step$anova
+
+# 2 degree of interactions - full model
+step2 <- MASS::stepAIC(fullModel, ~ .^2, trace = FALSE)
+step2$anova
+
+# 3 degree of interactions - full model
+step3 <- MASS::stepAIC(fullModel, ~ .^3, trace = FALSE)
+step3$anova
+
+# final model (based on the 3-degree of interactions)
+finalModel <- lm(
+        target_amt ~ kidsdriv + age + homekids + yoj + income + home_val + 
+            mstatus + sex + tif + car_type + red_car + oldclaim + clm_freq + 
+            mvr_pts + car_age + urbanicity + homekids:clm_freq + homekids:car_type + 
+            car_type:urbanicity + home_val:mstatus + age:car_type + kidsdriv:age + 
+            income:mstatus + age:home_val + homekids:car_age + yoj:tif + 
+            kidsdriv:oldclaim + income:car_type + homekids:red_car + 
+            home_val:sex + homekids:home_val + kidsdriv:car_age + age:urbanicity + 
+            home_val:oldclaim + kidsdriv:clm_freq + age:clm_freq + age:car_type:urbanicity + 
+            kidsdriv:age:clm_freq,
+        data = trainSet %>% 
+                        dplyr::filter(target_flag == "Yes") %>% 
+                        dplyr::select(variables, quant_var)
+)
+
+summary(finalModel)
+broom::tidy(finalModel) %>% arrange(p.value) %>% kable()
+
+# comparison
+testSet$target_amt_predicted <- predict(finalModel, testSet[, variables])
+
+# root mean squared error (rmse)
+Metrics::rmse(testSet$target_amt, testSet$target_amt_predicted)
+```
+
+## MODEL APPLIED - MULTILINEAR REGRESSION (TARGET_AMT)
+
+From above corrplot and density curve, we see that there's actually nothing strongly associated with the target variable. We used stepwise regression and used up to three degree of interaction to come up with the best model possible (which will cause overfitting and make this model useless in the future), but still that only gave us 9% of adjusted R-squared. That means, over 90% of the variance in the actual amount cannot be predicted from this model. The regression model is less encouraging than the classification model.
+
+```{r multilinear_regression_model_eval, collapse = TRUE}
+dfEval$target_amt <- predict(finalModel, dfEval[, variables])
+
+dfEval %>%
+        dplyr::filter(target_flag == "Yes") %>%
+        ggplot(aes(target_amt)) +
+        geom_density() +
+        geom_vline(xintercept = median(dfEval$target_amt[dfEval$target_flag == "Yes"]),
+                   linetype = "dashed") +
+        ggtitle("Distribution of Predicted Target Amount")
+
+dfEval %>% head() %>% kable()
+```
+
+
+
+
+
+
+
+
+
+
+
+
