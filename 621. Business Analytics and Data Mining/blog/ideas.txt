@@ -2,7 +2,6 @@
 
 # Logistic Regression
 # Survival Model
-# Time Series Analysis (hotel adr / daily subscription)
 # Odds Ratio
+# Time Series Analysis (hotel adr / daily subscription)
 # Ensembling
-

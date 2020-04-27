@@ -1,0 +1,175 @@
+---
+title: "data_621_blog_3"
+author: "Jimmy Ng"
+date: "4/27/2020"
+output: html_document
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Odds Ratio
+
+Often times, we have to deal with a lot of unclean, missing categorical data, and our goal is to extract key insights, features from various attributes to come up with some sort of customer profile. For example, imagine you have a data set that has only five variables, i.e. var_a is subject Id, var_b is gender, var_c is education, var_d is habit, and var_e is customer_yn. What we want is to extract key features from each attribute (gender, education, habit) that are important to our customers (customer_yn == 'Y'). For example, women who have a bachelor degree or above, who exercise weekly are more likely to be our customers. 
+
+It's noteworthy to point out that not all data is filled by our customers. Customer A is missing gender or education, whereas customer B has an extensive list of habits (30 different habits filled in the var_d field).
+
+In this case, we are going to do a simple and quick solution using sql and odds ratio to extract key features (or values) from various attributes. For this blog post, we are using a toy data set that has 13 variables, in particular, we are interested in the "vip" column (0 = "No", 1 = "Yes") and we want to figure out what attrbibutes, values that distinguish our VIP customers. These are all categorical data and many data are missing.
+
+```{r load_packages, collapse = TRUE, message = FALSE}
+library(tidyverse, quietly = TRUE)
+library(sqldf, quietly = TRUE)
+library(kableExtra, quietly = TRUE)
+library(Hmisc, quietly = TRUE)
+```
+
+```{r read_data, collapse = TRUE}
+df <- read.csv("demoDf.csv")
+dim(df)
+head(df, 20) %>% kable()        
+```
+
+```{r check_data, collapse = TRUE}
+# unique values
+dfUV <- lapply(df, function(x) length(unique(x))) %>% 
+        unlist %>% 
+        as.data.frame() %>%
+        rownames_to_column() %>%
+        dplyr::select(columns = rowname, unique_values = ".")
+
+# missing
+dfMissing <- colSums(is.na(df)) %>% 
+        as.data.frame() %>%
+        rownames_to_column() %>%
+        dplyr::select(columns = rowname, missing = ".")
+
+# data type
+dfClass <- lapply(df, function(x) class(x)) %>%
+        unlist %>%
+        as.data.frame() %>%
+        rownames_to_column() %>%
+        dplyr::select(columns = rowname, class = ".")
+
+# metadata
+dfMeta <- dplyr::inner_join(dfUV, dfMissing, 
+                            by = c("columns", "columns")) %>%
+        dplyr::inner_join(dfClass, by = c("columns", "columns"))
+
+dfMeta %>% kable()
+```
+
+```{r data_prep, collapse = TRUE}
+# replace NA with "UNKNOWN" (optional)
+dfClean <- lapply(1:length(names(df)), function(x) df %>% 
+                              dplyr::select(names(df)[x]) %>%
+                              unlist %>%
+                              as.vector %>%
+                              replace_na("UNKNOWN")) %>% 
+        bind_cols()
+
+names(dfClean) <- names(df)
+
+# gather data into appropriate structure
+dfOR <- dfClean %>%
+        dplyr::select(-id) %>%
+        tidyr::gather(attribute, value, -vip) 
+
+head(dfOR, 20) %>% kable()
+```
+
+```{r sql, collapse = TRUE}
+# a quick hack in sql
+OR <- sqldf::sqldf("
+        select attribute 
+        , value 
+        , interest_group_yes
+        , control_group_yes
+        , interest_group_no
+        , control_group_no
+        from (
+                
+                select x.attribute 
+                , x.value
+                , x.interest_group_yes
+                , x.control_group_yes
+                , y.interest_group_total - x.interest_group_yes as interest_group_no
+                , y.control_group_total - x.control_group_yes as control_group_no
+                from (
+                        select attribute
+                        , value
+                        , sum(case when vip = 1 then 1 else 0 end) as interest_group_yes
+                        , sum(case when vip = 0 then 1 else 0 end) as control_group_yes
+                        from dfOR
+                        group by 1, 2
+                ) x
+                join (
+                        select attribute
+                        , sum(case when vip = 1 then 1 else 0 end) as interest_group_total
+                        , sum(case when vip = 0 then 1 else 0 end) as control_group_total
+                        from dfOR
+                        group by 1
+                ) y on x.attribute = y.attribute
+                
+        ) z
+        where interest_group_yes >= 25
+        and interest_group_no >= 25
+        and control_group_yes >= 25
+        and control_group_no >= 25
+        "
+)
+```
+
+
+## Odds Ratio, Confidence Interval
+
+Here's a short list of key features that we extract from the categorical variables (with a lot of missing). We compare the VIP with non-VIP and we distill the following differences. For example, VIP customers are 3 times more likely to associate with the "discount" value from the "price" attribute (with 95% CI between 2.99 and 3.11 times as likely). They are also 2.7 times more likely to associate with the "Type 5" promotion, in addition 2.7 times more likely to be associated with "Product Z".
+
+Looking down the list, we continue to see more interesting side of our VIP customers, such as they are less likely to have registered previously (so that they are more likely to be new customers to us); they are more likely to have signed up with our loyalty program; they are more likely come from Eastern European countries, and etc. Interesting fact, industry data (or their profession) does not seem to have any difference in VIP status.
+
+Above is a quick sql hack to get key insights from missing, messy data. Above code can be rewritten completely within R tidyverse, but I am just more customed to do it in sql (and it's easier to see and debug everything in one sql query instead of multiple steps in R).
+
+```{r confidence_interval, collapse = TRUE}
+# Odds Ratio
+ORplusCI <- OR %>%
+        dplyr::mutate(OR = round((interest_group_yes / interest_group_no) / (control_group_yes / control_group_no), 4))
+
+# Upper 95% CI
+Upper_CI = with(ORplusCI, 
+                exp(1) ^(log(OR) + 
+                                 (1.96 * sqrt(1/interest_group_yes + 
+                                                        1/interest_group_no + 
+                                                        1/control_group_yes + 
+                                                        1/control_group_no))))
+
+# Lower 95% CI
+Lower_CI = with(ORplusCI, 
+                exp(1) ^(log(OR) - 
+                                 (1.96 * sqrt(1/interest_group_yes + 
+                                                      1/interest_group_no + 
+                                                      1/control_group_yes + 
+                                                      1/control_group_no))))
+
+# combined
+ORplusCI$Upper_CI <- round(Upper_CI, 4)
+ORplusCI$Lower_CI <- round(Lower_CI, 4)
+```
+
+```{r clean_up, echo = FALSE}
+ORplusCI <- ORplusCI %>% dplyr::filter(!is.na(value)) %>% 
+        dplyr::mutate(flag = length(value)) %>%
+        dplyr::filter(attribute %nin% c("status", "industry", "credit_card_brand", "credit_card_funding")) %>%
+        dplyr::select(-flag)
+```
+
+```{r final_output, collapse = TRUE}
+# display only significant results and sort by OR
+ORplusCI <- ORplusCI %>%
+        dplyr::filter(Upper_CI >1 & Lower_CI >1) %>%
+        dplyr::mutate(OR = round(OR, 2),
+                      Upper_CI = round(Upper_CI, 2),
+                      Lower_CI = round(Lower_CI, 2)) %>%
+        arrange(desc(OR))
+
+ORplusCI %>% kable()
+```
