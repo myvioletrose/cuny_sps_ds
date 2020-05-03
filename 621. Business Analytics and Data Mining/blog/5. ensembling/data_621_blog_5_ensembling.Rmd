@@ -1,0 +1,219 @@
+---
+title: "data_621_blog_5"
+author: "Jimmy Ng"
+date: "5/2/2020"
+output: html_document
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Ensembling methods
+
+Ensembling is a very common and powerful technique to enhance accuracy and overall performance in dealing with classification problem. Given a binary outcome, we would like to classify whether an event would occur based on a set of quantitative or qualitative variables. There are many algorithms to do the trick. In this blog post, we would like to use a set of classification algorithms and combine them together to enhance our prediction. We would like to use a public dataset to classify loan status based on various social demographic data.
+
+
+```{r packages, collapse = TRUE, message = "hide"}
+# load packages
+if(!require(pacman)){install.packages("pacman"); require(pacman)}
+packages <- c('tidyverse', 'caret', 'broom', 'Hmisc', 'kableExtra', 'janitor')
+pacman::p_load(char = packages)
+```
+
+```{r get_data, collapse = TRUE}
+# read data
+df <- read.csv(url('https://datahack-prod.s3.ap-south-1.amazonaws.com/train_file/train_u6lujuX_CVtuZ9i.csv'))
+
+# check missing
+tempDf <- data.frame(fields = names(df),
+                     missing = colSums(is.na(df)))
+
+tempDf
+
+# impute dataset
+preProcValues <- preProcess(df, method = c("medianImpute", "center", "scale"))
+dfProcessed <- predict(preProcValues, df)
+
+# check again
+tempDf2 <- data.frame(fields = names(dfProcessed),
+                     missing = colSums(is.na(dfProcessed)))
+
+tempDf2
+
+# clean names 
+dfProcessed <- janitor::clean_names(dfProcessed)
+names(dfProcessed)
+```
+
+```{r check_data, collapse = TRUE}
+# check distribution
+broom::glance(dfProcessed)
+table(dfProcessed$loan_status)
+prop.table(ftable(dfProcessed$loan_status)) %>% round(., 1)
+
+# head df
+head(dfProcessed) %>% kable(.)
+
+# str(), dim()
+str(dfProcessed)
+dim(dfProcessed)
+
+# make changes to the "loan_status" level, label
+levels(dfProcessed$loan_status)
+dfProcessed <- dfProcessed %>% 
+        dplyr::mutate(loan_status = loan_status %>% 
+                              factor(., levels = c("Y", "N"), labels = c("Yes", "No")))
+levels(dfProcessed$loan_status)
+```
+
+Let's try to improve our accuracy by doing a 10-fold cross-validation.
+
+```{r data_prep, collapse = TRUE}
+# set seed
+set.seed(1234)
+
+# split data
+index <- caret::createDataPartition(dfProcessed$loan_status, p = 0.7, list = FALSE)
+trainSet <- dfProcessed[index, ]
+testSet <- dfProcessed[-index, ]
+
+# define the training control - let's do 10-fold cross-validation
+train.control <- caret::trainControl(
+        method = "cv",
+        number = 10,
+        savePredictions = 'final',
+        classProbs = TRUE)
+
+# define IVs, DV
+IV <- names(dfProcessed)[names(dfProcessed) %nin% c("loan_id", "loan_status")]; IV
+DV <- "loan_status"
+```
+
+We will ensemble our models, i.e. using glm (generalized linear model), nb (naive bayes) and rf (random forest) as our base layer and stacking on top by building a top layer using glm, nb and gbm (gradient boosting machine). We will evaluate each model result.
+
+```{r model_ensembling, collapse = TRUE, results = 'hide', message = FALSE, warning = FALSE}
+# set seed
+set.seed(1234)
+
+# methods
+baseTrainMethods <- c("glm", "nb", "rf")
+topTrainMethods <- c("glm", "nb", "gbm")
+
+# output
+modelSummaryList <- vector(mode = "list")
+
+# train base layer
+for(baseLayer in baseTrainMethods){
+        
+        # set parameters
+        ml = baseLayer
+        model = paste0("model_base_", ml)
+        OOF_prediction = paste0("OOF_pred_", ml)
+        prediction = paste0("pred_", ml)
+        result = paste0("result_", ml)
+        
+        # model
+        assign(bquote(.(model)), caret::train(trainSet[, IV], trainSet[, DV], 
+                                              method = ml, 
+                                              trControl = train.control,
+                                              trace = FALSE))
+        
+        # Out-Of-Fold probability predictions - trainSet    
+        if(ml == "glm"){trainSet$OOF_pred_glm = eval(sym(model))$pred$Y[order(eval(sym(model))$pred$rowIndex)]}        
+        if(ml == "nb"){trainSet$OOF_pred_nb = eval(sym(model))$pred$Y[order(eval(sym(model))$pred$rowIndex)]}        
+        if(ml == "rf"){trainSet$OOF_pred_rf = eval(sym(model))$pred$Y[order(eval(sym(model))$pred$rowIndex)]}
+        
+        # Out-Of-Fold probability predictions - testSet 
+        assign(bquote(.(OOF_prediction)), predict(eval(sym(model)), testSet[, IV], type = "prob")$Y)
+        if(ml == "glm"){testSet$OOF_pred_glm = eval(sym(OOF_prediction))}        
+        if(ml == "nb"){testSet$OOF_pred_nb = eval(sym(OOF_prediction))}        
+        if(ml == "rf"){testSet$OOF_pred_rf = eval(sym(OOF_prediction))}
+        
+        # Y/N predictions for Confusion Matrix - testSet    
+        assign(bquote(.(prediction)), predict(eval(sym(model)), testSet[, IV]))
+        if(ml == "glm"){testSet$pred_glm = eval(sym(prediction))}        
+        if(ml == "nb"){testSet$pred_nb = eval(sym(prediction))}        
+        if(ml == "rf"){testSet$pred_rf = eval(sym(prediction))}
+        
+        # output
+        assign(bquote(.(result)), broom::tidy(caret::confusionMatrix(testSet[, prediction], testSet[, DV])) %>%
+                       dplyr::mutate(trainMethod = ml) %>%
+                       dplyr::select(trainMethod, everything()))
+        
+        # store output into a list
+        tempModelList <- list(eval(sym(result)))
+        modelSummaryList <<- c(modelSummaryList, tempModelList)        
+        
+}
+
+# train top layer
+for(topLayer in topTrainMethods){
+        
+        # set parameters
+        ml = topLayer
+        model = paste0("model_top_", ml)        
+        OOF_predictors_top = c("OOF_pred_glm", "OOF_pred_nb", "OOF_pred_rf")
+        OOF_prediction_top = paste0("OOF_pred_top_", ml)
+        prediction_top = paste0("pred_top_", ml)
+        result = paste0("result_top_", ml)
+        
+        # model
+        assign(bquote(.(model)), caret::train(trainSet[, OOF_predictors_top], trainSet[, DV], 
+                                              method = ml, 
+                                              trControl = train.control))
+        
+        # Out-Of-Fold probability predictions - testSet 
+        assign(bquote(.(OOF_prediction_top)), predict(eval(sym(model)), testSet[, OOF_predictors_top], type = "prob")$Y)
+        if(ml == "glm"){testSet$OOF_pred_top_glm = eval(sym(OOF_prediction_top))}
+        if(ml == "nb"){testSet$OOF_pred_top_nb = eval(sym(OOF_prediction_top))}
+        if(ml == "gbm"){testSet$OOF_pred_top_gbm = eval(sym(OOF_prediction_top))}
+        
+        # Y/N predictions for Confusion Matrix - testSet    
+        assign(bquote(.(prediction_top)), predict(eval(sym(model)), testSet[, OOF_predictors_top]))
+        if(ml == "glm"){testSet$pred_top_glm = eval(sym(prediction_top))}
+        if(ml == "nb"){testSet$pred_top_nb = eval(sym(prediction_top))}
+        if(ml == "gbm"){testSet$pred_top_gbm = eval(sym(prediction_top))}
+        
+        # output
+        assign(bquote(.(result)), broom::tidy(caret::confusionMatrix(testSet[, prediction_top], testSet[, DV])) %>%
+                       dplyr::mutate(trainMethod = paste0(ml, " - top layer")) %>%
+                       dplyr::select(trainMethod, everything()))
+        
+        # store output into a list
+        tempModelList <- list(eval(sym(result)))
+        modelSummaryList <<- c(modelSummaryList, tempModelList)
+        
+}
+
+# put together - averaging the OOF prediction probability
+testSet <- testSet %>%
+        dplyr::mutate(pred_final_prob_avg = (OOF_pred_top_glm + OOF_pred_top_nb + OOF_pred_top_gbm) / length(topTrainMethods),
+                      pred_final = ifelse(pred_final_prob_avg > 0.5, "Y", "N") %>%
+                              factor(., levels = c("Y", "N"), labels = c("Yes", "No")))
+
+finalResult <- broom::tidy(caret::confusionMatrix(testSet$pred_final, testSet$loan_status)) %>%
+        dplyr::mutate(trainMethod = "final - averaging") %>%
+        dplyr::select(trainMethod, everything())
+
+# store finalResult output into a list
+tempModelList <- list(finalResult)
+modelSummaryList <<- c(modelSummaryList, tempModelList)
+```
+
+```{r results, collapse = TRUE}
+# let's look at the result
+modelSummaryDf <- modelSummaryList %>% 
+        dplyr::bind_rows() %>% 
+        dplyr::select(trainMethod, term, estimate) %>%
+        tidyr::spread(term, estimate) %>%
+        arrange(desc(f1))
+
+modelSummaryDf %>% kable()
+```
+
+In summary, we build a base layer (using glm, nb and rf) to predict the "loan_status" using all the variables from the train set. Second, we build a top layer (using glm, nb and gbm) to predict the "loan_status" based on the outcomes (OOF or Out-Of-Fold prediction) of our base layer. In other words, we make prediction (of the target variable) based on the predictions of our base models. Finally, we simply average the outcome probabilities of our top layer to get our final probability and decision using 0.5 as cut-off.
+
+Take a look of our results, i.e. modelSummaryDf, surprisingly, the glm and rf models perform the best! They achieve the highest f1 score followed by the "final - averaging" from the three top layer models. All models achieve very high recall (or sensitivity) and above 80% precision. However, specificity barely reaches over 50%. That would be a weakness that deserves more attention for improvement in the future. 
+
+

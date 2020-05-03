@@ -1,0 +1,154 @@
+---
+title: "data_621_blog_4"
+author: "Jimmy Ng"
+date: "5/2/2020"
+output: html_document
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Time Series Analysis
+
+This is a time series analysis tutorial on building an ARIMA model. We will be using a simple dataset from hotel revenue industry. The original sample data has only four columns, i.e. date, room_sold, adr, and revenue. The "date" is referred to the historical record of check-in date of a hotel in NYC, whereas the "room_sold" is like the name suggested, i.e. number of room sold out in that corresponding date. Most importantly, the "adr" is referred to the average daily rate, which is the average pricing of a room in that date (note that it is an average because a hotel offers multiple room type options thus we care only about the average across all room types). Finally, "revenue" is simply the product of "room_sold" x "adr". In this tutorial, we want to perform time series analysis to predict "revenue". In reality, the technique can be used to predict any time series data, e.g. room_sold, adr, etc. 
+
+The date range in this data set covers from January 1, 2016 to December 31, 2019. We will use the data from January 1, 2016 till August 31, 2019 as our train set to predict the revenue for the rest of 2019. And then we can compare the difference between actual and forecasted results.
+
+```{r load_packages, collapse = TRUE, results = 'hide', message = FALSE, warning = FALSE}
+# load packages
+pacman::p_load(fUnitRoots, lmtest, forecast, FitAR, tidyverse, broom)
+```
+
+```{r read_data, collapse = TRUE}
+# read data
+df <- read.csv("sample_hotel_data.csv", header = TRUE) %>% 
+        dplyr::mutate(date = as.Date(date, "%m/%d/%Y"))
+
+# glance the data
+broom::glance(df)
+
+# head
+head(df)
+```
+
+```{r time_series_data_conversion, collapse = TRUE}
+# set variable
+var <- 'revenue'
+
+# filter, extract revenue data between January 1, 2016 to August 31, 2019
+tsData <- df %>%
+        dplyr::filter(date <= as.Date("08/31/2019", "%m/%d/%Y")) %>%
+        dplyr::select(bquote(.(var))) %>%
+        unlist %>%
+        as.vector %>%
+        ts(., start = c(2016, 1), frequency = 365)
+
+# forecast data used for comparison
+dfForecast <- df %>%
+        dplyr::filter(date > as.Date("08/31/2019", "%m/%d/%Y"))
+
+# head
+head(tsData)
+
+# class
+print(paste0("tsData is a ", class(tsData), " object."))
+```
+
+Clearly, we see a **seasonal pattern** in our data. The next step we need to take is to decompose our data into different time series components.
+
+```{r plot_ts_object, collapse = TRUE}
+plot(tsData, main = "Hotel Revenue Y201601 to Y201908")
+```
+
+After decomposition, we can see a clear up trend, seasonality, and random noises in our data.
+
+```{r decomposition, collapse = TRUE}        
+timeseriescomponents <- decompose(tsData)
+plot(timeseriescomponents)
+```
+
+Let's stationarize our time series data so that we can make prediction out of it. Let's examine the acf (autocorrelation function) and pacf (partial autocorrelation function) plots for optimal AR (auto regressive) and MA (moving average) orders.
+
+```{r stationarity_of_data, collapse = TRUE}
+# detemine stationarity of data
+urkpssTest(tsData, type = c("tau"), lags = c("short"), use.lag = NULL, doplot = TRUE)
+tsstationary <- diff(tsData, differences = 1)
+plot(tsstationary)
+acf(tsData, lag.max = length(tsData))
+```
+
+Let's remove seasonality from our data, and plot again after differencing.
+
+```{r seasonality_removal, collapse = TRUE}
+# remove seasonality
+timeseriesseasonallyadjusted <- tsData - timeseriescomponents$seasonal
+plot(timeseriesseasonallyadjusted)
+
+# plot again - differencing based on after removing seasonality
+tsstationary <- diff(timeseriesseasonallyadjusted, differences = 1)
+plot(tsstationary)
+```
+
+Now, let's fit our model using `auto.arima` to find the best ARIMA model and its associated parameters. 
+
+```{r auto.arima, collapse = TRUE}
+# auto.arima
+auto.arima(tsData, trace = TRUE)
+```
+
+Let's use the following orders to fit our model, i.e. AR is equal to 5, differencing equal to 1 and MA order equal to 2.
+
+```{r fit_model, collapse = TRUE}
+# fit the model
+fitARIMA <- arima(tsData, order = c(5, 1, 2), 
+                  seasonal = list(order = c(0, 1, 0), period = 365), 
+                  method = "ML")
+
+# summary
+summary(fitARIMA)
+
+# significance of coefficients
+coeftest(fitARIMA)
+par(mfrow = c(1, 1))
+acf(fitARIMA$residuals)
+
+# residual diagnostics
+boxresult <- LjungBoxTest(fitARIMA$residuals, k = 2, StartLag = 1)  # residual?? or the original series?
+par(mfrow = c(2, 1))
+plot(boxresult[, 3], main = "Ljung-Box Q Test", ylab = "P-values", xlab = "Lag")
+qqnorm(fitARIMA$residuals)
+qqline(fitARIMA$residuals)
+
+# forcast future values, forecast between September 1, 2019 to December 31, 2019
+par(mfrow = c(1, 1))
+r <- predict(fitARIMA, n.ahead = 122)
+futureVal <- forecast(fitARIMA, h = 122, level = c(95))
+plot(futureVal)
+```
+
+Here's the moment of truth, let's combine our forecast with actual data and see whether our forecast is succesful. 
+
+```{r, actual_vs_forecast, collapse = TRUE}
+# forecast - r is our forecasted result
+r
+
+r_hat <- r$pred %>% as.numeric()
+
+# combine together
+dfForecast <- dfForecast %>%
+        dplyr::mutate(forecast = r_hat) %>%
+        dplyr::select(date, actual = revenue, forecast)
+        
+head(dfForecast); tail(dfForecast)
+
+# ggplot
+dfForecast %>%
+        tidyr::gather(., key = "actual vs. forecast", value = "revenue", -date) %>%
+        ggplot(., aes(date, revenue)) +
+        geom_line(aes(col = `actual vs. forecast`)) + 
+        scale_y_continuous(labels = scales::dollar) +
+        labs(title = "Actual vs. Forecasted Revenue, September to December 2019")
+```
+
+Wow, surprisingly, our forecast is very close to the actual, with the exceptions of how we predict the Thanksgiving week (where we have much lower predicted revenue versus the actual) and the week after. It's worth to spend more time looking into the issue and figure out why that's the case. In addition, we should consider overfitting, especially when continue relying on this model to make prediction for Q1 in 2020 will make completely no sense during the pandemic crisis. Unfortunately, this is the end of this tutorial on the basic of forecasting. Perhaps we shall revisit this data and the topic later.
