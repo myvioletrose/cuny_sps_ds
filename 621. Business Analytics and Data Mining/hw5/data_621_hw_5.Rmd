@@ -1,0 +1,229 @@
+---
+title: "data_621_hw_5"
+author: "Jimmy Ng"
+date: "5/8/2020"
+output: html_document
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Overview
+
+In this homework assignment, you will explore, analyze and model a data set containing information on approximately 12,000 commercially available wines. The variables are mostly related to the chemical properties of the wine being sold. The response variable is the number of sample cases of wine that were purchased by wine distribution companies after sampling a wine. These cases would be used to provide tasting samples to restaurants and wine stores around the United States. The more sample cases purchased, the more likely is a wine to be sold at a high end restaurant. A large wine manufacturer is studying the data in order to predict the number of wine cases ordered based upon the wine characteristics. If the wine manufacturer can predict the number of cases, then that manufacturer will be able to adjust their wine offering to maximize sales. The objective is to build a count regression model to predict the number of cases of wine that will be sold given certain properties of the wine. HINT: Sometimes, the fact that a variable is missing is actually predictive of the target. 
+
+```{r load_packages, collapse = TRUE, warning = FALSE, message = "hide"}
+packages <- c('tidyverse', 'broom', 'caret', 'kableExtra', 'janitor', 'Hmisc', 'MASS', 'corrplot', 'Metrics', 'purrr', 'janitor', 'ggmosaic', 'pscl')
+pacman::p_load(char = packages)
+```
+
+## Data Exploration
+
+```{r read_data, collapse = TRUE}
+# read data
+dfTrain <- read.csv("wine-training-data.csv", header = TRUE)
+dfEval <- read.csv("wine-evaluation-data.csv", header = TRUE)
+
+# dim
+lapply(list(`wine-training` = dfTrain, `wine-evaluation` = dfEval), function(x) dim(x))
+
+# head
+head(dfTrain)
+```
+
+```{r meta_data, collapse = TRUE}
+# let's clean up variable names and remove the index column
+dfTrain <- janitor::clean_names(dfTrain) %>% dplyr::select(-i_index)
+dfEval <- janitor::clean_names(dfEval) %>% dplyr::select(-`in`)
+
+# meta data
+metaDataTrain <- data.frame(fields = names(dfTrain), 
+                            missing = colSums(is.na(dfTrain)),
+                            unique = sapply(dfTrain, function(x) length(unique(x))),
+                            type = sapply(dfTrain, class))
+
+metaDataEval <- data.frame(fields = names(dfEval), 
+                           missing = colSums(is.na(dfEval)),
+                           unique = sapply(dfEval, function(x) length(unique(x))),
+                           type = sapply(dfEval, class))
+
+metaDataTrain
+metaDataEval
+```
+
+```{r visualization, collapse = TRUE, warning = FALSE, message = "hide"}
+# barplot
+barplot(table(dfTrain$target), main = "Train Set : Target")
+
+# corrplot
+cor(dfTrain, method = "pearson", use = "complete.obs") %>% 
+        corrplot::corrplot(., method = "shade", type = "upper")
+
+# density curve
+dfGather <- dfTrain %>%
+        dplyr::select(-label_appeal, -acid_index, -stars) %>%
+        dplyr::mutate(target = as.factor(target)) %>%
+        tidyr::gather(key, value, -target)
+
+ggplot(dfGather, aes(value, color = target)) +
+        geom_density() +
+        geom_vline(data = aggregate(value ~ target + key, dfGather, median), 
+                   aes(xintercept = value,
+                       color = target),
+                   linetype = "dashed") +
+        facet_wrap(~ key, nrow = 5, scales = "free")
+
+# mosaic plot
+dfTrain %>%
+        ggplot(.) +
+        geom_mosaic(aes(x = product(target, label_appeal), fill = as.factor(target)), na.rm = TRUE) +
+        labs(x = "label_appeal", fill = "Target") + 
+        ggtitle("Mosaic Plot : Label Appeal")
+
+dfTrain %>%
+        ggplot(.) +
+        geom_mosaic(aes(x = product(target, acid_index), fill = as.factor(target)), na.rm = TRUE) +
+        labs(x = "acid_index", fill = "Target") + 
+        ggtitle("Mosaic Plot : Acid Index")
+
+dfTrain %>%
+        ggplot(.) +
+        geom_mosaic(aes(x = product(target, stars), fill = as.factor(target)), na.rm = TRUE) +
+        labs(x = "stars", fill = "Target") + 
+        ggtitle("Mosaic Plot : Stars")
+```
+
+Most of the data is normally distributed. We do not seem to have any variable that strongly correlates with our target variable. In fact, majority of these variables do not seem to corrlelate with one another, except stars and label_appeal (not surprising). We have many missing values that we need to take care of first.
+
+
+
+## Data Preparation
+```{r missing, collapse = TRUE}
+# impute - dfTrain
+preProcValuesTrain <- preProcess(dfTrain, method = c("medianImpute"))
+dfTrain <- predict(preProcValuesTrain, dfTrain)
+
+# impute - dfEval
+preProcValuesEval <- preProcess(dfEval, method = c("medianImpute"))
+dfEval <- predict(preProcValuesEval, dfEval)
+
+# check again
+sapply(list(dfTrain, dfEval), function(x) colSums(is.na(x)))
+
+# split data
+set.seed(1234)
+index = sample(1:nrow(dfTrain), size = nrow(dfTrain) * .7, replace = FALSE)
+trainSet <- dfTrain[index, ]
+testSet <- dfTrain[-index, ]
+```
+
+
+
+## Build Models
+```{r poisson_models, collapse = TRUE}
+# poisson models
+poisson_model_1 <- glm(target ~ ., family = "poisson", data = trainSet)
+poisson_model_1 <- step(poisson_model_1, direction = "backward")
+summary(poisson_model_1)
+
+poisson_model_2 <- pscl::zeroinfl(target ~ ., data = trainSet)
+summary(poisson_model_2)
+poisson_model_2$coefficients
+
+# Vuong comparison
+pscl::vuong(poisson_model_1, poisson_model_2)
+```
+
+Overall, it seems to be the case that stronger sales is associated with more citric, sulfur dioxide containing, alcohol, label appeal, and stars. On the other hand, the more dense, more sulphates, more chlorides and less acid is more likely to contribute to less sales. We conduct the Vuong test to compare the first model with the zero-inflated model and it turns out that the zero-inflated model outperforms the first model as we can see from the output.
+
+
+
+```{r negative_binomial_models, collapse = TRUE}
+# negative binomial models
+negative_binomial_3 <- glm.nb(target ~ ., data = trainSet)
+summary(negative_binomial_3)
+
+# let's remove two variables from above model that are not significant and try again
+negative_binomial_4 <- glm.nb(target ~ ., data = trainSet %>% dplyr::select(-fixed_acidity, -residual_sugar))
+summary(negative_binomial_4)
+```
+
+The above two models perform pretty much the same, so in this case we can go after the one that has less variables (thus more precise).
+
+
+
+```{r multi_linear_models, collapse = TRUE, include = FALSE}
+# multi-linear model
+multi_linear_5 <- lm(target ~ ., trainSet)
+multi_linear_5 <- step(multi_linear_5, direction = 'backward')
+
+# try two degree of interaction
+multi_linear_6 <- lm(target ~.^2, trainSet)
+multi_linear_6 <- step(multi_linear_6, direction = 'backward')
+```
+
+```{r multi_linear_models_results, collapse = TRUE}
+# multi-linear model
+# multi_linear_5 <- lm(target ~ ., trainSet)
+# multi_linear_5 <- step(multi_linear_5, direction = 'backward')
+summary(multi_linear_5)
+
+# try two degree of interaction
+# multi_linear_6 <- lm(target ~.^2, trainSet)
+# multi_linear_6 <- step(multi_linear_6, direction = 'backward')
+summary(multi_linear_6)
+```
+
+The second multi-linear regression model (multi_linear_6) is better than the first one (multi_linear_5), e.g. adjsuted R-squared 0.3133 versus 0.2911; however, it is on two degree of interaction and therefore it is more complicated and difficult to explain to stakeholders. It may result in overfitting or simply too complicated to be applicable. 
+
+
+
+## Select Models
+```{r model_selection_I, collapse = TRUE}
+# poisson model
+targetMean <- round(mean(trainSet$target), 3)
+targetVar <- round(var(trainSet$target), 3)
+
+print(paste0("the mean of the targt is approximately ", targetMean))
+print(paste0("the variance of the targt is approximately ", targetVar))
+```
+
+Since the mean and variance of the target variable is not identical (not even close), we suspect that there is a case of overdispersion and therefore it is less than ideal to apply the poisson models to fit our data in this case. 
+
+```{r model_selection_II, collapse = TRUE}
+# prediction accuracy
+testSet <- testSet %>% 
+        dplyr::mutate(pred_nb_3 = round(predict(negative_binomial_3, newdata = testSet, type = "response"), 0),
+                      pred_nb_4 = round(predict(negative_binomial_4, newdata = testSet, type = "response"), 0),
+                      pred_lm_5 = round(predict(multi_linear_5, newdata = testSet, type = "response"), 0),
+                      pred_lm_6 = round(predict(multi_linear_6, newdata = testSet, type = "response"), 0),
+                      pred_nb_3_accuracy = dplyr::case_when(pred_nb_3 == target ~ 1, TRUE ~ 0),
+                      pred_nb_4_accuracy = dplyr::case_when(pred_nb_4 == target ~ 1, TRUE ~ 0),
+                      pred_lm_5_accuracy = dplyr::case_when(pred_lm_5 == target ~ 1, TRUE ~ 0),
+                      pred_lm_6_accuracy = dplyr::case_when(pred_lm_6 == target ~ 1, TRUE ~ 0))
+
+accuracy <- lapply(testSet %>% dplyr::select(pred_nb_3_accuracy, pred_nb_4_accuracy, pred_lm_5_accuracy, pred_lm_6_accuracy),
+       sum) %>% unlist 
+
+print(round(accuracy / nrow(testSet), 3)) %>% kable()
+
+# mean squared error
+mse <- lapply(list(negative_binomial_3, negative_binomial_4, multi_linear_5, multi_linear_6),
+              function(x) mean(x$residuals ^2))
+
+names(mse) <- c("negative_binomial_3: mse", "negative_binomial_4: mse", "multi_linear_5: mse", "multi_linear_6: mse")
+
+print(sapply(mse, function(x) round(x, 3))) %>% kable()
+
+# evaluation set
+dfEval <- dfEval %>%
+        dplyr::mutate(pred = round(predict(negative_binomial_4, newdata = dfEval, type = "response"), 0))
+
+# barplot for evaluation set (side by side with the train set)
+par(mfrow = c(1, 2))
+barplot(table(dfTrain$target), main = "Train Set : Target")
+barplot(table(dfEval$pred), main = "Evaluation Set : Target Prediction")
+```
+
+Since the negative binomial models report its result with an AIC and log likelihood, whereas the multi-linear regression approach reports with adjusted R-squared, we cannot directly compare their outputs. Instead, we look at the accuracy of their predictions and calculate the mean squared error. The overall accuracy among the models actually do not differ so much. The linear models actually do slightly better than the negative binomial models (26% vs 24%); however, these two approaches differ significantly in the mean squared error. As a result, we would choose negative_binomial_4, which is highly similar to model 3 but we remove two variables that have no predictive power, i.e. fixed_acidity, and residual_sugar.
