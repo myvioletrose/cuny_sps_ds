@@ -1,0 +1,167 @@
+---
+title: "data_624_project_1"
+author: "Jimmy Ng"
+date: "6/23/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Set up
+
+First, we load a list of packages (such as tidyverse, fpp2) that are necessary for this session. We read the raw data from excel and transform the `SeriesInd` into date format. Our goal is to forecast 140 periods for each group and for different subset of variables. Second, we split the data into six groups by the `group` variable. We check the number of missing date by variable (Var01, Var02, Var03, Var05 & Var07). Each group varies by number of missing date in the variables. For example, group S06 has to forecast Var05 and Var07, each has 5 missing dates (e.g. 145 missing values minus 140 periods that we need to forecast) in the data set. We need to impute the missing values. 
+
+```{r set_up, collapse = TRUE, warning = FALSE}
+# load packages
+packages <- c("tidyverse", "fpp2", "kableExtra", "broom", "MLmetrics")
+pacman::p_load(char = packages)
+
+# read data, format date
+df <- readxl::read_excel("Data Set for Class.xls") %>%
+        dplyr::mutate(SeriesInd = as.Date(SeriesInd, origin = "1900-01-01"))
+
+# check missing
+dfNest <- df %>% 
+        arrange(SeriesInd, group) %>%
+        tidyr::nest(-group)
+
+missing <- lapply(1:nrow(dfNest), function(x) colSums(is.na(dfNest %>% 
+                                                         dplyr::filter(dfNest$group == dfNest$group[[x]]) %>% 
+                                                         tidyr::unnest(data))))
+
+names(missing) <- unique(dfNest$group)
+
+missing
+```
+
+## Data Exploration (group S06)
+
+For group S06, we need to build forecasts for Var05 and Var07 respectively. We look at the data and find that it has a frequency of 5 (cycling every 5 days). We count the number of missing dates, and we also plot the raw data to visuzlie any extreme value. We realize that there's one extreme and 5 missing values in each variable.
+
+```{r exploration, collapse = TRUE}
+# extract group S06, Var05, Var07
+dfS06 <- df %>%
+        dplyr::filter(group == "S06") %>%
+        dplyr::select(SeriesInd, Var05, Var07) %>%
+        dplyr::mutate(weekday = lubridate::wday(SeriesInd, label = TRUE, abbr = TRUE),
+                      row = nrow(.):1) %>%
+        arrange(SeriesInd)
+
+head(dfS06, 10) %>% 
+        kable() %>%
+        kable_styling()
+
+# check missing
+colSums(is.na(dfS06))
+
+# plot time series for Var05, Var07, set frequency = 5
+ts6_Var05 <- dfS06 %>%
+        dplyr::filter(row >140) %>%
+        dplyr::select(Var05) %>%
+        ts(., frequency = 5)
+
+ts6_Var07 <- dfS06 %>%
+        dplyr::filter(row >140) %>%
+        dplyr::select(Var07) %>%
+        ts(., frequency = 5)
+
+autoplot(ts6_Var05, main = "Var05 raw data")
+autoplot(ts6_Var07, main = "Var07 raw data")
+```
+
+## Remove outlier(s), impute missing value
+
+Next step, we need to remove outliers and impute missing values before building our forecast model. We can locate the extreme outlier(s) and check for replacement(s) using the **forecast::tsoutliers** function. Furthermore, we can apply the **forecast::tsclean** to remove the outlier(s) and replace any missing value. Subsequently, we examine the time series and plot the clean data. Now, it's ready for building forecast.
+
+```{r clean_up, collapse = TRUE}
+# check outlier(s)
+ts6_Var05_out <- forecast::tsoutliers(ts6_Var05)
+ts6_Var07_out <- forecast::tsoutliers(ts6_Var07)
+
+ts6_Var05_out
+ts6_Var07_out
+
+# we have 1 extreme and 5 missing values in each variable, let's use tsclean to replace outlier and missing values with estimated values
+ts6_Var05_clean <- forecast::tsclean(ts6_Var05)
+ts6_Var07_clean <- forecast::tsclean(ts6_Var07)
+
+plot(ts6_Var05_clean, col = "red", lty = "dashed", main = "Var05 clean data (outlier removed)")
+plot(ts6_Var07_clean, col = "red", lty = "dashed", main = "Var07 clean data (outlier removed)")
+```
+
+## Model - ETS
+
+We decide to automate the process by relying on ETS model. We use the **forecast::ets** to look for the most appropriate forecasting model for each variable. In both cases, the ets recommends [A,N,N], i.e. simple exponential smoothing with additive errors. We fit the data and visualize the forecast with prediction interval (80, 95). In addition, we evaluate our models using **forecast::accuracy**. The MAPE is 1.13% and 1.14% for Var05 and Var07 respectively.
+
+```{r ETS, collapse = TRUE, warning = FALSE}
+# Var05
+Var05_ets <- forecast::ets(ts6_Var05_clean, lambda = "auto")
+summary(Var05_ets)
+
+# the ETS returns a set of parameters and recommend ETS(A,N,N), i.e. simple exponential smoothing with additive errors
+Var05_ets %>%
+        forecast::forecast(h = 140) %>%
+        autoplot() +
+        xlab("") +
+        ylab("Var05")
+
+# Var07
+Var07_ets <- forecast::ets(ts6_Var07_clean, lambda = "auto")
+summary(Var07_ets)
+
+# the ETS returns a set of parameters and recommend ETS(A,N,N), i.e. simple exponential smoothing with additive errors
+Var07_ets %>%
+        forecast::forecast(h = 140) %>%
+        autoplot() +
+        xlab("") +
+        ylab("Var07")
+
+# evaluation
+ts6_evaluation <- lapply(list(Var05_ets, Var07_ets), function(x) forecast::accuracy(x) %>% tidy) 
+names(ts6_evaluation) <- c("Var05", "Var07")
+ts6_evaluation
+
+# MAPE
+print(paste0("MAPE for Var05 is ", MLmetrics::MAPE(Var05_ets$fitted, ts6_Var05_clean)))
+print(paste0("MAPE for Var07 is ", MLmetrics::MAPE(Var07_ets$fitted, ts6_Var07_clean)))
+```
+
+## Output 
+
+We output our result and paste them back into the excel sheet.
+
+```{r, echo = TRUE, collapse = TRUE}
+dfS06_pred <- dfS06 %>%
+        dplyr::filter(row <= 140) %>%
+        dplyr::mutate(Var05 = Var05_ets %>%
+                              forecast::forecast(h = 140) %>%
+                              as.data.frame() %>%
+                              dplyr::select(Var05 = `Point Forecast`) %>%
+                              .$Var05,
+                      Var07 = Var07_ets %>%
+                              forecast::forecast(h = 140) %>%
+                              as.data.frame() %>%
+                              dplyr::select(Var07 = `Point Forecast`) %>%
+                              .$Var07)
+        
+dfS06_output <- dfS06 %>%
+        dplyr::filter(row > 140) %>%
+        dplyr::bind_rows(., dfS06_pred) %>%
+        dplyr::select(-weekday, -row) %>%
+        arrange(SeriesInd)
+
+dfS06_output %>% 
+        tail %>% 
+        kable() %>%
+        kable_styling()
+```
+
+
+
+
+
+
+
+

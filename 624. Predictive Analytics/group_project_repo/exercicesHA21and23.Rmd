@@ -1,0 +1,256 @@
+---
+title: "Exercises HA 2.1 and 2.3"
+author: "Alain Kuiete"
+date: "6/4/2020"
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Exercise 2.1 
+Use the help function to explore what the series gold, woolyrnq and gas represent.
+
+Use autoplot() to plot each of these in separate plots.
+What is the frequency of each series? Hint: apply the frequency() function.
+Use which.max() to spot the outlier in the gold series. Which observation was it?
+
+Load the libraries
+```{r}
+library(fpp2)
+```
+
+
+```{r}
+help(gold)
+```
+the forcast gold is a time series data that gives the daily morning prices from January 1st 1985 to March 31st 1989.
+
+```{r}
+tsdisplay(gold)
+```
+
+The autucorrelation plot shows that the data is  trended, cyclic, but the seasonality is not accentuated to be considered. It is part of white noise.
+```{r}
+autoplot(gold)
+```
+
+
+
+```{r}
+frequency(gold)
+```
+ This confirms that the time series is daily
+Outlier
+```{r}
+which.max(gold)
+```
+The maximun price of gold was on February 10 1987
+
+
+```{r}
+gold[770]
+```
+Since the gold frequency is 1, the outlier occure on February, 10 1987 with the morning daily price of $593.7
+
+
+
+
+```{r}
+help(woolyrnq)
+```
+woolyrnq is the quaterly production of woollen yarn in Australia.
+The unit of production is in tonnes. The time series data is from Mars 1965 to September 1994.
+
+```{r}
+tsdisplay(woolyrnq)
+```
+
+```{r}
+autoplot(woolyrnq)
+```
+The quarterly production of woollen shows cyclic
+
+```{r}
+frequency(woolyrnq)
+```
+This time series is quaterly
+
+Outlier
+```{r}
+which.max(woolyrnq)
+```
+This maximun occur at the second quarter of 1969
+
+
+```{r}
+
+```
+
+
+```{r}
+which.min(woolyrnq)
+```
+The minimun is at the second  quarter of 1975
+
+```{r}
+help(gas)
+```
+The gas time series is the Australian monthly gas production from 1956 to 1995.
+
+
+```{r}
+tsdisplay(gas)
+```
+
+```{r}
+autoplot(gas)
+```
+
+
+```{r}
+frequency(gas)
+```
+
+
+
+```{r}
+which.max(gas)
+```
+
+
+
+```{r}
+which.max(gas)/frequency(gas) + 1956
+```
+
+
+
+```{r}
+ggseasonplot(gas)
+```
+
+The seasonality of gas is changing over time progressively displaying a maximun on July or August
+
+
+### Exercise 2.3
+Download some monthly Australian retail data from the book website. These represent retail sales in various categories for different Australian states, and are stored in a MS-Excel file.
+
+You can read the data into R with the following script:
+
+
+retaildata <- readxl::read_excel("retail.xlsx", skip=1)
+The second argument (skip=1) is required because the Excel sheet has two header rows.
+
+Select one of the time series as follows (but replace the column name with your own chosen column):
+
+myts <- ts(retaildata[,"A3349873A"],
+  frequency=12, start=c(1982,4))
+Explore your chosen retail time series using the following functions:
+
+autoplot(), ggseasonplot(), ggsubseriesplot(), gglagplot(), ggAcf()
+
+Can you spot any seasonality, cyclicity and trend? What do you learn about the series?
+
+
+Load the dataset
+```{r}
+retaildata <- readxl::read_excel("retail.xlsx", skip=1)
+```
+
+Turnover ;  New South Wales ;  Electrical and electronic goods retailing ;
+```{r}
+myts <- ts(retaildata[,"A3349336V"],
+  frequency=12, start=c(1982,4))
+```
+
+```{r}
+str(myts)
+```
+
+
+autoplot(), ggseasonplot(), ggsubseriesplot(), gglagplot(), ggAcf()
+```{r}
+autoplot(myts)
+```
+
+
+
+```{r}
+ggseasonplot(myts, polar = TRUE)
+```
+The polar coordinate shows that there is a large jump on sales in December. The month of June presents also a smooth increase in sales. Conversely, there are fall on sales in Februry and August.
+
+```{r}
+ggsubseriesplot(myts)
+```
+
+
+```{r}
+gglagplot(myts)
+```
+
+```{r}
+ggAcf(myts)
+```
+
+The lag 1, 12, and 24 are correlated. Signe of seasonality.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

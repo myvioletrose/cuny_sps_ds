@@ -1,0 +1,404 @@
+---
+title: "Time Series S05"
+author: "Group 3"
+date: "6/23/2020"
+output:
+  html_document: default
+  word_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## DATA 624 Summer 2020, Project #1 	
+
+Format: Group Effort, Group Representative will turn in your assignment.  No conversations across groups regarding this project.
+DUE: 6/27/20 by Midnight ET
+Submission: Via Email – scott.burk@sps.cuny.edu 
+Submission: Word Readable Document for Report (all in one), Excel Readable (all in one, separate sheets).
+File Convention:  Group#_Project1_Summer624, example Group1_Project1_Summer624
+GRADE:  70% Report, 30% Forecast Accuracy
+
+### Overview
+Your data is a de-identified Excel spreadsheet.  Your assignment is to perform the appropriate analysis to forecast several series for 140 periods.  You will have 1622 periods for your analysis.  See Requirement #2 for more details.
+
+### Requirement #1
+You will turn in a written report.  You need to write this report as if it the report will be routed in an office to personnel of vary different backgrounds.  You need to be able to reach readers that have no data science background to full fledge data scientists. So, you need to explain what you have done, why and how you did it with both layman and technical terminology.  Do not simply write this with me in mind.  Visuals and output are expected, but it is not necessary to include every bit of analysis.  In fact, a terse report with simple terminology is preferred to throwing in everything into a long, ad nausem report.  Story telling is really taking on for data science, so please flex your muscles here.  The report is part 1 of 2 requirements.  
+
+NOTE: We have covered a lot of material.  I don’t want you to try every method to create your forecast.  But you should perform fundamentals, visualize your data, and perform exploratory data analysis as appropriate.  
+
+### Requirement #2 
+Your second requirement is to produce forecasts.  This workbook will contain at least 6 sheets where I will calculate your error rates.  There will be one sheet (tab) for each Group – S01, S02, S03, SO4, S05, S06.  You should order each sheet by the variable SeriesIND (low to high).  Your source data is sorted this way, except there are all 6 groups present in one sheet which you must break out into 6 tabs.  You will submit the data I sent AND the forward forecast for 140 periods.  I want you to forecast the following
+
+S01 – Forecast  Var01, Var02
+S02 – Forecast  Var02, Var03
+S03 – Forecast  Var05, Var07
+S04 – Forecast  Var01, Var02
+S05 – Forecast  Var02, Var03
+S06 – Forecast  Var05, Var07
+
+### Group S05
+This group S05 is constituated of variables Var02 and Var03. 
+Our goal is to find the best forecast for the variables Var02 and Var03 in S05.
+For that, we are going to process the dataset to change missing values and ouliers.
+After some statistic analysis, we can apply several models and check for the accuaracy of those models.
+
+```{r}
+library(fpp2)
+library(dplyr)
+library(imputeTS)
+```
+
+### Load the dataset
+```{r}
+full_data <- readxl::read_excel("Data Set for Class.xls")
+head(full_data)
+```
+
+### Subset the dataset
+```{r}
+dt_s05 <- subset(full_data, group == 'S05', select = c(SeriesInd, Var02, Var03))
+summary(dt_s05)
+```
+
+#### Get the subsets Var02 and Var03
+
+```{r}
+dt_s05_v2 <- dt_s05 %>% filter(SeriesInd <= 43221) %>% select(Var02)
+```
+
+```{r}
+dt_s05_v3 <- dt_s05 %>% filter(SeriesInd <= 43221) %>% select(Var03)
+```
+
+Explore the subsets Var02
+```{r}
+summary(dt_s05_v2)
+str(dt_s05_v2)
+```
+
+Var02 has 1 missing value
+
+Explore the subsets Var03
+```{r}
+summary(dt_s05_v3)
+str(dt_s05_v3)
+```
+Var03 has 5 missing values
+Median and mean are in the same order.
+
+
+#### Imputing missing values
+```{r}
+dt_s05_v2 <- na_interpolation(dt_s05_v2)
+summary(dt_s05_v2)
+```
+
+```{r}
+dt_s05_v3 <- na_interpolation(dt_s05_v3)
+summary(dt_s05_v3)
+```
+
+
+
+#### converse Var02 and Var03 to time series
+```{r}
+dt_s05_v2 <- ts(dt_s05_v2)
+str(dt_s05_v2)
+```
+
+```{r}
+dt_s05_v3 <- ts(dt_s05_v3)
+str(dt_s05_v3)
+```
+
+
+
+
+### Visualization
+```{r}
+autoplot(dt_s05_v2) + ggtitle("Time Series S05-Var02")
+```
+Trend non seasonal time series
+
+
+```{r}
+autoplot(dt_s05_v3) + ggtitle("Time Series S05-Var03")
+```
+Trend  non seasonal time serie. It can also be cyclic time series
+
+#### The distribution of data
+```{r}
+par(mfrow= c(1,2))
+hist(dt_s05_v2)
+boxplot(dt_s05_v2)
+```
+
+Va02 is right skewed. We can supress the ultimate outliers that skew the distribution then transform the data.
+
+```{r}
+par(mfrow= c(1,2))
+hist(dt_s05_v3)
+boxplot(dt_s05_v3)
+```
+Var03 is nearly normal distributed and has outliers at the left.
+
+#### Removing the oulier
+```{r}
+# check outlier(s)
+dt_s05_v2_out <- tsoutliers(dt_s05_v2)
+dt_s05_v3_out <- tsoutliers(dt_s05_v3)
+```
+We have 31 extreme value in the time series V02 and only 1 in the time series V03.
+We usetsclean to replace outlier
+Cleaning the time series
+```{r}
+dt_s05_v2 <- tsclean(dt_s05_v2)
+dt_s05_v3 <- tsclean(dt_s05_v3)
+```
+
+
+```{r}
+autoplot(dt_s05_v2)
+autoplot(dt_s05_v3)
+```
+
+
+#### Correlation between V02 and V03 variables
+There exists a linear correlation between V02 and V03
+This is prove by the correlation test below
+```{r}
+cor.test(dt_s05_v2, dt_s05_v3)
+```
+
+```{r}
+lmodel <- lm(dt_s05_v2~dt_s05_v3)
+plot(x = dt_s05_v3, y = dt_s05_v2)+abline(lmodel)
+```
+
+
+```{r}
+(cor(dt_s05_v2,dt_s05_v3))^2
+```
+V02 can explain V03 by 50.75% and vice-versa
+
+#### Verify the seasonalities and trends 
+ACF of Var02 difference
+```{r}
+autoplot(diff(dt_s05_v2))
+ggAcf(diff(dt_s05_v2))
+```
+There is one order autocorrelation
+This data has no seasonality
+
+ACF of Var03 difference
+```{r}
+autoplot(diff(dt_s05_v3))
+ggAcf(diff(dt_s05_v3))
+```
+The ACF shows one order correlation
+seasonality is insignificant.
+
+#### Subset the train set
+```{r}
+dt_s05_v2_train <- window(dt_s05_v2, end = as.integer(length(dt_s05_v2)*0.8))
+```
+
+
+```{r}
+dt_s05_v3_train <- window(dt_s05_v3, end = as.integer(length(dt_s05_v3)*0.8))
+```
+
+#### Look for lambda transformation
+```{r}
+lambda2 <- BoxCox.lambda(dt_s05_v2)
+```
+
+```{r}
+lambda3 <- BoxCox.lambda(dt_s05_v3)
+```
+
+#### Apply the models to the train sets
+The forecast horizon here is the length  of test set
+```{r}
+h_test <- length(dt_s05_v2)- as.integer(length(dt_s05_v2)*0.8)
+h_test
+```
+
+Get the arima model for Var02
+```{r}
+dt_s05_v2_farima_fit <- dt_s05_v2_train %>% auto.arima(lambda = lambda2, stepwise = FALSE) %>% forecast(h = h_test)
+```
+
+Get the arima model for Var03
+```{r}
+dt_s05_v3_farima_fit <- dt_s05_v3_train %>% auto.arima(lambda = lambda3, stepwise = FALSE) %>% forecast(h = h_test)
+```
+#### ETS model
+Get the ets model for Var02
+```{r}
+dt_s05_v2_fets_fit <- dt_s05_v2_train %>% ets(lambda = lambda2) %>% forecast(h = h_test)
+```
+
+Get the arima ets for Var03
+```{r}
+dt_s05_v3_fets_fit <- dt_s05_v3_train %>% ets(lambda = lambda3) %>% forecast(h = h_test)
+```
+
+#### Naive method
+Naive method for Var02
+```{r}
+dt_s05_v2_naive_fit <- naive(dt_s05_v2_train, h=h_test)
+```
+
+Naive method for Var03
+```{r}
+dt_s05_v3_naive_fit <- naive(dt_s05_v3_train, h=h_test)
+```
+
+### Accuracy compare to the naive model
+#### MAPE accuracy of Var02 models
+
+
+
+
+
+arima model
+```{r}
+s05_v2_farima_ac <- accuracy(dt_s05_v2_farima_fit, dt_s05_v2)["Test set", "MAPE"]
+```
+
+ets model
+```{r}
+s05_v2_ets_ac <- accuracy(dt_s05_v2_fets_fit, dt_s05_v2)["Test set", "MAPE"]
+```
+
+naive model
+```{r}
+s05_v2_naive_ac <- accuracy(dt_s05_v2_naive_fit, dt_s05_v2)["Test set", "MAPE"]
+```
+
+
+Comparing the MAPEs, the arima model for Var02 is the best.
+
+#### MAPE accuracy for Var03 models
+arima model
+```{r}
+s05_v3_farima_ac <- accuracy(dt_s05_v3_farima_fit, dt_s05_v3)["Test set", "MAPE"]
+```
+
+ets model
+```{r}
+s05_v3_ets_ac <- accuracy(dt_s05_v3_fets_fit, dt_s05_v3)["Test set", "MAPE"]
+```
+
+naive method
+```{r}
+s05_v3_naive_ac <- accuracy(dt_s05_v3_naive_fit, dt_s05_v3)["Test set", "MAPE"]
+```
+
+Using MAPE for accuracy, the naive method for Var03 is better than the arima of the same data. ETS model is the best. 
+### MAPE ACCURACY
+```{r}
+s05_v2_MAPE <- c(s05_v2_farima_ac, s05_v2_ets_ac, s05_v2_naive_ac)
+s05_v3_MAPE <- c(s05_v3_farima_ac, s05_v3_ets_ac, s05_v3_naive_ac)
+s05_MAPE <- matrix(rbind(s05_v2_MAPE, s05_v3_MAPE), nrow = 2 )
+rownames(s05_MAPE) <- c("S05_V02", "S05_V03")
+colnames(s05_MAPE) <- c("Arima", "ETS", "Naive")
+data.frame(s05_MAPE)
+```
+
+
+
+### Forecast the time series
+### Arima model
+```{r}
+dt_s05_v2_farima <- dt_s05_v2 %>% auto.arima(lambda = lambda2, stepwise = FALSE) %>% forecast(h = 140)
+```
+
+```{r}
+dt_s05_v3_farima <- dt_s05_v3 %>% auto.arima(lambda = lambda3, stepwise = FALSE) %>% forecast(h = 140)
+```
+
+##### Var02 forecast
+```{r}
+autoplot(dt_s05_v2_farima)+autolayer(dt_s05_v2_farima_fit, alpha = 0.65)
+```
+##### Var03 forecast
+```{r}
+autoplot(dt_s05_v3_farima) + autolayer(dt_s05_v3_farima_fit, alpha = 0.65)
+```
+
+#### Check the residuals if the model is valid
+##### Var02 residuals
+```{r}
+checkresiduals(dt_s05_v2_farima)
+```
+
+with p-value greater than 0.05, there is convaincing evidence that residuals for Var02 are white noise. On ACF, the residuals are uncorrelated. The histogram shows that the residuals are normal distributed.
+
+##### Var03 residuals
+```{r}
+checkresiduals(dt_s05_v3_farima)
+```
+
+with p-value greater than 0.05, there is convaincing evidence that residuals for Var03 are white noise. On ACF, the residuals are uncorrelated. The histogram shows that the residuals are normal distributed.
+
+
+### ETS model
+```{r}
+dt_s05_v2_fets <- dt_s05_v2 %>% ets(lambda = lambda2) %>% forecast(h = 140)
+```
+
+```{r}
+dt_s05_v3_fets <- dt_s05_v3 %>% ets(lambda = lambda3) %>% forecast(h = 140)
+```
+
+
+```{r}
+autoplot(dt_s05_v2_fets) + autolayer(dt_s05_v2_fets_fit, alpha = 0.65)
+```
+
+
+```{r}
+autoplot(dt_s05_v3_fets) + autolayer(dt_s05_v3_fets_fit, alpha = 0.60)
+```
+
+
+#### Check the residuals if the model is valid
+##### Var02 residuals
+```{r}
+checkresiduals(dt_s05_v2_fets)
+```
+
+##### Var03 residuals
+```{r}
+checkresiduals(dt_s05_v3_fets)
+```
+
+The p values for the ETS models residuals are less than 0.05.The residuals are not white noise. They ETS models have prediction interval to wide.
+The ETS models have the best accuracies with the test set.
+
+This is the metric MAPE on the entire dataset S05_V02 or S05_V03  using the ETS model
+```{r}
+# MAPE
+print(paste0("MAPE for S05 Var02 is ", MLmetrics::MAPE(dt_s05_v2_fets_fit$fitted, dt_s05_v2)))
+print(paste0("MAPE for S05 Var03 is ", MLmetrics::MAPE(dt_s05_v3_fets_fit$fitted, dt_s05_v3)))
+```
+
+
+```{r}
+
+# s05_v2_forecast <- window(dt_s05_v2_fets$fitted, start=1722-139)
+# library(xlsx)
+# write.xlsx(s05_v2_forecast, "c:\\DATA624\\S05_V02.xlsx")
+```
+
+```{r}
+# s05_v3_forecast <- window(dt_s05_v3_fets$fitted, start=1722-139)
+# write.xlsx(s05_v3_forecast, "c:\\DATA624\\S05_V03.xlsx")
+```
+
+

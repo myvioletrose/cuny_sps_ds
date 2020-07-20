@@ -1,0 +1,127 @@
+---
+title: "Data 624 HW"
+author: "Group 3"
+date: "6/20/2020"
+output: 
+  html_document:
+    toc: true
+---
+
+First, we load the requisite packages.  
+
+```{r}
+library(forecast)
+library(ggplot2)
+```
+
+## HA 2.1 and 2.2
+
+### 2.1 
+
+#### Use the help function to explore what the series gold, woolyrnq and gas represent.
+
+Each is a dataset contained within the forecast package. The gold dataset contains time series data of daily morning gold prices in US dollars from 1/1/1985 to 3/31/1989. The woolyrnq dataset includes quarterly woolen yarn production from Australia from 2Q 1965 to 3Q 1994. Finally, the gas dataset consists of time series data of Australian monthly gas production from 1956 to 1995.
+
+#### a. Use autoplot() to plot each of these in separate plots. 
+  
+```{r}
+autoplot(gold) +
+  ggtitle("Daily morning gold prices") +
+  xlab("Days since 1/1/1985") +
+  ylab("US dollars")
+```
+```{r}
+autoplot(woolyrnq) +
+  ggtitle("Quarterly woollen yarn production in Australia") +
+  xlab("Year") +
+  ylab("Tonnes")
+```
+ 
+```{r}
+autoplot(gas) +
+  ggtitle("Australian monthly gas production") +
+  xlab("Year") +
+  ylab("Unknown units")
+```
+  
+#### b. What is the frequency of each series? Hint: apply the frequency() function. 
+
+```{r}
+frequency(gold)
+```
+Gold - daily
+ 
+```{r}
+frequency(woolyrnq)
+```
+Woolyrnq - quarterly
+ 
+```{r}
+frequency(gas)
+```
+Gas - monthly
+  
+#### c. Use which.max() to spot the outlier in the gold series. Which observation was it? 
+  
+```{r}
+which.max(gold)
+```
+This function gives us 770, which corresponds with the single giant upward spike in prices. 770 signifies the number of days since the beginning of the time series, which would put the spike in Feb. 1987.
+
+```{r}
+gold[770]
+```
+A cursory google search revealed no details about such a spike. We want my want to review for the possibility of a data-entry error.
+
+
+### 2.3
+
+#### Download some monthly Australian retail data from the book website. These represent retail sales in various categories for different Australian states, and are stored in a MS-Excel file.
+
+[Manually downloaded to R working directory]
+
+*You can read the data into R with the following script:*
+
+```{r}
+retaildata <- readxl::read_excel("retail.xlsx", skip=1)
+```
+
+*The second argument (skip=1) is required because the Excel sheet has two header rows.*
+
+*Select one of the time series as follows (but replace the column name with your own chosen column):*
+
+```{r}
+myts <- ts(retaildata[,"A3349398A"],
+  frequency=12, start=c(1982,4))
+```
+
+#### Explore your chosen retail time series using the following functions:
+
+*autoplot(), ggseasonplot(), ggsubseriesplot(), gglagplot(), ggAcf()*
+
+```{r}
+autoplot(myts)
+```
+
+```{r}
+ggseasonplot(myts)
+```
+
+```{r}
+ggsubseriesplot(myts)
+```
+
+```{r}
+gglagplot(myts)
+```
+
+```{r}
+ggAcf(myts)
+```
+
+
+*Can you spot any seasonality, cyclicity and trend? What do you learn about the series?*
+
+Starting with the autoplot, we see both an obvious and increasing trend along with a clear seasonal pattern that increases in nominal size over time. The seasonal plot shows highest monthly sales generally occur in December, with the biggest dip arriving in February, and the seasonal subseries visualization only confirms this. 
+
+Neither the lag nor the autocorrelation plots add significant value to our analysis that was not already conveyed in the earlier visualizations. They back up the trend of increasing sales over time with seasonal variation that's likely tied to holiday shopping.

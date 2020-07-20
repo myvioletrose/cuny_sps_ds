@@ -1,0 +1,178 @@
+---
+title: "hw1"
+author: "Rajwant Mishra"
+date: "June 15, 2020"
+output: html_document
+---
+
+
+```{r}
+library(fpp2)
+library(seasonal)
+```
+The `plastics` data set consists of the monthly sales (in thousands) of product A for a plastics manufacturer for five years.
+
+```{r}
+plastics
+```
+
+A. Plot the time series of sales of product A. Can you identify seasonal fluctuations and/or a trend-cycle?
+```{r}
+
+ggseasonplot(plastics, polar=TRUE) +
+  ylab("$ Thousands") +
+  ggtitle("Polar seasonal plot: Plastic consumption")
+
+
+autoplot(plastics) + ggtitle("Annual plastic consumption ") + xlab("Year") + ylab("Plastic Sale of Product A")
+
+#
+
+# # With Moving average of 3 data point 
+# autoplot(plastics, series="Data") +
+#   autolayer(ma(plastics,3), series="3-MA") +
+#   xlab("Year") + ylab("GWh") +
+#   ggtitle("Annual electricity sales: South Australia") +
+#   scale_colour_manual(values=c("Data"="grey50","3-MA"="red"),
+#                       breaks=c("Data","3-MA"))
+# 
+# #  Classical Decomposition : Deafult is additive
+# dec_plastic <- decompose(plastics)
+# autoplot(dec_plastic)
+
+
+# plastics %>% stl(s.window=6) %>% autoplot() +xlab("Year") + ylab("GWh") +
+#   ggtitle("Annual electricity sales: South Australia")
+# 
+# # X11 Decomposition
+# plastics %>% seas() %>% autoplot() + xlab("Year") + ylab("GWh") +
+#   ggtitle("X11: Annual plastic consumptio")
+# 
+# 
+# elecequip
+# 
+# as.ts(plastics,start=c(1959),frequency = 12)
+
+
+
+```
+Above plot of data very clearly shows that there is some pattern each year. This is the seasonality present in the data each year, which shows downward trend in the beginning of the year and peak in the mid of the year with decline again at the end of the year. 
+Polar seasonal plot also suggest decline at its peak in the month of Jan and Feb and then picking up from there.
+
+
+B. Use a classical multiplicative decomposition to calculate the trend-cycle and seasonal indices.
+```{r}
+ # Classical Decomposition : Deafult is additive
+dec_plastic_mul <- decompose(plastics,type = "multiplicative")
+autoplot(dec_plastic_mul)
+# autoplot(stl(plastics,s.window = "periodic"))
+print("Trend Cycle:")
+trendcycle(dec_plastic_mul)
+print("seasonal indices")
+print(dec_plastic_mul$figure)
+```
+Classical decomposition methods assume that the seasonal component repeats from year to year. For many series, this is a reasonable assumption, but for some longer series it is not. 
+Here third plot shows the trend with m= 12, as it shows yearly increasing trend.As data suggest around the end we see some high ressidual suddden drop in demand, which our trend-cycle estimate is not able to capture.
+
+C.Do the results support the graphical interpretation from part a?
+```{r}
+
+```
+
+Yes, yearly trend suggested from A. is very clearly seen in above plots. We can also see that some decline in number at the end of 5th year in last 6 months.
+
+D. Compute and plot the seasonally adjusted data.
+```{r}
+
+# Decomposing time series data with multiplicative seasonal component
+dec_plastic_mul <-  decompose(plastics,type = "multiplicative")
+
+
+
+
+autoplot(plastics, series="Data") +
+  autolayer(trendcycle(dec_plastic_mul), series="Trend") +
+  autolayer(seasadj(dec_plastic_mul), series="Seasonally Adjusted") +
+  xlab("Year") + ylab("Plastic Sale of Product A") +
+  ggtitle("Plastic Sale of Product A") +
+  scale_colour_manual(values=c("orange","blue","red"),
+             breaks=c("Data","Seasonally Adjusted","Trend"))
+
+
+
+
+```
+Blue line in the above plot shows Seasonally adjusted data. As we can see that there are not much seasonality fluctuation in the data any more after we have decomposed the data , only linear trend can be seen.
+
+
+E. Change one observation to be an outlier (e.g., add 500 to one observation), and recompute the seasonally adjusted data. What is the effect of the outlier?
+```{r}
+
+
+# Function to use for checking Outlier effect.
+plot_outlier_trend <- function(c_index) {
+  c_plastics <- plastics
+  print(paste("Ref Value:" ,plastics[c_index], "at ", c_index))
+  c_plastics[c_index] <- c_plastics[c_index] + 500
+  # Decomposing time series data with multiplicative seasonal component
+  c_dec_plastic_mul <-  decompose(c_plastics,type = "multiplicative")
+
+
+  autoplot(plastics, series="Data") +
+  autolayer(c_plastics, series="Data Outlier") +
+  autolayer(trendcycle(dec_plastic_mul), series="Trend") +
+  autolayer(trendcycle(c_dec_plastic_mul), series="Trend with Outlier") +
+  xlab("Year") + ylab("Plastic Sale of Product A") +
+  ggtitle("Plastic Sale of Product A") +
+  scale_colour_manual(values=c("orange","gray","red","blue"),
+             breaks=c("Data","Data Outlier","Trend","Trend with Outlier"))
+}
+plot_outlier_seasadj <- function(c_index) {
+  c_plastics <- plastics
+  print(paste("Ref Value:" ,plastics[c_index], "at ", c_index))
+c_plastics[c_index] <- c_plastics[c_index] + 500
+# Decomposing time series data with multiplicative seasonal component
+c_dec_plastic_mul <-  decompose(c_plastics,type = "multiplicative")
+
+
+
+
+autoplot(plastics, series="Data") +
+  autolayer(seasadj(c_dec_plastic_mul), series="Seasonally Adjusted with Outlier") +
+  autolayer(seasadj(dec_plastic_mul), series="Seasonally Adjusted") +
+  xlab("Year") + ylab("Plastic Sale of Product A") +
+  ggtitle("Plastic Sale of Product A") +
+  scale_colour_manual(values=c("orange","blue","red"),
+             breaks=c("Data","Seasonally Adjusted","Seasonally Adjusted with Outlier"))
+
+
+
+
+  
+}
+
+
+
+# Choose some index and update the value with +500
+set.seed(421)
+c_index <- sample(1:59, 1)
+plot_outlier_seasadj(c_index)
+plot_outlier_trend(c_index)
+
+```
+
+Addition of outliers shows some sharp variation in the data at the same season in other year, but `trend line` seem to have no effect except in the year outliers are noted.
+The spike in the seasonally adjusted data is due to th big ressidual at the ponit of outlier.
+
+F. Does it make any difference if the outlier is near the end rather than in the middle of the time series?
+```{r}
+# Lets set the outlier in the begning and end and see how it impacts 
+
+plot_outlier_seasadj(1)
+plot_outlier_trend(1)
+
+plot_outlier_seasadj(60)
+plot_outlier_trend(60)
+```
+
+Outliers at the beginning or at the end have very little effect in the same season's data but its impact is negligible  in other season. Possible reason could be not knowing the  Trend Cycle  for the first 6 and last 6 months of the data in the multiplicative seasonal decomposition.

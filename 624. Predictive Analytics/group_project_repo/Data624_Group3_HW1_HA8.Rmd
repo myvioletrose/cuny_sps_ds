@@ -1,0 +1,292 @@
+---
+title: "Data624_Group3_HW1_HA8"
+author: "Jeff Littlejohn"
+date: "6/14/2020"
+output: 
+  html_document:
+    toc: true
+---
+
+```{r setup, include=FALSE}
+library(forecast)
+library(ggplot2)
+library(fma)
+library(latex2exp)
+library(gridExtra)
+library(fpp2)
+```
+
+## HA 8.1, 8.2, 8.6, 8.8
+
+### 8.1
+
+1. Figure 8.31 shows the ACFs for 36 random numbers, 360 random numbers and 1,000 random numbers.
+
+a. Explain the differences among these figures. Do they all indicate that the data are white noise?
+
+![Left: ACF for a white noise series of 36 numbers. Middle: ACF for a white noise series of 360 numbers. Right: ACF for a white noise series of 1,000 numbers.](https://raw.githubusercontent.com/Rajwantmishra/DATA_624/master/Data624_Group3_HW1_HA8_1aGraph.png)
+
+The Auto Correlation Function (ACF) conveys serial correlation between lagged values in time series data.(Along with the Partial Auto Correlation Functions (PACF) plots, they also help us determine good values for *p* and *q*.)
+
+As white noise is truly randomly generated, there should be no correlation between lagging values. Our three examples show few if any correlation values that exceed the 95% confidence intervals, so we do probably do not detect significant correlation between values. This fits our expectation of white noise -  that it's stationary. 
+
+Based on our confidence intervals beings set at 95%, we would expect a small percentage of our white noise values to exceed the intervals. We might take a closer look at lag 12 series x1 with Ljung-Box test given a lag of 12 could indicate annual seasonality, but with a sample of 36 time series values, we would expect the occassional outlier.
+
+
+b. Why are the critical values at different distances from the mean of zero? Why are the autocorrelations different in each figure when they each refer to white noise?
+
+As sample size grows, the interval narrows. Note the x- and y-axes are the same. Our formula for the confidence interval here is:
+
+$$\pm\frac{\sqrt{2}}{T}$$
+
+It's clear that as T grows, the interval shrinks. This seems intuitive, as smaller samples may erroneously show autocorrelation based on a few fluke outliers. 
+
+
+### 8.2
+
+2. A classic example of a non-stationary series is the daily closing IBM stock price series (data set ibmclose). Use R to plot the daily closing prices for IBM stock and the ACF and PACF. Explain how each plot shows that the series is non-stationary and should be differenced.
+
+```{r}
+#https://www.rdocumentation.org/packages/forecast/versions/8.12/topics/ggtsdisplay
+ggtsdisplay(ibmclose,main="IBM Closing Stock Price",xlab="Days",ylab="Closing Stock Price")
+```
+In the regular time series plot, we see changing, non-seasonal trends in the data over the year.The daily closing price is not a stationary time series. The ACF plot shows clear and significant autocorrelation to a lag of 25. The PACF plot shows a significant spike at one, which could indicate that all higher order autocorrelation is explained by that first lag autocorrelation. (We also know that the first partial autocorrelation coefficient will be identical to that of the first autocorrelation.)
+
+Given the above, taking the differences of the closing stock price data could produce a stationary series.
+
+```{r}
+ggtsdisplay(diff(ibmclose),main="Difference in IBM Closing Stock Price",xlab="Days",ylab="Diff Closing Stock Price")
+```
+We might more correlation values that exceed the confidence interval than one would expect with a stationary dataset. Let's conduct the Ljung-Box test to verify:
+
+```{r}
+#https://stat.ethz.ch/R-manual/R-devel/library/stats/html/box.test.html
+Box.test(diff(ibmclose), type = c("Ljung-Box"))
+```
+
+For the test, smaller p values means there's more autocorrelation - not stationary. Taking one difference gets us over the hump, and the data can now be called stationary - a random walk.
+
+
+### 8.6
+
+6. Use R to simulate and plot some data from simple ARIMA models.
+
+a. Use the following R code to generate data from an AR(1) model with $\phi_1 = 0.6$ and $\sigma^2=1$. The process starts with $y_1 = 0$.
+
+```{r}
+y <- ts(numeric(100))
+e <- rnorm(100)
+for(i in 2:100)
+y[i] <- 0.6*y[i-1] + e[i]
+```
+
+
+b. Produce a time plot for the series. How does the plot change as you change $\phi_1$? 
+
+```{r}
+#phi1 = 0
+y0 <- ts(numeric(100))
+e0 <- rnorm(100)
+for(i in 2:100)
+y0[i] <- 0*y0[i-1] + e0[i]
+p0 = autoplot(y0) + ggtitle(TeX("$\\phi_1 = 0$"))
+
+#phi1 = .1
+y_1 <- ts(numeric(100))
+e_1 <- rnorm(100)
+for(i in 2:100)
+y_1[i] <- 0.1*y_1[i-1] + e_1[i]
+p_1 = autoplot(y_1) + ggtitle(TeX("$\\phi_1 = 0.1$"))
+
+#phi1 = .6
+p_6 = autoplot(y) + ggtitle(TeX("$\\phi_1 = 0.6$"))
+
+#phi1 = 1
+y1 <- ts(numeric(100))
+e1 <- rnorm(100)
+for(i in 2:100)
+y1[i] <- 1*y1[i-1] + e1[i]
+p1 = autoplot(y1) + ggtitle(TeX("$\\phi_1 = 1$"))
+
+#phi1 = -.5
+yn_5 <- ts(numeric(100))
+en_5 <- rnorm(100)
+for(i in 2:100)
+yn_5[i] <- -.5*yn_5[i-1] + en_5[i]
+pn_5 = autoplot(yn_5) + ggtitle(TeX("$\\phi_1 = -0.5$"))
+
+grid.arrange(p0,p_1,p_6,p1,pn_5)
+```
+
+When $\phi_1$ approaches 0, $y_t$ represents white noise. As$\phi_1$ approaches 1, we see greater variation and likely autocorrelation, as expected. Let's verify by reviewing ACF plots.
+
+```{r}
+acf0 = ggAcf(y0) + ggtitle(TeX("$\\phi_1 = 0$"))
+acf_1 = ggAcf(y_1) + ggtitle(TeX("$\\phi_1 = .1$"))
+acf_6 = ggAcf(y) + ggtitle(TeX("$\\phi_1 = .6$"))
+acf1 = ggAcf(y1) + ggtitle(TeX("$\\phi_1 = 1$"))
+acfn_5 = ggAcf(yn_5) + ggtitle(TeX("$\\phi_1 = -0.5$"))
+
+grid.arrange(acf0,acf_1,acf_6,acf1,acfn_5)
+```
+We see that as $\phi_1$ increases, the correlations of more lag values exceed the 95% confidence interval, indicating that the data is/are autocorrelated. A negative $\phi_1$ value causes the correlations of the lags to jump back and forth around 30.
+
+
+c. Write your own code to generate data from an MA(1) model with $\theta_{1} = 0.6$ and $\sigma^2=1$.
+
+```{r}
+y_ma_6 <- ts(numeric(100))
+e_ma_6 <- rnorm(100,sd=1)
+for(i in 2:100)
+y_ma_6[i] <- 0.6*e_ma_6[i-1] + e_ma_6[i]
+```
+
+
+d. Produce a time plot for the series. How does the plot change as you change $\theta_1$?
+
+```{r}
+#theta1 = 0
+y_ma0 <- ts(numeric(100))
+e_ma0 <- rnorm(100,sd=1)
+for(i in 2:100)
+y_ma0[i] <- 0*e_ma0[i-1] + e_ma0[i]
+t0 = autoplot(y_ma0) + ggtitle(TeX("$\\theta_{1} = 0$"))
+
+#theta1 = .1
+y_ma_1 <- ts(numeric(100))
+e_ma_1 <- rnorm(100,sd=1)
+for(i in 2:100)
+y_ma_1[i] <- .1*e_ma_1[i-1] + e_ma_1[i]
+t_1 = autoplot(y_ma_1) + ggtitle(TeX("$\\theta_{1} = 0.1$"))
+
+#theta1 = .6
+t_6 = autoplot(y_ma_6) + ggtitle(TeX("$\\theta_{1} = 0.6$"))
+
+#theta1 = 1
+y_ma1 <- ts(numeric(100))
+e_ma1 <- rnorm(100,sd=1)
+for(i in 2:100)
+y_ma1[i] <- 1*e_ma1[i-1] + e_ma1[i]
+t1 = autoplot(y_ma1) + ggtitle(TeX("$\\theta_{1} = 1$"))
+
+grid.arrange(t0,t_1,t_6,t1)
+```
+```{r}
+acft0 = ggAcf(y_ma0) + ggtitle(TeX("$\\theta_{1} = 0$"))
+acft_1 = ggAcf(y_ma_1) + ggtitle(TeX("$\\theta_{1} = .1$"))
+acft_6 = ggAcf(y_ma_6) + ggtitle(TeX("$\\theta_{1} = .6$"))
+acft1 = ggAcf(y_ma1) + ggtitle(TeX("$\\theta_{1} = 1$"))
+
+grid.arrange(acft0,acft_1,acft_6,acft1)
+```
+Generally, the MA(1) model shows more variation as $\theta_1$ increases. However, the effect appears to be less pronounced than with the AR(1) model.  
+
+
+e. Generate data from an ARMA(1,1) model with $\phi_{1} = 0.6$, $\theta_{1} = 0.6$ and $\sigma^2=1$. 
+
+```{r}
+ya11 <- ts(numeric(100))
+ea11 <- rnorm(100, sd=1)
+for(i in 2:100)
+  ya11[i] <- 0.6*ya11[i-1] + 0.6*ea11[i-1] + ea11[i]
+autoplot(ya11) +
+  ggtitle(TeX("$\\theta_{1} = .6$ and $\\phi_{1} = .6$: ARIMA(1,1) Model"))
+```
+
+
+f. Generate data from an AR(2) model with $\phi_{1} =-0.8$, $\phi_{2} = 0.3$ and $\sigma^2=1$. (Note that these parameters will give a non-stationary series.)
+
+```{r}
+yar2 <- ts(numeric(100))
+ear2 <- rnorm(100, sd=1)
+for(i in 3:100)
+  yar2[i] <- -0.8*yar2[i-1] + 0.3*yar2[i-2] + ear2[i]
+autoplot(yar2) +
+  ggtitle(TeX("$\\phi_{1} = -0.8$ and $\\phi_{2} = .3$: AR(2) Model"))
+```
+g. Graph the latter two series and compare them.
+
+```{r}
+autoplot(ya11, series = "ARMA(1,1), Theta1 = .6, Phi1 = .6") +
+  autolayer(yar2, series = "AR(2), Phi1 = -.8, Phi2 = .3") +
+  xlab("y")
+```
+
+Setting phi1 and ph2 at such values in the AR(2) model creates clear autocorrelation that will grow over time. It's a non-stationary, sinusoidal pattern. The ARMA(1,1) model is stationary. 
+
+
+### 8.8
+
+8. Consider austa, the total international visitors to Australia (in millions) for the period 1980-2015.
+
+a. Use auto.arima() to find an appropriate ARIMA model. What model was selected. Check that the residuals look like white noise. Plot forecasts for the next 10 periods.
+
+```{r}
+mausta <- auto.arima(austa)
+mausta
+```
+
+We see that ARIMA(0,1,1) with drift is selected as the best model to convey pattern in our Australian visitor data. 
+
+```{r}
+checkresiduals(mausta)
+```
+ACF plot shows stationary data, and residual distribution looks fine. Ljung-Box test values appear copacetic. Let's plot those 10 additional years of visitors.
+
+```{r}
+mausta %>% forecast(h=10) %>% autoplot()
+```
+
+b. Plot forecasts from an ARIMA(0,1,1) model with no drift and compare these to part a. Remove the MA term and plot again.
+
+```{r}
+mausta_nodrift <- Arima(austa,c(0,1,1),include.drift=FALSE)
+mausta_nodrift %>% forecast(h=10) %>% autoplot()
+```
+
+Without drift, forecast values are constant.
+
+```{r}
+mausta_nodrift_noma <- Arima(austa,c(0,1,0),include.drift=FALSE)
+mausta_nodrift_noma %>% forecast(h=10) %>% autoplot()
+```
+Without the MA term, the curve is slightly less smooth.
+
+
+c. Plot forecasts from an ARIMA(2,1,3) model with drift. Remove the constant and see what happens.
+
+```{r}
+mausta_213_drift <- Arima(austa,c(2,1,3),include.drift=TRUE)
+mausta_213_drift %>% forecast(h=10) %>% autoplot()
+```
+
+```{r}
+#get an error when trying to exclude constant without changing method
+mausta_213_drift_noc <- Arima(austa,c(2,1,3),include.constant=FALSE, method="CSS")
+mausta_213_drift_noc %>% forecast(h=10) %>% autoplot()
+```
+I don't know what the method change does in order to get excluding the constant to work. Based on the plots, excluding the constant increases the confidence intervals of the forecast.
+
+
+d. Plot forecasts from an ARIMA(0,0,1) model with a constant. Remove the MA term and plot again.
+
+```{r}
+mausta_001 <- Arima(austa,c(0,0,1))
+mausta_001 %>% forecast(h=10) %>% autoplot()
+```
+
+```{r}
+mausta_000 <- Arima(austa,c(0,0,0))
+mausta_000 %>% forecast(h=10) %>% autoplot()
+```
+
+Without the MA term, the forecast is constant. With it, we see a drop early in the forecasted periods.
+
+
+e. Plot forecasts from an ARIMA(0,2,1) model with no constant.
+
+```{r}
+mausta_021 <- Arima(austa,c(0,2,1),include.constant=FALSE)
+mausta_021 %>% forecast(h=10) %>% autoplot()
+```
+

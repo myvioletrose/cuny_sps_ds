@@ -1,0 +1,294 @@
+---
+title: "Chapter 3 Exercise KJ3.1 and KJ3.2"
+author: "Group 3"
+date: "6/3/2020"
+output:
+  pdf_document: default
+  word_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(caret)
+library(tidyverse)
+library(e1071)
+library(knitr)
+library(GGally)
+library(VIM)
+```
+
+
+## Exercise 3.1
+3.1. The UC Irvine Machine Learning Repository6 contains a data set related
+to glass identification. The data consist of 214 glass samples labeled as one
+of seven class categories. There are nine predictors, including the refractive
+index and percentages of eight elements: Na, Mg, Al, Si, K, Ca, Ba, and Fe.
+The data can be accessed via:
+```{r}
+library(mlbench)
+data(Glass)
+str(Glass)
+```
+
+The structure of the Glass data shows that all the predictors are numeric. The dependent variable is factor of 6 levels.
+
+```{r}
+head(Glass)
+```
+
+The head function displays the first values of each variables.
+
+
+
+ 
+ 
+### (a) Using visualizations, explore the predictor variables to understand their
+### distributions as well as the relationships between predictors.
+
+We remove the target variable
+```{r}
+glass.predictors <- Glass[,-10]
+```
+
+Since all variables are numerical, we can use the skewness function of e1071 to estimated the predictors to represent.
+```{r}
+library(e1071)
+skewValues <- apply(glass.predictors, 2, skewness)
+skewValues
+```
+
+```{r}
+par(mfrow = c(3,3))
+hist(x = glass.predictors$RI)
+hist(x = glass.predictors$Na)
+hist(x = glass.predictors$Mg)
+hist(x = glass.predictors$Al)
+hist(x = glass.predictors$Si)
+hist(x = glass.predictors$K)
+hist(x = glass.predictors$Ca)
+hist(x = glass.predictors$Ba)
+hist(x = glass.predictors$Fe)
+```
+
+The predictors RI, Na, Al, Si and Ca are normal distributed
+The predictors K, Ba, and Fe are rigtht skewed. we can aplied the log function on those variable to normalise or Boxcox to centralise, scale and transform.
+
+The Mg predictor need to be centralise and scale. It is neither normal, nor skewed.
+
+
+### (b) Do there appear to be any outliers in the data? Are any predictors skewed?
+
+Looking for outliers
+```{r}
+par(mfrow = c(3,3))
+boxplot(x = glass.predictors$RI, main = "RI")
+boxplot(x = glass.predictors$Na, main = "Na")
+boxplot(x = glass.predictors$Mg, main = "Mg")
+boxplot(x = glass.predictors$Al, main = "Al")
+boxplot(x = glass.predictors$Si, main = "Si")
+boxplot(x = glass.predictors$K, main = "K")
+boxplot(x = glass.predictors$Ca, main = "Ca")
+boxplot(x = glass.predictors$Ba, main = "Ba")
+boxplot(x = glass.predictors$Fe, main = "Fe")
+```
+
+The boxplot graphs shows some outliers with the predictors RI, Na, Al, Si, K, Ca, Ba, and Fe. The outlier of Ba and K are extreme.
+
+```{r}
+summary(glass.predictors)
+```
+
+
+
+To visualize the correlation between predictors, we use the corrplot function in the package of the same name.
+
+```{r}
+correlations <- cor(glass.predictors)
+correlations
+```
+
+```{r}
+library(corrplot)
+corrplot(correlations, order = "hclust")
+```
+
+
+```{r}
+GGally::ggpairs(as.data.frame(glass.predictors))
+```
+
+The only notable correlation is between RI and Ca.
+
+### (c) Are there any relevant transformations of one or more predictors that
+### might improve the classification model?
+
+We use the powerTransform of the car package that calculates the Box-Cox transformation.
+The Box-Cox transformation uses the maximum likelihood approach and returns information on the estimated values along with convenient rounded values that are within 1.96 standard deviations of the maximum likelihood estimate.
+
+```{r}
+library(car)
+summary(powerTransform(Glass[,1:9], family="yjPower"))$result[,1:2]
+```
+
+ The suggested transformations are:
+
+No transformation for RI, Na, Si, and K since lambda=1.
+Log transformations for Mg, K, Ba, and Fe since lambda =0.
+Square root transformation for Ca since lambda = 0.5.
+
+## Exercise 3.2.
+
+3.2.
+The soybean data can also be found at the UC Irvine Machine Learning
+Repository. Data were collected to predict disease in 683 soybeans. The 35
+predictors are mostly categorical and include information on the environmental
+conditions (e.g., temperature, precipitation) and plant conditions (e.g., left
+spots, mold growth). The outcome labels consist of 19 distinct classes.
+
+The data can be loaded via:
+
+```{r}
+library(mlbench)
+data(Soybean)
+## See ?Soybean for details
+str(Soybean)
+```
+ All variables are factors or ordered factors.
+ 
+ 
+```{r}
+head(Soybean)
+```
+
+### (a) Investigate the frequency distributions for the categorical predictors. Are
+### any of the distributions degenerate in the ways discussed earlier in this
+### chapter?
+```{r}
+nearZeroVar(Soybean,saveMetric=TRUE)
+```
+####  The predictors that correspond respectively to the position of variables  19, 26, 28 in the datafarme Soybean  which are degenerate, are leaf.mild, mycelium and sclerotia.
+
+
+```{r}
+summary(Soybean)
+```
+Using the summary of Soybean, the fraction of unique values over the sample size of the predictors is low. There are 2, 3,0r 4 unique values over 683 observations.
+
+The predictors leaf.mild, mycelium and sclerotia have the ratio of  the frequency the most prevalent value to the frequency of the second most prevalent very large.
+
+
+```{r}
+imbalance.leaf.mild = 535/20
+imbalance.leaf.mild
+```
+
+
+```{r}
+imbalance.mycelium = 639/6
+imbalance.mycelium
+```
+
+```{r}
+imbalance.sclerotia = 625/20
+imbalance.sclerotia
+```
+
+##### The three predictors have a very strong imbalance. These are near-zero variance predictors
+
+We can observe these large imbalance between uniques values in the plots below.
+```{r}
+par(mfrow = c(3,3))
+plot(x = Soybean$leaves) + title(main = 'leaves')
+plot(x = Soybean$leaf.malf) + title(main = 'leaf.malf')
+plot(x = Soybean$leaf.mild) + title(main = 'leaf.mild')
+plot(x = Soybean$lodging) + title(main = 'lodging')
+plot(x = Soybean$mycelium) + title(main = 'mycelium')
+plot(x = Soybean$int.discolor)+ title(main = 'int.discolor')
+plot(x = Soybean$sclerotia) + title(main = 'sclerotia')
+plot(x = Soybean$seed.size) + title(main = 'seed.size')
+plot(x = Soybean$shriveling) + title(main = 'shriveling')
+```
+
+
+
+### (b) Roughly 18% of the data are missing. Are there particular predictors that
+### are more likely to be missing? Is the pattern of missing data related to
+### the classes?
+
+Obsevation of missing values
+```{r}
+colSums(is.na(Soybean))
+```
+
+
+The aggr function in the VIM package plots and calculates the amount of missing values in each variable. The dply function is useful for wrangling data into aggregate summaries and is used to find the pattern of missing data related to the classes.
+```{r}
+aggr(Soybean, prop = c(TRUE, TRUE), bars=TRUE, numbers=TRUE, sortVars=TRUE)
+```
+The table above and the histograms show that the predictors hail, sever, seed.tmt, and lodging have around 18% of missing data. Other variables that are more likely to be missing are germ(16% of missing values), leaf.mild(16%),fruiting.bodies(15%), fruits.spots(15%), seed.discolor(15%), and shriveling(15%).
+The grid shows the combination of all with 82% of data not missing in accordance with the problem description (18% missing). The remainder of the grid shows missing data for variable combinations with each row highlighting the missing values for the group of variables detailed in the x-axis. The non-graphical output of the function shows on top the exact proportion of missing values per variable.
+
+
+### Looking for pattern in missing data by classes
+```{r}
+Soybean %>%
+  mutate(Total = n()) %>% 
+  filter(!complete.cases(.)) %>%
+  group_by(Class) %>%
+  mutate(Missing = n(), Proportion=Missing/Total) %>%
+  select(Class, Missing, Proportion) %>%
+  unique()
+```
+
+Checking if a pattern of missing data related to the classes exists is done by checking if some classes hold most of the incomplete cases. This is accomplished by filtering, grouping, and mutating the data with dplyr. The majority of the missing values are in the phytophthora-rot class which has nearly 10% incomplete cases. The are only four more, out of the eighteen other, variables with incomplete cases. The pattern of missing data is related to the classes. Mostly the phytophthora-rot class however since the other four variables only have between 1% and 2% incomplete cases.
+
+
+
+### (c) Develop a strategy for handling missing data, either by eliminating
+### predictors or imputation.
+
+The strategy to handle missing data is by using the predictive mean matching method of the mice function to imput data.
+Next, we create a complete dataset with the function complete()
+We can previous the new dataset for missing values with aggr from VIM package
+
+
+```{r}
+library(mice)
+MICE <- mice(Soybean, method="pmm", printFlag=FALSE, seed=6)
+aggr(complete(MICE), prop = c(TRUE, TRUE), bars=TRUE, numbers=TRUE, sortVars=TRUE)
+```
+
+The strategy we use to deal with missing data is the simple imputation method that uses predictive mean matching (pmm) and “imputes missing values by means of the nearest-neighbor donor with distance based on the expected values of the missing variables conditional on the observed covariates.”
+ 
+After applying the mice function, we realise that there are no missing values in any variable.
+ 
+
+
+### References
+
+https://www.otexts.org/fpp/
+
+https://rpubs.com/josezuniga/358605
+
+https://rpubs.com/josezuniga/253955
+
+https://rpubs.com/josezuniga/269297
+
+http://appliedpredictivemodeling.com/
+
+
+
+
+
+
+
+
+
+
+
+
+

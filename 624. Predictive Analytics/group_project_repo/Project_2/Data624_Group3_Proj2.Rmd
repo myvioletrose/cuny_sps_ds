@@ -1,0 +1,176 @@
+---
+title: "Data 624 Group3 Project 2"
+author: "Alain Kuiete Tchoupou, Jeff Littlejohn, Samriti Malhotra, Rajwant Mishra, Jimmy Ng"
+date: "7/5/2020"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(psych)
+library(DataExplorer)
+library(GGally)
+library(corrplot)
+library(DMwR)
+library(caret)
+
+#Please add any new required packages here:
+
+```
+
+## Introduction
+
+As most of us know, ensuring our beverages are produced at the correct potential for hydrogen (pH) level is an essential driver to our business. This pH score, the measure of acidity and alkalinity in our liquids, must be within a narrow, critical range to ensure long-term sales.
+
+The objective of this project is to consider a number of measures and data points involved in the production of our beverages and build a model to use those factors to be able to predict the pH level of the beverage. 
+
+Note that a factor being highly predictive of an outcome does not necessarily mean that the factor caused the outcome. For example, beverages that end up with higher than desired pH levels may also show high bowl setpoints. This does not mean that high bowl setpoints cause excessive pH values. They might both be similarly affected by an unknown cause, or large pH values may cause the high bowl setpoints. Our goal is simply to build a model that predicts pH levels. This process may lead to insights about possible causes of pH level problems, but that outcome is certainly not a given.
+
+To construct this model, we had to first understand our data. We have more than 2800 production records of beverages that feature 33 data points, including Brand Code, Fill Ounces, PSC CO2, Temperature, etc. A full list of data elements will be conveyed in the next section. Some of the production records do not have values for all data elements, which is an obstacle we will had to overcome in building our model using established statistical principles. We also had to review
+
+Data scientists use different methods to build models. No one approach gives the optimal approach for all data sets - and their underlying processes. To predict pH, we started by using linear regression, which constructs equations that look similar to you might have experienced in algebra at school. Next, we saw how effective nonlinear regression approaches such as neural networks and support vector machines (SVMs) are in predicting pH. Finally, we attempted to build models that use regression trees and rule-based models.
+
+Don't be overwhelmed by mathematical terminology. We - or, rather our computers - are just using different methods to take the 33 different data elements and trying to use them to figure out their relationship to pH levels in our beverages.
+
+```{r cars}
+summary(cars)
+```
+
+## Approach
+
+1. Exploratory Data Analysis
+2. Data Processing
+3. Linear Regression
+4. Nonlinear Regression
+5. Regression Trees and Rule-Based Models
+6. Conclusion
+
+## Exploratory Data Analysis
+
+### Data Loading
+
+```{r}
+bev_model <- readxl::read_excel('StudentData_TO_MODEL.xlsx',col_names = TRUE, sheet = 'Subset')
+bev_score <- readxl::read_excel('StudentEvaluation_TO_PREDICT.xlsx',col_names = TRUE, sheet = 'Subset (2)')
+```
+
+For this predictive model project, we've been provided two data sets - a modeling data set we will use to train and test the predictive models and an evaluation data set which will be used to predict unknown pH values and be scored to assess our model performance.
+
+```{r}
+str(bev_model)
+```
+
+We have 33 data elements for 2571 records that will be used for training. We expect some missing or NULL values - here we see them reflected in the "NA" values in the "Hyd Pressure 2" measurements.
+
+Here, we verify that our scoring data contains the same elements.
+
+```{r}
+dim(bev_score)
+```
+
+As mentioned above, we will generate the model on using the training data set that covers 2571 rows and then evaluate its accuracy - and other metrics - using the 267-record test data set.
+
+### Data Exploration
+
+Next, we explore our data using summary statistics.
+
+```{r,warning=FALSE}
+describe(bev_model)
+```
+
+Brand Code is a string (non-numeric) field, so its lack of a mean makes sense. We see a wide range of values. Some may be on different scales. Despite being mostly numeric fields, some of these might use temperatures in Celsius, whereas others like Carb[onation] Pressure use pounds per square inch. In order to build the most effective predictive model, we may apply data transformations to standardize these numeric data elements.
+
+```{r}
+plot_histogram(bev_model, ggtheme=theme_light())
+```
+
+Note that the scales of the x-axes vary for each element. Nonetheless, we see data elements with normal distributions and many with likely outliers. Some histograms reveal bimodal or even trimodal distributions.
+
+Here, we take a closer look at the pH values present in our training data.
+
+```{r,warning=FALSE}
+ggplot(bev_model, aes(PH)) + geom_histogram(bins=20) + theme_classic()
+```
+
+A slight left skew is evident, as is a right potential outlier.
+
+Finally, a count of missing (NA) values by variable is conducted.
+
+```{r}
+plot_missing(bev_model, title = "Beverage Training Data: % Missing Values by Data Element")
+```
+
+MFR is missing for more than eight percent of our training records, and Brand Code is NA for almost five percent of them. Those will need to be handled in our next section.
+
+Perhaps the most conceptually difficult aspect of data exploration in predictive modeling is checking for correlation. If two different variables reliably occur together, they can negatively affect our model. They tend to change in unison, and it becomes very difficult for the model to estimate the relationship between the two (or more) correlated independent variables and the dependent variable. If this sounds tricky - don't worry. In short, if we wanted to predict if it rained, we probably wouldn't want to include both 1) is the road wet and 2) whether or not drivers were using windshield wipers. One would give us the information contained within the others.
+
+The correlations between variables in our training dataset are below.
+
+```{r}
+cor_bev_model <- cor(bev_model[,-1], use = "na.or.complete")
+corrplot(cor_bev_model, order = 'hclust', type = 'lower')
+```
+
+With so many dimensions (variables) in the training data, seeing individual correlations between variables is difficult here. Suffice to say, we have high correlation between certain variables that would negatively affect our predictive model if we use certain approaches.
+
+
+### Data Processing
+
+Before we get to modeling, we will do a little data processing - also known as cleansing. First, we will remove the handful of records (0.16%, as we saw before) from the training set that have missing pH values. This will remove four records. Next, we will label the small number of records that have missing Brand categories as "U" for unknown.
+
+```{r}
+#remove NA pH records
+bev_model <- bev_model[complete.cases(bev_model[,26]),]
+#update NA Brand Code records to "U"
+bev_model$`Brand Code`[is.na(bev_model$`Brand Code`)] <- 'U'
+```
+
+Finally we will impute missing values for the training records that remain. There are a number of advanced methods used by data scientists to impute or "fill in" missing/NA values. Based on past experience and the fact that we don't have "big data," we will use k-neaest neighbor (KNN) imputation, which uses a distance function to essentially predict values for missing data elements based on other records that are similar to in it for the elements that are present. Simply, if everyone on your street has two cars, we'll guess that you do two.
+
+```{r}
+bev_model_i <- as.data.frame(bev_model[, !names(bev_model) %in% c("Brand Code", "PH")])
+```
+
+```{r}
+#https://www.r-bloggers.com/missing-value-treatment/
+bev_model_impute <- knnImputation(bev_model_i, k = 10)
+bev_model_impute$pH <- bev_model$PH
+bev_model_impute$'Brand Code' <- bev_model$`Brand Code`
+```
+
+Before getting to modelling, we will split our modelling set into train and test sets.
+
+```{r}
+set.seed(3456)
+trainIndex <- createDataPartition(bev_model_impute$pH, p = .8, 
+                                  list = FALSE, 
+                                  times = 1)
+bev_model_train <- bev_model_impute[ trainIndex,]
+bev_model_test  <- bev_model_impute[-trainIndex,]
+```
+
+
+As mentioned earlier, data processing frequently includes such steps as performing a train-test split, transforming variables so that they're all on normalized scales, and removing variables that have correlation with others - or have no correlation with the dependent variables, pH in this case. As different modeling approaches handle these data issues in disparate ways, we will handle those data transformations and processing steps in the indivdual sections of model construction.
+
+## Linear Regression - Rajwant
+
+## Nonlinear Regression - Jimmy
+
+## Regression Trees and Rule-Based Models - Samriti
+
+## Conclusion - Alain
+
+## References
+
+https://readxl.tidyverse.org/
+
+https://www.rdocumentation.org/packages/DataExplorer/versions/0.8.1/topics/plot_missing
+
+https://datascience.stackexchange.com/questions/24452/in-supervised-learning-why-is-it-bad-to-have-correlated-features#:~:text=The%20stronger%20the%20correlation%2C%20the,tend%20to%20change%20in%20unison
+
+https://medium.com/coinmonks/dealing-with-missing-data-using-r-3ae428da2d17
+
+https://www.r-bloggers.com/missing-value-treatment/

@@ -1,0 +1,168 @@
+---
+title: "Grp3_HW2_8"
+author: "Samriti Malhotra"
+date: "7/12/2020"
+output:
+  word_document: default
+  html_document: default
+---
+
+##8.3
+###In stochastic gradient boosting the bagging fraction and learning rate will govern the construction of the trees as they are guided by the gradient.Although the optimal values of these parameters should be obtained through the tuning process, it is helpful to understand how the magnitudes of these parameters affect magnitudes of variable importance. Figure 8.24 provides the variable importance plots for boosting using two extreme values for the bagging fraction (0.1 and 0.9) and the learning rate (0.1 and 0.9) for the solubility data. The left-hand plot has both parameters set to 0.1, and the right-hand plot has both set to 0.9: 
+
+### PART (a) 
+Why does the model on the right focus its importance on just the first few of predictors, whereas the model on the left spreads importance across more predictors?
+
+### Answer
+The right model uses fewer predictor to find more accurate solution. This is example of over-fitting.
+
+### Part (b) 
+Which model do you think would be more predictive of other samples?
+
+### Answer
+The left-hand model will be more predictive as it do not apply over-fitting.
+
+
+### Part (c) 
+How would increasing interaction depth affect the slope of predictor importance for either model in Fig. 8.24?
+
+### Answer
+The root mean square error is lower when interaction depth is greater.
+the slope of predictor is steeper when interaction depth is greater
+When tree depth increases, we expect to see a more uniform spread of variable importance across all variables.
+
+
+##8.7
+###Refer to Exercises 6.3 and 7.5 which describe a chemical manufacturing process. Use the same data imputation, data splitting, and pre-processing steps as before and train several tree-based models:
+
+```{r}
+ library(AppliedPredictiveModeling)
+library(VIM)
+library(caret)
+data(ChemicalManufacturingProcess)
+library(party)
+library(ggparty)
+library(doParallel)
+```
+## Frome exercise 6.3
+```{r}
+cl <- parallel::makePSOCKcluster((parallel::detectCores() * 0.75))
+registerDoParallel(cl)
+
+summary(ChemicalManufacturingProcess)
+impu_data <- kNN(ChemicalManufacturingProcess, imp_var = FALSE)
+summary((ChemicalManufacturingProcess$ManufacturingProcess02))
+summary(impu_data$ManufacturingProcess02)
+data.frame("OLD"=ChemicalManufacturingProcess$ManufacturingProcess02, 
+            "Imputed"=impu_data$ManufacturingProcess02)
+```
+
+Using same code from 6.3
+
+
+```{r}
+n <- nrow(impu_data)
+i.training <- sort(sample(n,round(n*0.8)))
+L.training <- impu_data[i.training,]
+L.test  <- impu_data[-i.training,]
+X_train <- L.training[,-1]
+Y_train <- L.training[,1]
+X_test <- L.test[,-1]
+Y_test <- L.test[,1]
+```
+
+## Part A
+### Single Tree (CART)
+```{r }
+controlObject <- trainControl(method = "repeatedcv",  repeats = 5,  number = 10)
+
+set.seed(12)
+mdlCart_Complex <- train(x = X_train, y = Y_train, method = 'rpart',
+                trControl = controlObject , tuneLength = 10L)
+
+set.seed(12)
+mdlCart_Depth <- train(x = X_train, y = Y_train, method = 'rpart2',
+                trControl = controlObject,tuneLength = 10)
+
+mdl_cart_Complex_pred <- predict(mdlCart_Complex, newdata = X_test)
+mdl_cart_Depth_pred <- predict(mdlCart_Depth, newdata = X_test)
+
+```
+
+### RandomForest Model
+```{r }
+
+set.seed(12)
+rfModel <- train(x = X_train, y = Y_train, method = 'rf',
+                trControl = controlObject,tuneLength = 10,
+                 importance = TRUE)
+rfModel_pred <- predict(rfModel, newdata = X_test)
+```
+
+###GradientBoostingModel 
+```{r }
+
+grid <- expand.grid(n.trees=seq(100, 400, by=50),
+                    interaction.depth=seq(1,8 , by=2),  shrinkage=c(0.01, 0.1), 
+                    n.minobsinnode=c(5, 10, 15))
+set.seed(12)
+gbm_Model <- train(x = X_train, y = Y_train, method="gbm",
+                   trControl = controlObject,
+                  tuneGrid = grid, verbose = FALSE)
+gmb_Model_pred <- predict(gbm_Model, newdata = X_test)
+
+```
+
+### Cubist Method
+```{r }
+cubistGrid = expand.grid(committees = c(1, 10, 15, 20, 25, 30, 50, 100),
+                   neighbors = c(0, 1, 5, 8, 9))
+set.seed(12)
+cubeModel <- train(x = X_train, y = Y_train, method="cubist",
+                   trControl = controlObject,
+                  tuneGrid = cubistGrid)
+cubeModel_pred <- predict(cubeModel, newdata = X_test)
+```
+
+### Check Best Model
+```{r }
+postResample(obs = Y_test, pred=mdl_cart_Complex_pred)
+postResample(obs = Y_test, pred=mdl_cart_Depth_pred)
+postResample(obs = Y_test, pred=rfModel_pred)
+postResample(obs = Y_test, pred=gmb_Model_pred)
+postResample(obs = Y_test, pred=cubeModel_pred)
+```
+### PART A
+The cubist model has the lowest root mean square
+error for the test set, thus exhibits best predictive performance. 
+
+
+### PART B
+Which predictors are most important in the optimal tree-based regression
+model? Do either the biological or process variables dominate the list?
+How do the top 10 important predictors compare to the top 10 predictors
+from the optimal linear and nonlinear models?
+```{r}
+varImp(cubeModel)
+
+```
+The top 20 rows of best predictor list is shown above, it is eveident in the above list that 
+**ManufacturingProcess** are dominating with 13 rows and Biological processes have only 7 rows.
+
+
+
+### PART 3
+Plot the optimal single tree with the distribution of yield in the terminal
+nodes. Does this view of the data provide additional knowledge about the
+biological or process predictors and their relationship with yield?
+```{r}
+rpart_Tree <- as.party(mdlCart_Depth$finalModel)
+plot(rpart_Tree)
+
+```
+The above plot shows that manufacturing processes are dominant as predictors.
+
+```{r stopCluster, include=FALSE}
+parallel::stopCluster(cl)
+```
+

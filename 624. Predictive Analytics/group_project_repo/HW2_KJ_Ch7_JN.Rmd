@@ -1,0 +1,333 @@
+---
+title: "data_624_hw_2"
+author: "Jimmy Ng"
+date: "7/7/2020"
+output: html_document
+---
+
+```{r setup, include = FALSE, warning = FALSE, collapse = TRUE}
+knitr::opts_chunk$set(echo = TRUE)
+packages <- c('tidyverse', 'AppliedPredictiveModeling', 'mice', 'caret', 'mlbench', 'kableExtra', 'earth', 'VIM')
+pacman::p_load(char = packages)
+set.seed(1234)
+```
+
+## Kuhn & Johnson 7.2
+
+Friedman (1991) introduced several benchmark data sets create by simulation. One of these simulations used the following nonlinear equation to create data: $y = 10\text{sin}(\pi x_1 x_2)+20(x_3-0.5)^2+10x_4+5x_5+N(0\text{,} \sigma^2)$; where the $x$ values are random variables uniformly distributed between $[0, 1]$ (there are also 5 other non-informative variables also created in the simulation). 
+
+The package `mlbench` contains a function called `mlbench.friedman1` that simulates these data:
+
+```{r KJ_7.2_setup_a, collapse = TRUE, echo = TRUE, collapse = TRUE}
+library(mlbench)
+set.seed(200)
+trainingData <- mlbench.friedman1(200, sd = 1)
+## We convert the 'x' data from a matrix to a data frame 
+## One reason is that this will give the  columns names.
+trainingData$x <- data.frame(trainingData$x) 
+## Look at the data using
+featurePlot(trainingData$x, trainingData$y)
+## or other methods
+
+## This creates a list with a vector 'y' and a matrix
+## of predictors 'x'. Also simulate a large test set to 
+## estimate the true error rate with good precision:
+testData <- mlbench.friedman1(5000, sd = 1)
+testData$x <- data.frame(testData$x)
+```
+
+## Tune several models on these data. For example:
+
+```{r KJ_7.2_setup_b, collapse = TRUE, echo = TRUE, collapse = TRUE}
+library(caret)
+knnModel <- train(x = trainingData$x,
+                  y = trainingData$y,
+                  method = "knn",
+                  preProc = c("center", "scale"),
+                  tuneLength = 10)
+knnModel
+
+knnPred <- predict(knnModel, newdata = testData$x)
+
+## The function 'postResample' can be used to get the test set
+## performance values
+postResample(pred = knnPred, obs = testData$y)
+```
+
+### MARS
+
+```{r KJ_7.2_MARS_regression, collapse = TRUE, echo = TRUE, collapse = TRUE}
+marsGrid <- expand.grid(degree = 1:2, nprune = seq(2, 14,by = 2))
+
+marsModel <- train(x = trainingData$x, 
+                   y = trainingData$y, 
+                   method = 'earth', 
+                   tuneGrid = marsGrid, 
+                   trControl = trainControl(method = "cv"))
+
+ggplot(marsModel) + labs(title = "MARS Cross-Validated RMSE Profile") + theme_classic()
+```
+
+### SVM
+
+```{r KJ_7.2_SVM, collapse = TRUE, echo = TRUE, collapse = TRUE}
+svmModel <- train(x = trainingData$x, 
+                  y = trainingData$y, 
+                  method = 'svmRadial', 
+                  tuneLength = 14, 
+                  trControl = trainControl(method = "cv"))
+
+ggplot(svmModel) + labs(title = "SVM Cross-Validated RMSE Profile") + theme_gray()
+```
+
+### NNET
+
+```{r KJ_7.2_NNET, collapse = TRUE, echo = TRUE, collapse = TRUE}
+nnetGrid <- expand.grid(.size = c(1:10), .decay = c(0, 0.01, .1))
+
+nnetModel <- train(trainingData$x, 
+                   trainingData$y,
+                   method = "nnet", 
+                   tuneGrid = nnetGrid,
+                   trControl = trainControl(method="cv"),
+                   preProc = c("center", "scale"),
+                   linout = TRUE,
+                   trace = FALSE,
+                   MaxNWts = 10 * (ncol(trainingData$x) + 1) + 10 +  1,
+                   maxit = 500)
+
+ggplot(nnetModel) + labs(title = "NNET Cross-Validated RMSE Profile") + theme_linedraw()
+```
+
+## Which models appear to give the best performance? Does MARS select the informative predictors (those named X1-X5)?
+
+As displayed in the summary table, MARS appears to be supreme comparing to KNN, SVM and NNET in terms of RMSE, R squared and MAE on the test set. The variable importance plot for MARS indicates that the variables X1 through 5 are the most important. X1 appears to be the most important variable. MARS appears to have successfully selected the most informative predictors and outperformed the other models in this exercise. 
+
+```{r KJ_7.2_performance, collapse = TRUE, echo = TRUE, collapse = TRUE}
+# Prediction
+# knnPred is already given to us from the textbook
+marsPred <- predict(marsModel, newdata = testData$x) 
+svmPred <- predict(svmModel, newdata = testData$x) 
+nnetPred <- predict(nnetModel, newdata = testData$x) 
+
+# Performance
+knnPerformance <- postResample(pred = knnPred, obs = testData$y)
+marsPerformance <- postResample(pred = marsPred, obs = testData$y)
+svmPerformance <- postResample(pred = svmPred, obs = testData$y)
+nnetPerformance <- postResample(pred = nnetPred, obs = testData$y)
+
+# Summary
+rbind(
+        # KNN
+        "KNN Train" = c("RMSE" = max(knnModel$results$RMSE),
+                        "RSquared" = max(knnModel$results$RMSE),
+                        "MAE" = max(knnModel$results$RMSE)),
+        "KNN Test" = knnPerformance, 
+        # MARS
+        "MARS Train" = c("RMSE" = max(marsModel$results$RMSE),
+                         "RSquared" = max(marsModel$results$Rsquared),
+                         "MAE" = max(marsModel$results$MAE)),
+        "MARS Test" = marsPerformance,
+        # SVM
+        "SVM Train" = c(max(svmModel$results$RMSE),
+                        max(svmModel$results$Rsquared),
+                        max(svmModel$results$MAE)),
+        "SVM Test" = svmPerformance,
+        # NNET
+        "NNET Train" = c(max(nnetModel$results$RMSE),
+                        max(nnetModel$results$Rsquared),
+                        max(nnetModel$results$MAE)),
+        "NNET Test" = nnetPerformance) %>% 
+        kable(caption = "Model Performance", digits = 3) %>% 
+        kable_styling() 
+
+# Variable Importance
+marsImportance <- caret::varImp(marsModel)
+
+marsImportance$importance %>% 
+        as.data.frame() %>%
+        tibble::rownames_to_column() %>%
+        dplyr::mutate(name = forcats::fct_inorder(rowname)) %>%
+        arrange(desc(Overall)) %>%
+        head(10) %>%
+        ggplot(., aes(x = reorder(name, Overall), y = Overall)) + 
+        geom_point() + 
+        geom_segment(aes(x = name, xend = name, y = 0, yend = Overall)) + 
+        ggtitle("Variable Importance: MARS for Simulated Data Set") +
+        labs(x = "Variable", y = "Importance") +
+        coord_flip() +
+        theme_minimal()
+```
+
+## Kuhn & Johnson 7.5
+
+Exercise 6.3 describes data for a chemical manufacturing process. Use the same data imputation, data splitting, and preprocessing steps as before and train several nonlinear regression models.
+
+### (a). Which nonlinear regression model gives the optimal resampling and test set performance?
+
+```{r KJ_7.5_setup, collapse = TRUE, echo = TRUE, collapse = TRUE}
+# data prep - using the same methodology from exercise 6.3
+data(ChemicalManufacturingProcess)
+impu_data <- kNN(ChemicalManufacturingProcess, imp_var = FALSE)
+n <- nrow(impu_data)
+i.training <- sort(sample(n,round(n*0.8)))
+L.training <- impu_data[i.training,]
+L.test  <- impu_data[-i.training,]
+
+# check if any missing left
+if(!any(colSums(is.na(impu_data)) %>% unlist >0)){print("there is no more missing after successful imputation")}
+# dim
+sapply(list(impu_data, L.training, L.test), dim) %>% 
+        as.data.frame %>% 
+        cbind(dim = c("# of row", "# of column")) %>%
+        dplyr::select(dim, imput_data = V1, L.training = V2, L.test = V3)
+```
+
+```{r KJ_7.5_a, collapse = TRUE, echo = TRUE, collapse = TRUE, warning = FALSE}
+# KNN
+knnModel2 <- train(Yield~.,
+                   data = L.training,
+                   method = "knn",
+                   preProc = c("center", "scale"),
+                   tuneLength = 10)
+
+# MARS 
+marsGrid2 <- expand.grid(degree = 1:2, nprune = 1:20)
+
+marsModel2 <- train(Yield~.,
+                    data = L.training,
+                    method = "earth",
+                    tuneGrid = marsGrid2,
+                    trControl = trainControl(method = "cv"))
+
+# SVM
+svmModel2 <- train(Yield~.,
+                   data = L.training,
+                   method = "svmRadial",
+                   preProc = c("center", "scale"),
+                   tuneLength = 14,
+                   trControl = trainControl(method = "cv"))
+
+# NNET
+nnetGrid2 <- expand.grid(decay = c(0, 0.01, .1), size = c(1:10))
+
+nnetModel2 <- train(Yield~.,
+                    data = L.training,
+                    method = "nnet",
+                    tuneGrid = nnetGrid2,
+                    trControl = trainControl(method = "cv"),
+                    preProc = c("center", "scale"),
+                    linout = TRUE,
+                    trace = FALSE,
+                    maxit = 500)
+
+# Prediction
+knnPred2 <- predict(knnModel2, newdata = L.test) 
+marsPred2 <- predict(marsModel2, newdata = L.test) 
+svmPred2 <- predict(svmModel2, newdata = L.test) 
+nnetPred2 <- predict(nnetModel2, newdata = L.test) 
+
+# Performance
+knnPerformance2 <- postResample(pred = knnPred2, obs = L.test$Yield)
+marsPerformance2 <- postResample(pred = marsPred2, obs = L.test$Yield)
+svmPerformance2 <- postResample(pred = svmPred2, obs = L.test$Yield)
+nnetPerformance2 <- postResample(pred = nnetPred2, obs = L.test$Yield)
+
+# Summary
+rbind(
+        # KNN
+        "KNN Train" = c("RMSE" = max(knnModel2$results$RMSE),
+                        "RSquared" = max(knnModel2$results$Rsquared),
+                        "MAE" = max(knnModel2$results$MAE)),
+        "KNN Test" = knnPerformance2, 
+        # MARS
+        "MARS Train" = c("RMSE" = max(marsModel2$results$RMSE),
+                         "RSquared" = max(marsModel2$results$Rsquared),
+                         "MAE" = max(marsModel2$results$MAE)),
+        "MARS Test" = marsPerformance2,
+        # SVM
+        "SVM Train" = c(max(svmModel2$results$RMSE),
+                        max(svmModel2$results$Rsquared),
+                        max(svmModel2$results$MAE)),
+        "SVM Test" = svmPerformance2,
+        # NNET
+        "NNET Train" = c(max(nnetModel2$results$RMSE),
+                         max(nnetModel2$results$Rsquared),
+                         max(nnetModel2$results$MAE)),
+        "NNET Test" = nnetPerformance2) %>% 
+        kable(caption = "Model Performance on ChemicalManufacturing Data", digits = 3) %>% 
+        kable_styling()
+```
+
+Radial SVM seemed to be the best option and most stable in this case. 
+
+### (b). Which predictors are most important in the optimal nonlinear regression model? Do either the biological or process variables dominate the list? How do the top ten important predictors compare to the top ten predictors from the optimal linear model?
+
+```{r KJ_7.5_b, collapse = TRUE, echo = TRUE, collapse = TRUE, warning = FALSE, result = "hide"}
+svmImportance2 <- caret::varImp(svmModel2) 
+
+svmImportance2$importance %>% 
+        as.data.frame() %>%
+        tibble::rownames_to_column() %>%
+        dplyr::mutate(name = forcats::fct_inorder(rowname)) %>%
+        arrange(desc(Overall)) %>%
+        head(10) %>%
+        ggplot(., aes(x = reorder(name, Overall), y = Overall)) + 
+        geom_point() + 
+        geom_segment(aes(x = name, xend = name, y = 0, yend = Overall)) + 
+        ggtitle("Variable Importance: SVM for ChemicalManufacturing Data") +
+        labs(x = "Variable", y = "Importance") +
+        coord_flip() +
+        theme_minimal()
+```
+
+The results from both models were highly similar with only minor differences in ranking the importance of variables. Both agreed that the set of ManufacturingProcess variables seemed to dominate the list. 
+
+### (c). Explore the relationships between the top predictors and the response for the predictors that are unique to the optimal nonlinear regression model. Do these plots reveal intuition about the biological or process predictors and their relationship with yield?
+
+In general, the SVM model pointed to the same direction, conclusion as the linear model (Elastic net) as both indicated that the ManufacturingProcess variables seemed to be more important, e.g. ManufacturingProcess32, 09 tops the list. However, the SVM found that several biological variables important that were not found in the linear model and vice versa, e.g. BiologicalMaterial02 was found in SVM only, whereas BiologicalMaterial05 was found in the linear model only. It seemed that both variables positively correlated with Yield, but the relationship between BiologicalMaterial02 and Yield seemed to be much more obvious and stronger than 05.
+
+```{r KJ_7.5_c, collapse = TRUE, echo = TRUE, collapse = TRUE, warning = FALSE}
+features <- svmImportance2$importance %>% 
+        as.data.frame() %>%
+        tibble::rownames_to_column() %>%
+        dplyr::mutate(name = forcats::fct_inorder(rowname)) %>%
+        arrange(desc(Overall)) %>%
+        head(10) %>%
+        .$rowname %>%
+        as.vector
+
+subset <- impu_data %>%
+        dplyr::select(all_of(c("Yield", features)))
+
+corSubset <- cor(subset) %>%
+        as.matrix %>%
+        as.data.frame %>%
+        tibble::rownames_to_column(., "variable") %>%
+        arrange(desc(Yield)) %>%
+        dplyr::select(variable, Yield) 
+
+corSubset %>%
+        kable(caption = "Correlation") %>%
+        kable_styling()
+
+# BiologicalMaterial02
+impu_data %>%
+        dplyr::select(Yield, BiologicalMaterial02) %>%
+        ggplot(., aes(Yield, BiologicalMaterial02)) +
+        geom_point() +
+        ggtitle("BiologicalMaterial02") +
+        theme_classic()
+
+# BiologicalMaterial05
+impu_data %>%
+        dplyr::select(Yield, BiologicalMaterial05) %>%
+        ggplot(., aes(Yield, BiologicalMaterial05)) +
+        geom_point() +
+        ggtitle("BiologicalMaterial05") +
+        theme_bw()
+```
+
+
+
+

@@ -1,0 +1,131 @@
+---
+title: 'HW #2 - market basket analysis / recommender systems'
+output:
+  word_document: default
+  html_document: default
+---
+
+## Introduction
+
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(echo=FALSE, warning=FALSE, message=FALSE)
+```
+
+I am assigning one simple problem on market basket analysis / recommender systems.  
+
+Imagine 10000 receipts sitting on your table. Each receipt represents a transaction with items that were purchased. The receipt is a representation of stuff that went into a customer’s basket – and therefore ‘Market Basket Analysis’.
+
+That is exactly what the Groceries Data Set contains: a collection of receipts with each line representing 1 receipt and the items purchased. Each line is called a transaction and each column in a row represents an item.
+
+Here is the dataset = GroceryDataSet.csv  (comma separated file)
+
+#### You assignment is to use R to mine the data for association rules.  You should report support, confidence and lift and your top 10 rules by lift.  Turn in as you would the other problems from HA and KJ.  Due 07/18/20 with the packaged set, HW #2.
+
+
+### MARKET BASKET ANALYSIS 
+
+```{r}
+library(tidyverse)
+library(knitr)
+library(ggplot2)
+library(arules)
+library(arulesViz)
+```
+
+## Data preprocessing and exploring
+
+```{r}
+retail <- read.csv('C:\\DATA624\\DATA624Exercises2\\GroceryDataSet.csv')
+retail <- retail[complete.cases(retail), ]
+```
+
+```{r}
+head(retail)
+```
+
+
+```{r}
+summary(retail)
+```
+
+
+
+## Association rules for the grocery store
+
+The grocery dataset shows the items that have been bought togheter. Now we going to see how often they are bought together , and rules. 
+
+We can then see how many transactions we have and what they are.
+
+```{r}
+print('Description of the transactions')
+transactions <- read.transactions('C:\\DATA624\\DATA624Exercises2\\GroceryDataSet.csv', format = 'basket', sep=',')
+transactions
+summary(transactions)
+```
+
+We see 9835 transactions, this is the number of rows as well, and 169 items. 
+
+The summary gives us some useful information:
+
+* density: The percentage of non-empty cells in the sparse matrix. In another word, the total number of items that was purchased divided by the total number of possible items in that matrix. 
+
+* Transactions sizes
+There are 2159 transactions with one item, 1643 with  2 items, 1299 with 3 items, 1299 with items. This indicates that most customers buy small number of items on each purchase.
+
+* The data distribution is right skewed.
+
+Let's have a look item freqnency plot.
+
+```{r}
+itemFrequencyPlot(transactions, topN=20, type='absolute')
+```
+
+## Create some rules
+
+* We use the Apriori algorithm in arules library to mine frequent itemsets and association rules. The algorithm employs level-wise search for frequent itemsets.
+
+* We pass supp=0.001 and conf=0.8 to return all the rules have a support of at least 0.1% and confidence of at least 80%. 
+
+* We sort the rules by decreasing confidence. 
+
+* Have a look the summary of the rules. 
+
+```{r}
+rules <- apriori(transactions, parameter = list(supp=0.001, conf=0.8))
+rules <- sort(rules, by='confidence', decreasing = TRUE)
+summary(rules)
+```
+
+* The number of rules: 9835.
+* The distribution of rules by length: Most rules are 4 items long.
+* The summary of quality measures: ranges of support, confidence, and lift.
+* The information on the data mining: total data mined, and minimum parameters we set earlier.
+
+let's inspect top 10.
+
+```{r}
+inspect(rules[1:10])
+```
+
+* 100% customers who bought {rice, sugar} end up bought {whole milk} as well. 
+
+* 100% customers who bought {canned fish,hygiene articles} end up bought {whole milk} as well. 
+
+And plot these top 10 rules.
+
+```{r}
+topRules <- rules[1:10]
+plot(topRules)
+```
+
+```{r}
+plot(topRules, method="graph")
+```
+
+```{r}
+plot(topRules, method = "grouped")
+```
+
+In this post, we have learned how to Perform Market Basket Analysis in R and how to interpret the results. 
+
+reference: [R and Data Mining](http://www.rdatamining.com/examples/association-rules)

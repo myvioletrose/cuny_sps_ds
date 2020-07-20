@@ -1,0 +1,664 @@
+---
+title: "Data 624 Group3 Project 2"
+author: "Alain Kuiete Tchoupou, Jeff Littlejohn, Samriti Malhotra, Rajwant Mishra, Jimmy Ng"
+date: "7/5/2020"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(psych)
+library(DataExplorer)
+library(GGally)
+library(corrplot)
+library(DMwR)
+library(caret)
+library(VIM)
+library(glmnet)
+library(doParallel)
+library(xgboost) 
+library(mice)
+library(data.table)
+library(kableExtra)
+#Please add any new required packages here:
+
+```
+
+## Introduction
+
+As most of us know, ensuring our beverages are produced at the correct potential for hydrogen (pH) level is an essential driver to our business. This pH score, the measure of acidity and alkalinity in our liquids, must be within a narrow, critical range to ensure long-term sales.
+
+The objective of this project is to consider a number of measures and data points involved in the production of our beverages and build a model to use those factors to be able to predict the pH level of the beverage. 
+
+Note that a factor being highly predictive of an outcome does not necessarily mean that the factor caused the outcome. For example, beverages that end up with higher than desired pH levels may also show high bowl setpoints. This does not mean that high bowl setpoints cause excessive pH values. They might both be similarly affected by an unknown cause, or large pH values may cause the high bowl setpoints. Our goal is simply to build a model that predicts pH levels. This process may lead to insights about possible causes of pH level problems, but that outcome is certainly not a given.
+
+To construct this model, we had to first understand our data. We have more than 2800 production records of beverages that feature 33 data points, including Brand Code, Fill Ounces, PSC CO2, Temperature, etc. A full list of data elements will be conveyed in the next section. Some of the production records do not have values for all data elements, which is an obstacle we will had to overcome in building our model using established statistical principles. We also had to review
+
+Data scientists use different methods to build models. No one approach gives the optimal approach for all data sets - and their underlying processes. To predict pH, we started by using linear regression, which constructs equations that look similar to you might have experienced in algebra at school. Next, we saw how effective nonlinear regression approaches such as neural networks and support vector machines (SVMs) are in predicting pH. Finally, we attempted to build models that use regression trees and rule-based models.
+
+Don't be overwhelmed by mathematical terminology. We - or, rather our computers - are just using different methods to take the 33 different data elements and trying to use them to figure out their relationship to pH levels in our beverages.
+
+
+## Approach
+
+1. Exploratory Data Analysis
+2. Data Processing
+3. Linear Regression
+4. Nonlinear Regression
+5. Regression Trees and Rule-Based Models
+6. Conclusion
+
+## Exploratory Data Analysis
+
+### Data Loading
+
+```{r}
+bev_model <- readxl::read_excel('StudentData_TO_MODEL.xlsx',col_names = TRUE, sheet = 'Subset')
+bev_score <- readxl::read_excel('StudentEvaluation_TO_PREDICT.xlsx',col_names = TRUE, sheet = 'Subset (2)')
+```
+
+For this predictive model project, we've been provided two data sets - a modeling data set we will use to train and test the predictive models and an evaluation data set which will be used to predict unknown pH values and be scored to assess our model performance.
+
+```{r}
+str(bev_model)
+```
+
+We have 33 data elements for 2571 records that will be used for training. We expect some missing or NULL values - here we see them reflected in the "NA" values in the "Hyd Pressure 2" measurements.
+
+Here, we verify that our scoring data contains the same elements.
+
+```{r}
+dim(bev_score)
+```
+
+As mentioned above, we will generate the model on using the training data set that covers 2571 rows and then evaluate its accuracy - and other metrics - using the 267-record test data set.
+
+### Data Exploration
+
+Next, we explore our data using summary statistics.
+
+```{r,warning=FALSE}
+describe(bev_model)
+```
+
+Brand Code is a string (non-numeric) field, so its lack of a mean makes sense. We see a wide range of values. Some may be on different scales. Despite being mostly numeric fields, some of these might use temperatures in Celsius, whereas others like Carb[onation] Pressure use pounds per square inch. In order to build the most effective predictive model, we may apply data transformations to standardize these numeric data elements.
+
+```{r}
+plot_histogram(bev_model, ggtheme=theme_light())
+```
+
+Note that the scales of the x-axes vary for each element. Nonetheless, we see data elements with normal distributions and many with likely outliers. Some histograms reveal bimodal or even trimodal distributions.
+
+Here, we take a closer look at the pH values present in our training data.
+
+```{r,warning=FALSE}
+ggplot(bev_model, aes(PH)) + geom_histogram(bins=20) + theme_classic()
+```
+
+A slight left skew is evident, as is a right potential outlier.
+
+Finally, a count of missing (NA) values by variable is conducted.
+
+```{r}
+plot_missing(bev_model, title = "Beverage Training Data: % Missing Values by Data Element")
+```
+
+MFR is missing for more than eight percent of our training records, and Brand Code is NA for almost five percent of them. Those will need to be handled in our next section.
+
+Perhaps the most conceptually difficult aspect of data exploration in predictive modeling is checking for correlation. If two different variables reliably occur together, they can negatively affect our model. They tend to change in unison, and it becomes very difficult for the model to estimate the relationship between the two (or more) correlated independent variables and the dependent variable. If this sounds tricky - don't worry. In short, if we wanted to predict if it rained, we probably wouldn't want to include both 1) is the road wet and 2) whether or not drivers were using windshield wipers. One would give us the information contained within the others.
+
+The correlations between variables in our training dataset are below.
+
+```{r}
+cor_bev_model <- cor(bev_model[,-1], use = "na.or.complete")
+corrplot(cor_bev_model, order = 'hclust', type = 'lower')
+```
+
+With so many dimensions (variables) in the training data, seeing individual correlations between variables is difficult here. Suffice to say, we have high correlation between certain variables that would negatively affect our predictive model if we use certain approaches.
+
+
+### Data Processing
+
+Before we get to modeling, we will do a little data processing - also known as cleansing. First, we will remove the handful of records (0.16%, as we saw before) from the training set that have missing pH values. This will remove four records. Next, we will label the small number of records that have missing Brand categories as "U" for unknown.
+
+```{r}
+#remove NA pH records
+bev_model <- bev_model[complete.cases(bev_model[,26]),]
+#update NA Brand Code records to "U"
+bev_model$`Brand Code`[is.na(bev_model$`Brand Code`)] <- 'U'
+```
+
+Finally we will impute missing values for the training records that remain. There are a number of advanced methods used by data scientists to impute or "fill in" missing/NA values. Based on past experience and the fact that we don't have "big data," we will use k-neaest neighbor (KNN) imputation, which uses a distance function to essentially predict values for missing data elements based on other records that are similar to in it for the elements that are present. Simply, if everyone on your street has two cars, we'll guess that you do two.
+
+```{r}
+bev_model_i <- as.data.frame(bev_model[, !names(bev_model) %in% c("Brand Code", "PH")])
+```
+
+```{r}
+#https://www.r-bloggers.com/missing-value-treatment/
+bev_model_impute <- knnImputation(bev_model_i, k = 10)
+bev_model_impute$pH <- bev_model$PH
+bev_model_impute$'Brand Code' <- bev_model$`Brand Code`
+```
+
+Before getting to modelling, we will split our modelling set into train and test sets.
+
+```{r}
+set.seed(3456)
+trainIndex <- createDataPartition(bev_model_impute$pH, p = .8, 
+                                  list = FALSE, 
+                                  times = 1)
+bev_model_train <- bev_model_impute[ trainIndex,]
+bev_model_test  <- bev_model_impute[-trainIndex,]
+```
+
+
+As mentioned earlier, data processing frequently includes such steps as performing a train-test split, transforming variables so that they're all on normalized scales, and removing variables that have correlation with others - or have no correlation with the dependent variables, pH in this case. As different modeling approaches handle these data issues in disparate ways, we will handle those data transformations and processing steps in the indivdual sections of model construction.
+
+## Linear Regression - Rajwant
+
+In this section, we will try to fit multiple Linear Regression MOdel and its cousins. We will especially try building :
++ Simple Linear Regression Model
++ Ridge Regression Model
++ Lasso Regression Model
++ Elastic Net Regression Model
+
+We will be doing 10 fold cross-validation,we will repeat it 5 times as per our train control parameter.
+
+### Linear Model
+
+```{r}
+metric = 'RMSE'
+head(bev_model_train )
+
+
+# Train control
+
+customTrainControl <- trainControl(method = "repeatedcv", 
+                                   number = 10 , 
+                                   repeats = 5 ,
+                                   verboseIter = F)
+#Linear Model
+lm <- train(pH ~ .,
+            bev_model_train,
+            method= 'lm',
+            trControl = customTrainControl
+          )
+
+lm$results  
+lm  # 2055 , 32 predictors,
+summary(lm)
+par(mfrow=c(2,2))
+plot(lm$finalModel)
+```
+We see the method 'lm' can explain 39 % of the data of the training set. As per the Linear Model, we see that we have 32 predictors, collected from 2055 samples. QQ plot suggests it has little variations in the beginning of the data. The residual plot shows some condensed around the zero mean lines.
+
+
+
+### Ridge Regression
+
+Ridge Regression is a technique for analyzing multiple regression data that suffer from multicollinearity. When multicollinearity occurs, least squares estimates are unbiased, but their variances are large so they may be far from the true value.
+
+With the tunning parameter, alfa= 0, and lambda is between 0 to 1, we can say that is a ridge model. This model is not sensitive to the variables that has multicollinearity.
+
+```{r}
+ # lambda = 0.00621
+ridge2 <- train(pH ~ .,
+            bev_model_train,
+            method= 'glmnet',
+            tuneGrid = expand.grid(alpha= 0,
+                                   lambda= seq(0.1,0.001,length= 20)),
+            trControl = customTrainControl)
+
+# lambda = 0.00716 
+ridge <- train(pH ~ .,
+            bev_model_train,
+            method= 'glmnet',
+            tuneGrid = expand.grid(alpha= 0,
+                                   lambda= seq(0.001,0.01,length= 20)),
+            trControl = customTrainControl)
+par(mfrow=c(1,2))
+plot(ridge, main="Ridge Model 1 ") # PLot suggest the 
+plot(ridge2, main="Ridge Model 2 ")
+
+```
+When we had lambda sequnce between 0 to 1, it was close to 0.01 or less than that, we reduced the lambda to see its impact better in model 1. We can see the Ridge model start increase the RMSE with lambda = 0.007.
+
+```{r}
+ridge  # SHows the best model my rmse and alfa as zero as we are ridge refression 
+
+plot(ridge$finalModel, xvar= "lambda",label= T)
+
+```
+When Log Lamda is big all coefficients are close to zero, but when we relax lambda,coefficients increase.As you can see we have all 35 variables used in the model coefficients even when all the coefficients are close to zero. So increasing the lamda is not helping us get away with multicollinearity attributes or any other nonsignificant variables.
+
+
+```{r}
+plot(ridge$finalModel,xvar= 'dev', label=T)
+```
+This plot very clearly says that this model only explains little more than 40% of the total data. In that too until 30%, we see a slight trend in the coefficients but after that, they have moved too much in different directions, and coefficients has increased a lot for variable 25. These variables may not be significant for the model.
+
+Let's see how the other imp. variables stand in this mdoel.
+```{r}
+
+plot(varImp(ridge,scale = T))
+plot(varImp(ridge,scale = F))
+
+```
+
+
+
+
+### Lasso Regression
+
+```{r}
+#Lasso Regression
+# IT slects feature and also drops varaibles  that has multicolinerlty 
+
+set.seed(3456)
+customTrainControl <- trainControl(method = "repeatedcv", 
+                                   number = 10 , 
+                                   repeats = 5 ,
+                                   verboseIter = F)
+lasso1 <- train(pH ~ .,
+            bev_model_train,
+            method= 'glmnet',
+            metric = metric,
+            tuneGrid = expand.grid(alpha= 1,
+                                   lambda= seq(0.0001,0.001,length= 20)),
+            trControl = customTrainControl)
+
+lasso2 <- train(pH ~ .,
+            bev_model_train,
+            method= 'glmnet',
+            metric = metric,
+            tuneGrid = expand.grid(alpha= 1,
+                                   lambda= seq(0.001,0.0001,length= 20)),
+            trControl = customTrainControl)
+lasso3 <- train(pH ~ .,
+            bev_model_train,
+            method= 'glmnet',
+            metric = metric,
+            tuneGrid = expand.grid(alpha= 1,
+                                   lambda= seq(0.001,0.00005,length= 20)),
+            trControl = customTrainControl)
+
+lasso4 <- train(pH ~ .,
+            bev_model_train,
+            method= 'glmnet',
+            metric = metric,
+            tuneGrid = expand.grid(alpha= 1,
+                                   lambda= seq(0.00001,0.00003,length= 20)),
+            trControl = customTrainControl)
+
+plot(lasso1)
+plot(lasso2)
+plot(lasso3) # PLot suggest the 
+plot(lasso4)
+
+
+lasso1$bestTune
+lasso4$bestTune
+lasso<- lasso4
+lasso  # SHows the best model my rmse and alfa as zero as we are ridge refression 
+
+```
+
+With alpha = 1 and lambda = 3e-05	, we selected lasso model, after multiple model tuning .
+
+
+```{r}
+par(mfrow=c(2,2))
+plot(ridge$finalModel,xvar= 'lambda', label=T,main="Ridge Model Lambda")
+plot(ridge$finalModel,xvar= 'dev', label=T,main="Ridge Model Deviance")
+plot(lasso$finalModel, xvar= "lambda",label= T,main="Lasso Model Lambda")
+plot(lasso$finalModel,xvar= 'dev', label=T,main="Lasso Model Deviance")
+
+
+
+```
+
+We can see that we have 25 variables when log lambda is -6, and it increases fast to log lambda go further down. Similarly, fraction deviance shows both models can explain 40% of the data but the number of coefficients increases at the end but max it goes to 27 variables.  With 9 variables we can explain 30% of the data with Lasso model.
+
+Imp variables from this model:
+```{r}
+plot(varImp(lasso,scale = T))
+plot(varImp(lasso,scale = F))
+```
+
+
+### Elastic Net Model
+
+Let's apply the Elastic Net model where we can tune both the parameter i.e. Alpha and Lambda. So our model can give us a hybrid model and best performance. 
+ 
+```{r}
+
+
+en1 <- train(pH ~ .,
+            bev_model_train,
+            method= 'glmnet',
+           
+            tuneGrid = expand.grid(alpha= seq(0.001,0.01,length=10),
+                                   lambda= seq(0.00001,0.00003,length= 10)),
+            trControl = customTrainControl)
+
+
+
+
+en2 <- train(pH ~ .,
+            bev_model_train,
+            method= 'glmnet',
+            preProcess = c("center", "scale"),
+            tuneGrid = expand.grid(alpha= seq(0.001,0.01,length=10),
+                                   lambda= seq(0.00001,0.00003,length= 10)),
+            trControl = customTrainControl)
+
+
+
+en3 <- train(pH ~ .,
+            bev_model_train,
+            method= 'glmnet',
+            metric = metric,
+            tuneGrid = expand.grid(alpha= seq(0,0.1,length=10),
+                                   lambda= seq(0.00001,0.00003,length= 10)),
+            trControl = customTrainControl)
+en <- en1
+
+par(mfrow=c(2,2))
+plot(en1)
+plot(en2)
+plot(en3) # PLot suggest the 
+
+en1$bestTune
+en2$bestTune
+en3$bestTune
+
+# As we can see the best tune is close to 0.00003 for lambda and alpha is 0.009 , We choose to see how these models look.
+
+```
+
+
+The above plot suggests how the mixing parameter is changing for each regularization parameter and its impact on RMSE. We note from the last plot that alpha of 0.009 and lambda = 3e-05 is the best-tunned parameter of the elastic net model.
+
+
+```{r}
+par(mfrow=c(2,2))
+plot(ridge$finalModel,xvar= 'dev', label=T,main="Ridge Deviance")
+plot(ridge$finalModel, xvar= "lambda",label= T,main="Ridge  Lambda")
+plot(en1$finalModel,xvar= 'dev', label=T,main="Elastic Net Deviance")
+plot(en1$finalModel, xvar= "lambda",label= T,main="Elastic Net Lambda")
+
+```
+
+For elastic net model when log lambda =2 coefficients is close to zero, when it's close to -2 it is having 29 variables and coefficients starts increasing rapidly. after log lambda crosses -4. Variable 25 which would have less impact on the model as it's increasing very fast after log lambda is equal to -2.3.
+
+We don't' see many variations in the rsquired, this model seems to explain little more than 40% of the data, which is the same trend we have seen with the Lasso and Ridge model.
+
+Let's see impo variables:
+
+```{r}
+plot(varImp(en1,scale = T))
+plot(varImp(en1,scale = F))
+```
+
+
+```{r}
+
+model_list <- list(Linearmodel = lm, Ridge = ridge , Lasso = lasso4, 
+                   ElasticNet= en1,
+                   ElasticNet2 = en2, 
+                   ElasticNet3= en3 )
+res <- resamples(model_list)
+summary(res)
+
+```
+
+We can very clearly see that R-squared is better with close to 39.75 with the en1 model, but its Mean RMSE is not the winner but we would choose the en1 model due to its better Mean R-squared value.
+
+### Best model
+
+```{r}
+en1$bestTune #$ 0.009 can be said to be more of close to zero , and its more of ridgw modwl.
+finalLMe<- en1$finalModel
+coef(finalLMe,s= en1$bestTune$lambda)
+bwplot(res)
+xyplot(res,metric = "RMSE")
+
+```
+
+There is an equal number of datapoint above and below the line which suggests that RMSE for LM and Ridge model is almost the same.
+
+
+### Top 5 Variables
+```{r}
+
+getRank <- function(trainObjects,n=5){
+  cn = 0
+  temp <- c()
+  methods <- c()
+  for(object in trainObjects){
+    
+        methods <- c(methods, object$method)
+        varimp <- varImp(object)[[1]]
+        varimp$variables <- row.names(varimp)
+        rank <- varimp[order(varimp$Overall, decreasing = T),] %>% row.names()
+        temp <- cbind(temp[1:5], rank[1:5])
+  }
+  temp <- as.data.frame(temp)
+  names(temp) <- methods
+  temp$Rank <- c(1:dim(temp)[1])
+  temp <- select(temp, Rank, everything())
+  return(temp)
+}
+
+getRank(list(lm))
+getRank(list(lasso))
+getRank(list(ridge))
+getRank(list(en1))
+
+plot(varImp(lm, scale=T), main='Variable Importance based on Linear Model')
+
+
+```
+
+### Test from the training set
+
+```{r}
+
+# Train data Test set 
+X_test <- bev_model_test[,-32] # Dropped PH
+Y_test <- bev_model_test[,32] # Only PH
+
+test_model <- function(modelName,predData){
+options(warn=-1)      #turn off warnings
+predicted_result <- predict(modelName, predData)
+options(warn=1)  
+
+#We can collect the observed and predicted values into a data frame, then use
+# the caret function defaultSummary to estimate the test set performance
+DT_model_lm_pred <- data.frame(obs=Y_test,pred=predicted_result)
+res_sum <- defaultSummary(DT_model_lm_pred)
+mape_score <- MLmetrics::MAPE(predicted_result,Y_test)
+return(cbind(res_sum,mape_score))
+}
+# 
+# kable(list(test_model(lm,X_test),
+#       test_model(ridge,X_test),
+#       test_model(lasso,X_test),
+#       test_model(en,X_test)
+#       ))
+
+
+
+data.frame("LM Model"= defaultSummary(data.frame(obs=Y_test,pred=predict(lm, X_test))),"MAPE" =  MLmetrics::MAPE(predict(lm, X_test),Y_test))
+
+data.frame("Ridge Model"= defaultSummary(data.frame(obs=Y_test,pred=predict(ridge, X_test))),"MAPE" =  MLmetrics::MAPE(predict(ridge, X_test),Y_test))
+
+data.frame("Lasso Model"= defaultSummary(data.frame(obs=Y_test,pred=predict(lasso, X_test))),"MAPE" =  MLmetrics::MAPE(predict(lasso, X_test),Y_test))
+
+
+data.frame("Elastic Net"= defaultSummary(data.frame(obs=Y_test,pred=predict(en, X_test))),"MAPE" =  MLmetrics::MAPE(predict(en, X_test),Y_test))
+
+
+```
+
+Elastic net model seems to be having a better MAPE score of 0.0116. Let's use the en model to check the test set.
+
+### Test with Given Test set
+```{r}
+
+# Score data 
+X_Stest <- bev_score[,-26] # Dropped PH
+Y_Stest <- bev_score[,26] # Only PH
+
+en_lm_result<- predict(en,X_Stest)
+
+# Plots to show that how 
+par(mfrow=c(2,2))
+plot(Y_test,main='Plot of Ph from Train data')
+plot(en_lm_result,main='Plot Ph from Predicted data')
+boxplot(Y_test,label="sad",main='Boxplot of Ph from Train data')
+boxplot(as.data.frame(en_lm_result)[,c(1)],main='Boxplot of Predicted Ph test data')
+
+
+# Write to file 
+# xlsx::write.xlsx(as.data.frame(en_lm_result)[,c(1)], file = "Project2_lm.xlsx",  col.name = T, row.names = T, append = T)
+
+
+```
+
+
+
+
+## Nonlinear Regression - Jimmy
+
+## Regression Trees and Rule-Based Models - Samriti
+
+
+In this section, we will try to fit regression trees and rule based mOdels :
+
++ Random forest tree-based model
+Ranger is a fast implementation of random forests (Breiman 2001) or recursive partitioning, particularly suited for high dimensional data. Classification, regression, and survival forests are supported. 
+
++ Gradient Boosting Tree
+Exterme is built on the principles of gradient boosting framework and designed to “push the extreme of the computation limits of machines to provide a scalable, portable and accurate library.
+ 
+Random forest tree-based model
+```{r}
+
+model <- readxl::read_excel('StudentData_TO_MODEL.xlsx',col_names = TRUE, sheet = 'Subset')
+score <- readxl::read_excel('StudentEvaluation_TO_PREDICT.xlsx',col_names = TRUE, sheet = 'Subset (2)')
+
+set.seed(3456)
+
+setDT(model)
+setDT(score)
+
+
+
+# dependent variable 
+trainY <- model$PH
+
+
+
+# Data processing
+trainDummy <- dummyVars(PH ~ ., data = model, fullRank = TRUE)
+trainX <- as.data.table(predict(trainDummy, newdata = model))
+predX <- as.data.table(predict(trainDummy, newdata = score))
+
+
+# Find missing values
+missingDat <- model[, lapply(.SD, function(x) sum(is.na(x)))]
+missingTgt <- missingDat$PH
+missingTgtLoc <- which(is.na(trainY))
+
+# Remove the missing values from the training and test sets
+trainX <- trainX[-missingTgtLoc, ]
+trainY <- trainY[-missingTgtLoc]
+
+
+tSplits <- createDataPartition(trainY, p = 0.75)
+X_Train <- trainX[tSplits$Resample1, ]
+X_test <- trainX[-tSplits$Resample1, ]
+Y_Train <- trainY[tSplits$Resample1]
+Y_test <- trainY[-tSplits$Resample1]
+
+
+fitControl <- trainControl(method = "repeatedcv", number = 5L, repeats = 3L,
+                           allowParallel = TRUE)
+
+# detect number of cores for clusters for parallel processing
+no_cores <- detectCores() * 0.75
+
+no_cluster <- makePSOCKcluster(no_cores)
+registerDoParallel(no_cluster)
+rfGrid <- expand.grid(mtry = 31:34,
+                      splitrule = 'extratrees',
+                      min.node.size = 5)
+set.seed(3456)
+
+rfmodel <- train(x = X_Train, y = Y_Train, method = 'ranger',
+               preProcess = c('nzv', 'knnImpute'), trControl = fitControl,
+               tuneGrid = rfGrid, importance = 'impurity')
+
+pred_RF <-  predict(rfmodel, newdata = X_test) 
+
+write.csv(pred_RF, file = "RF_prediction_for_PH.csv", row.names = FALSE)
+
+stopCluster(no_cluster)
+
+```
+
+# Extreme Gradient Boosting Tree
+```{r}
+no_cluster <- makePSOCKcluster(no_cores)
+registerDoParallel(no_cluster)
+x_gbTGrid <- expand.grid(max_depth = 8:9, nrounds = 430,
+                        eta = 0.082,
+                        colsample_bytree = 0.826,
+                        min_child_weight = 1,
+                        subsample = 1,
+                        gamma = 0)
+set.seed(3456)
+xgbTFit <- train(x = X_Train, y = Y_Train, method = 'xgbTree',
+               preProcess = c('nzv', 'knnImpute'), trControl = fitControl,
+               tuneGrid = x_gbTGrid)
+
+pred_XGB <-  predict(xgbTFit, newdata = X_test) 
+
+
+stopCluster(no_cluster)
+```
+
+Model Comparison
+```{r}
+
+data.frame("Extreme Gradient Boosting"= defaultSummary(data.frame(obs=Y_test,pred=predict(xgbTFit, X_test))),"MAPE" =  MLmetrics::MAPE(predict(xgbTFit, X_test),Y_test))
+
+data.frame("Random Forest"= defaultSummary(data.frame(obs=Y_test,pred=predict(rfmodel, X_test))),"MAPE" =  MLmetrics::MAPE(predict(rfmodel, X_test),Y_test))
+```
+The performance of these models are very similar, but Random forest seems to do slightly better than Extreme Gradient Boosting. 
+
+
+
+ 
+## Conclusion - Alain
+
+## References
+
+https://readxl.tidyverse.org/
+
+https://www.rdocumentation.org/packages/DataExplorer/versions/0.8.1/topics/plot_missing
+
+https://datascience.stackexchange.com/questions/24452/in-supervised-learning-why-is-it-bad-to-have-correlated-features#:~:text=The%20stronger%20the%20correlation%2C%20the,tend%20to%20change%20in%20unison
+
+https://medium.com/coinmonks/dealing-with-missing-data-using-r-3ae428da2d17
+
+https://www.r-bloggers.com/missing-value-treatment/
+
+https://stackoverflow.com/questions/51548255/caret-there-were-missing-values-in-resampled-performance-measures  < Why we get NA for predict R squared for lasso regression.
+GET | 302 | 146 ms | GitHub.com
+GET | 200 | 458 ms

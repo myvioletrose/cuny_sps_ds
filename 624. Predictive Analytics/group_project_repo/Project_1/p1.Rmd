@@ -1,0 +1,532 @@
+---
+title: "P1"
+author: "Rajwant Mishra"
+date: "June 20, 2020"
+output: html_document
+---
+Requirement #1
+You will turn in a written report.  You need to write this report as if it the report will be routed in an office to personnel of vary different backgrounds.  You need to be able to reach readers that have no data science background to full fledge data scientists. So, you need to explain what you have done, why and how you did it with both layman and technical terminology.  Do not simply write this with me in mind.  Visuals and output are expected, but it is not necessary to include every bit of analysis.  In fact, a terse report with simple terminology is preferred to throwing in everything into a long, ad nausem report.  Story telling is really taking on for data science, so please flex your muscles here.  The report is part 1 of 2 requirements.  
+
+NOTE: We have covered a lot of material.  I don't want you to try every method to create your forecast.  But you should perform fundamentals, visualize your data, and perform exploratory data analysis as appropriate.  
+
+Requirement #2 
+Your second requirement is to produce forecasts.  This workbook will contain at least 6 sheets where I will calculate your error rates.  There will be one sheet (tab) for each Group - S01, S02, S03, SO4, S05, S06.  You should order each sheet by the variable SeriesIND (low to high).  Your source data is sorted this way, except there are all 6 groups present in one sheet which you must break out into 6 tabs.  You will submit the data I sent AND the forward forecast for 140 periods.  I want you to forecast the following
+
+
+  + S01 - Forecast  Var01, Var02
+  + S02 - Forecast  Var02, Var03
+  + S03 - Forecast  Var05, Var07
+  + S04 - Forecast  Var01, Var02
+  + S05 - Forecast  Var02, Var03
+  + S06 - Forecast  Var05, Var07
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
+library(tidyverse)
+# install.packages("imputeTS")
+library(imputeTS) # Imputing NA \
+library(xts)  # for TS object
+library(forecast) # for Forecast
+
+```
+
+```{r}
+full_data <- readxl::read_excel(path='Data Set for Class.xls')
+
+head(full_data)
+
+
+# For simplicity lets convert SeriesInd to date. by setting Origin of date to 1900 Jan 1st.
+
+
+print(paste("Start Of Data:",as.Date(min(full_data$SeriesInd) , origin = "1900-01-01")))
+print(paste("End Of Data:",as.Date(max(full_data$SeriesInd) , origin = "1900-01-01")))
+print(paste("Forecast from :",as.Date(max(full_data$SeriesInd)+1 , origin = "1900-01-01")," TO ",as.Date(max(full_data$SeriesInd)+140 , origin = "1900-01-01")))
+
+full_data$SeriesInd <- as.Date(full_data$SeriesInd, origin = "1900-01-01")
+
+head(full_data)
+```
+```{r}
+
+
+
+# Get the full date range for the data 
+
+allDates <- seq.Date(
+  min(full_data$SeriesInd),
+  max(full_data$SeriesInd),
+  "day")
+
+# creating NA for missing data entry in full data.
+
+full_data_na <- left_join(as.data.frame(allDates),full_data,by=c("allDates"= "SeriesInd"))
+
+# subset(full_data[,c(1,2,3)], group == "S01")%>% .[,c(1,3)]  %>% left_join(as.data.frame(allDates),.,by=c("allDates"= "SeriesInd"))
+# 
+# 
+# subset(full_data[,c(1,2,3)], group == "S02")%>% .[,c(1,3)]  %>% left_join(as.data.frame(allDates),.,by=c("allDates"= "SeriesInd"))
+
+# 
+# full_data_na %>% filter(.,group=="S01") %>% .[,c(1,3)] %>% plot()
+# 
+#   
+# #+geom_col(position="dodge", alpha=0.5) 
+# 
+# 
+# dt_s06_v1 %>% ggplot(aes(x=allDates, y= Var01))+  geom_line()
+# 
+# 
+# 
+# full_data_na[,c(1,3)]plot()
+```
+
++  Here we breaking data by each Group and variable
+- Keep Only Date and Variables value
+- Merge with Full Range of Dates to see if we have any NA in the data 
+```{r}
+# Creating a subset of date for each Group and Varible. 
+dt_s01_v1 = subset(full_data[,c(1,2,3)], group == "S01")%>% .[,c(1,3)]%>% left_join(as.data.frame(allDates),.,by=c("allDates"= "SeriesInd"))
+dt_s01_v2 = subset(full_data[,c(1,2,4)], group == "S01")%>% .[,c(1,3)]%>% left_join(as.data.frame(allDates),.,by=c("allDates"= "SeriesInd"))
+dt_s01_v3 = subset(full_data[,c(1,2,5)], group == "S01")%>% .[,c(1,3)]%>% left_join(as.data.frame(allDates),.,by=c("allDates"= "SeriesInd"))
+dt_s01_v5 = subset(full_data[,c(1,2,6)], group == "S01")%>% .[,c(1,3)]%>% left_join(as.data.frame(allDates),.,by=c("allDates"= "SeriesInd"))
+dt_s01_v7 = subset(full_data[,c(1,2,7)], group == "S01")%>% .[,c(1,3)]%>% left_join(as.data.frame(allDates),.,by=c("allDates"= "SeriesInd"))
+
+dt_s02_v1 = subset(full_data[,c(1,2,3)], group == "S02")%>% .[,c(1,3)]%>% left_join(as.data.frame(allDates),.,by=c("allDates"= "SeriesInd"))
+dt_s02_v2= subset(full_data[,c(1,2,4)], group == "S02")%>% .[,c(1,3)]%>% left_join(as.data.frame(allDates),.,by=c("allDates"= "SeriesInd"))
+dt_s02_v3= subset(full_data[,c(1,2,5)], group == "S02")%>% .[,c(1,3)]%>% left_join(as.data.frame(allDates),.,by=c("allDates"= "SeriesInd"))
+dt_s02_v5= subset(full_data[,c(1,2,6)], group == "S02")%>% .[,c(1,3)]%>% left_join(as.data.frame(allDates),.,by=c("allDates"= "SeriesInd"))
+dt_s02_v7= subset(full_data[,c(1,2,7)], group == "S02")%>% .[,c(1,3)]%>% left_join(as.data.frame(allDates),.,by=c("allDates"= "SeriesInd"))
+
+dt_s03_v1 = subset(full_data[,c(1,2,3)], group == "S03")%>% .[,c(1,3)]%>% left_join(as.data.frame(allDates),.,by=c("allDates"= "SeriesInd"))
+dt_s03_v2 = subset(full_data[,c(1,2,4)], group == "S03")%>% .[,c(1,3)]%>% left_join(as.data.frame(allDates),.,by=c("allDates"= "SeriesInd"))
+dt_s03_v3 = subset(full_data[,c(1,2,5)], group == "S03")%>% .[,c(1,3)]%>% left_join(as.data.frame(allDates),.,by=c("allDates"= "SeriesInd"))
+dt_s03_v5 = subset(full_data[,c(1,2,6)], group == "S03")%>% .[,c(1,3)]%>% left_join(as.data.frame(allDates),.,by=c("allDates"= "SeriesInd"))
+dt_s03_v7 = subset(full_data[,c(1,2,7)], group == "S03")%>% .[,c(1,3)]%>% left_join(as.data.frame(allDates),.,by=c("allDates"= "SeriesInd"))
+
+dt_s04_v1 = subset(full_data[,c(1,2,3)], group == "S04")%>% .[,c(1,3)]%>% left_join(as.data.frame(allDates),.,by=c("allDates"= "SeriesInd"))
+dt_s04_v2= subset(full_data[,c(1,2,4)], group == "S04")%>% .[,c(1,3)]%>% left_join(as.data.frame(allDates),.,by=c("allDates"= "SeriesInd"))
+dt_s04_v3= subset(full_data[,c(1,2,5)], group == "S04")%>% .[,c(1,3)]%>% left_join(as.data.frame(allDates),.,by=c("allDates"= "SeriesInd"))
+dt_s04_v5= subset(full_data[,c(1,2,6)], group == "S04")%>% .[,c(1,3)]%>% left_join(as.data.frame(allDates),.,by=c("allDates"= "SeriesInd"))
+dt_s04_v7= subset(full_data[,c(1,2,7)], group == "S04")%>% .[,c(1,3)]%>% left_join(as.data.frame(allDates),.,by=c("allDates"= "SeriesInd"))
+
+dt_s05_v1 = subset(full_data[,c(1,2,3)], group == "S04")%>% .[,c(1,3)]%>% left_join(as.data.frame(allDates),.,by=c("allDates"= "SeriesInd"))
+dt_s05_v2 = subset(full_data[,c(1,2,4)], group == "S05")%>% .[,c(1,3)]%>% left_join(as.data.frame(allDates),.,by=c("allDates"= "SeriesInd"))
+dt_s05_v3 = subset(full_data[,c(1,2,5)], group == "S05")%>% .[,c(1,3)]%>% left_join(as.data.frame(allDates),.,by=c("allDates"= "SeriesInd"))
+dt_s05_v5 = subset(full_data[,c(1,2,6)], group == "S05")%>% .[,c(1,3)]%>% left_join(as.data.frame(allDates),.,by=c("allDates"= "SeriesInd"))
+dt_s05_v7 = subset(full_data[,c(1,2,7)], group == "S05")%>% .[,c(1,3)]%>% left_join(as.data.frame(allDates),.,by=c("allDates"= "SeriesInd"))
+
+dt_s06_v1 = subset(full_data[,c(1,2,3)], group == "S06")%>% .[,c(1,3)]%>% left_join(as.data.frame(allDates),.,by=c("allDates"= "SeriesInd"))
+dt_s06_v2 = subset(full_data[,c(1,2,4)], group == "S06")%>% .[,c(1,3)]%>% left_join(as.data.frame(allDates),.,by=c("allDates"= "SeriesInd"))
+dt_s06_v3 = subset(full_data[,c(1,2,5)], group == "S06")%>% .[,c(1,3)]%>% left_join(as.data.frame(allDates),.,by=c("allDates"= "SeriesInd"))
+dt_s06_v5 = subset(full_data[,c(1,2,6)], group == "S06")%>% .[,c(1,3)]%>% left_join(as.data.frame(allDates),.,by=c("allDates"= "SeriesInd"))
+dt_s06_v7 = subset(full_data[,c(1,2,7)], group == "S06")%>% .[,c(1,3)]%>% left_join(as.data.frame(allDates),.,by=c("allDates"= "SeriesInd"))
+
+
+
+```
+
+```{r}
+
+# Plot FUll data with groups and see how does data looks.
+full_data_na %>%
+ggplot(aes(x=allDates, y= Var01,fill=group)) +  
+  geom_line(aes(colour=group)) +
+  ggtitle("Line plot for all the Groups in series") +  
+  xlab("Year") + 
+  ylab("Value") 
+
+
+full_data_na %>% ggplot(aes(x=group, y= Var01,fill=group)) + geom_boxplot(position = "dodge") + theme(axis.text.x = element_text(angle = 30, hjust = 1)) + labs(title = "Boxplot of Series by Group ")+ ylim(0,200) + xlab( "Group")
+
+
+# just checking one Group line plot
+dt_s06_v1 %>% ggplot(aes(x=allDates, y= Var01))+  geom_line()
+```
+We can very clearly see that we have some outlier in Series S06 and Series S02.We will validate this with latter using which.max(<ts object>). We noted that we have around 1631 values missing, which we have replaced with "NA" in above data preparation.
+```{r}
+
+full_data_na$group <-  as.factor(full_data_na$group) 
+summary(full_data_na )
+str(full_data_na)
+```
+
+```{r}
+summary(dt_s01_v1)
+summary(dt_s01_v2)
+summary(dt_s01_v3)
+summary(dt_s01_v5)
+summary(dt_s01_v7)
+
+
+```
+
+# Group S01
+
+Below plots suggest there is some increasing tend with respect to all the varaible in Group S01, except Var02. which seems to staty normal with no trend at the major half of the datapoints.
+
+```{r}
+
+
+plot(dt_s01_v1)
+plot(dt_s01_v2)
+plot(dt_s01_v3)
+plot(dt_s01_v5)
+plot(dt_s01_v7)
+
+
+```
+
+
+
+# working with NA in the data and creating xts object 
+
+```{r}
+dt_s01_v1_xts <- xts(c(dt_s01_v1$Var01),  order.by=as.Date(dt_s01_v1$allDates))%>% na.approx()
+dt_s01_v2_xts <- xts(c(dt_s01_v2$Var02),  order.by=as.Date(dt_s01_v2$allDates))%>% na.approx()
+dt_s01_v3_xts <- xts(c(dt_s01_v3$Var03),  order.by=as.Date(dt_s01_v3$allDates))%>% na.approx()
+dt_s01_v5_xts <- xts(c(dt_s01_v5$Var05),  order.by=as.Date(dt_s01_v5$allDates))%>% na.approx()
+dt_s01_v7_xts <- xts(c(dt_s01_v7$Var07),  order.by=as.Date(dt_s01_v7$allDates))%>% na.approx()
+
+
+
+# View of some differnet imputation methods and their values.  
+cbind("Value"=dt_s01_v1$Var01,
+      "na.interp"=na.interp(dt_s01_v1$Var01),
+      "na.approx"=na_seadec(dt_s01_v1$Var01),
+      "na.kalman"=na.kalman(dt_s01_v1$Var01),
+      "na.interpolation"=na.interpolation(dt_s01_v1$Var01)
+      
+      ) %>% 
+  head(.,20)
+
+
+```
+
+We will use na.interp to fill the missing value for all NA in our dataset. Below graph suggest how the imputed NA values are flowing with the rest of the data.
+```{r}
+# 
+# na.approx(dt_s01_v1_xts) %>% autoplot()
+
+# Plot NA and Actaul Data for Var1 of Group S01
+  autoplot(na.interp(as.ts(dt_s01_v1_xts)) , series="na.approx") + 
+  autolayer(as.ts(dt_s01_v1_xts),series="Data")+
+  scale_colour_manual(values=c("blue","red"),
+             breaks=c("na.approx","Data"))
+
+
+
+
+
+```
+
+Above plots shows how imputed values and other data points are flowing over time. Lets impute rest of the data.
+
+
+```{r}
+dt_s01_v1_xts <- xts(c(dt_s01_v1$Var01),  order.by=as.Date(dt_s01_v1$allDates)) %>% na.approx()
+dt_s01_v2_xts <- xts(c(dt_s01_v2$Var02),  order.by=as.Date(dt_s01_v2$allDates))%>% na.approx()
+dt_s01_v3_xts <- xts(c(dt_s01_v3$Var03),  order.by=as.Date(dt_s01_v3$allDates))%>% na.approx()
+dt_s01_v5_xts <- xts(c(dt_s01_v5$Var05),  order.by=as.Date(dt_s01_v5$allDates))%>% na.approx()
+dt_s01_v7_xts <- xts(c(dt_s01_v7$Var07),  order.by=as.Date(dt_s01_v7$allDates))%>% na.approx()
+
+
+cbind(dt_s01_v1[1:10,], as.data.frame(dt_s01_v1_xts[][1:10]))
+```
+
+
+```{r}
+
+# Plot ACF and PACF
+par(mfrow=c(1,2))    # set the plotting area into a 1*2 array
+acf(dt_s01_v1_xts)
+pacf(dt_s01_v1_xts)
+
+par(mfrow=c(1,2)) 
+acf(dt_s01_v2_xts)
+pacf(dt_s01_v2_xts)
+
+par(mfrow=c(1,2)) 
+acf(dt_s01_v3_xts)
+pacf(dt_s01_v3_xts)
+
+par(mfrow=c(1,2)) 
+acf(dt_s01_v5_xts)
+pacf(dt_s01_v5_xts)
+
+par(mfrow=c(1,2)) 
+acf(dt_s01_v7_xts)
+pacf(dt_s01_v7_xts)
+
+dt_s01_v7_xts %>% ggtsdisplay(main="")
+
+
+```
+
+Since ACF plots very slowly moving towards ZERO for all the variables, we can say that our data series are non-stationary.
+
+Let's use Differencing to make data stationary. We will use KPSS test to see if our null hypothesis is false.
+
+```{r}
+library(urca)
+dt_s01_v1_xts %>% ur.kpss() %>% summary()
+
+# Fickey fuller test Before and after diff
+dt_s01_v1_xts %>% ur.df() %>% summary()
+
+
+
+```
+
+SO very cleary our data is not stationary , lets apply difference and see if we can reduce test-statistic to <= 1%.
+
+```{r}
+
+dt_s01_v1_xts %>% diff() %>% ur.kpss() %>% summary()
+dt_s01_v1_xts %>% diff() %>% .[!is.na(.)] %>% ur.df() %>% summary()
+dt_s01_v1_xts %>% diff() %>% .[!is.na(.)] %>% tseries::adf.test()
+
+
+cbind("Main Data S01_V1"= dt_s01_v1_xts,
+      "Seasonlly Diff"= (diff(dt_s01_v1_xts,na.action = na.pass ))) %>% autoplot()
+
+
+
+```
+Value of test-statistic is: 0.1004, which can be accepted to have stationary data for our series. We will use ndiffs() to find rest of the number of differenes.
+
+```{r}
+
+par(mfrow=c(1,2)) 
+acf(diff(dt_s01_v1_xts ),na.action = na.pass)
+pacf(diff(dt_s01_v1_xts ),na.action = na.pass)
+
+```
+
+Above ACF plots suggest that data for variale 1 is more corrleated with 1st lag, i.e. first order MA model can be used to define such data after applying difference on the data. 
+PACF plots shows so many significant PACF values, so we would have to consider too many varaibles for AR model , which would make it comaplicated. Hennce we are going to use MA first order model. 
+
+
+```{r}
+ndiffs(dt_s01_v1_xts)
+ndiffs(dt_s01_v2_xts)
+ndiffs(dt_s01_v3_xts)
+ndiffs(dt_s01_v5_xts)
+ndiffs(dt_s01_v7_xts)
+
+```
+```{r}
+
+```
+
+
+ # Lets use auto.arima to validate our model and fir it.
+
+```{r}
+
+aa_fit_dt_s01_v1 <- auto.arima(dt_s01_v1_xts)
+summary(aa_fit_dt_s01_v1)
+
+```
+
+```{r}
+
+# aa_fit_dt_s01_v1 %>% forecast(h=140)
+
+coef(aa_fit_dt_s01_v1)
+
+
+```
+
+
+```{r}
+
+# ACF plot of residuals 
+checkresiduals(aa_fit_dt_s01_v1)
+acf(resid(aa_fit_dt_s01_v1))
+pacf(aa_fit_dt_s01_v1$residuals)
+
+Box.test(aa_fit_dt_s01_v1$residuals, lag=30,type = 'Ljung-Box')
+
+# ACF plot of the residuals are white noise, as no prominent patterns can be seen here. 
+# The Ljung-Box test also returned High p-vlaue indicating that we can't reject the null hypothessis, and data is  white nosie.
+
+
+```
+
+```{r}
+forecast(aa_fit_dt_s01_v1,h=140) %>% autoplot()
+Fore_dt_s01_v1<- forecast(aa_fit_dt_s01_v1,h=140)
+
+autoplot(aa_fit_dt_s01_v1)
+# inverse characteristic roots for Armia(0,1,1) model fitted to adjsuted data, with red dots are well within the  unit circle, Since the red point is not close to unit cirle may not gurentee better fit of the model. 
+
+```
+
+```{r}
+Fore_dt_s01_v1
+```
+## Extra v01
+```{r}
+
+lambda1 <- BoxCox.lambda(diff(dt_s01_v1_xts))
+dt_s01_v1_xts_t <- BoxCox((dt_s01_v1_xts),lambda1)
+auto.arima(dt_s01_v1_xts_t,stepwise = F, approximation = F, d = 0)
+decompose(ts(dt_s01_v1_xts,frequency=365)) %>% autoplot()
+
+auto.arima(ts(dt_s01_v1_xts,frequency=365))
+auto.arima(ts(dt_s01_v1_xts))
+auto.arima(log(dt_s01_v1_xts))
+
+autoplot(ts(dt_s01_v1_xts,frequency=365), series="Data") +
+  autolayer(trendcycle(decompose(ts(dt_s01_v1_xts,frequency=365))), series="Trend") +
+  autolayer(seasadj(decompose(ts(dt_s01_v1_xts,frequency=365))), series="Seasonally Adjusted") +
+  xlab("Year") + ylab("Plastic Sale of Product A") +
+  ggtitle("Plastic Sale of Product A") +
+  scale_colour_manual(values=c("orange","blue","red"),
+             breaks=c("Data","Seasonally Adjusted","Trend"))
+```
+
+# Varaible 02
+
+```{r}
+
+
+ # Plot NA and Actaul Data for Var1 of Group S01
+  autoplot(as.ts(dt_s01_v2_xts) , series="V02") + 
+  autolayer(log(as.ts(dt_s01_v2_xts)),series="Data")+
+  scale_colour_manual(values=c("blue","red"),
+             breaks=c("V02","Data"))
+
+# ACF and PACF plot 
+dt_s01_v2_xts %>% ggtsdisplay(main="",lag.max = 365)
+dt_s01_v2_xts %>% ggtsdisplay(main="")
+# PACF plot suggest too much variations which are not close to zero, Let try doing some log tranfartion and check .Non zero autocorreations in the data from lag 1 to 35.
+# Acf plots shows that plots has some strong coreatlion in the frist few lags then it is very is of random walk model, but slowly it exibits Moderate Autocorrelation . 
+
+#https://www.statisticshowto.com/kpss-test/
+# The Kwiatkowski-Phillips-Schmidt-Shin (KPSS) test figures out if a time series is stationary around a mean or linear trend, or is non-stationary due to a unit root. A stationary time series is one where statistical properties - like the mean and variance - are constant over time.
+
+# The null hypothesis for the test is that the data is stationary.
+# The alternate hypothesis for the test is that the data is not stationary.
+
+
+dt_s01_v2_xts %>% ur.kpss() %>% summary()
+# The null hypothesis for the test is that the data is stationary.
+# Here you should reject the null hypothesis of stationarity as the value of the test statistic is more extreme than the 10%, 5% and 1% critical values (13.4497 >  0.347 , 13.4497 > 0.463, 13.4497 > 0.739).
+# we will reject the null and accpet the alternate .
+
+dt_s01_v2_xts %>% diff() %>% ur.kpss() %>% summary()
+# Since as the value of the test statistic = 0.003 is less than than the 10%, 5% and 1% critical values (0.003 >  0.347 , 0.003 > 0.463, 0.003 > 0.739). We can say that data is now stationary.
+
+dt_s01_v2_xts %>% log() %>%diff() %>% ur.kpss() %>% summary()
+
+dt_s01_v2_xts %>%  .[!is.na(.)] %>% ur.df() %>% summary()
+dt_s01_v2_xts %>% log() %>%diff() %>%  .[!is.na(.)] %>% ur.df() %>% summary()
+
+
+# Plot 
+cbind("Main Data S01_V1"= log(dt_s01_v2_xts),
+      "Seasonlly Diff"= (diff(log(dt_s01_v2_xts),na.action = na.pass ))) %>% autoplot()
+
+cbind("Main Data S01_V2"= log(dt_s01_v2_xts))  %>% autoplot()
+cbind("Main Data S01_V2"= diff(log(dt_s01_v2_xts)))  %>% autoplot(series="ASA")
+
+autoplot((as.ts(log(dt_s01_v2_xts))) , series="Log Data") + 
+  autolayer(diff(as.ts(log(dt_s01_v2_xts))),series="Diff Log")+
+  scale_colour_manual(values=c("blue","red"),
+             breaks=c("Log Data","Diff Log"))
+
+#ACF Model 
+dt_s01_v2_xts %>% ggtsdisplay(main="")
+dt_s01_v2_xts %>% ggtsdisplay(main="",lag.max = 365)
+
+diff(log(dt_s01_v2_xts)) %>% ggtsdisplay(main="")
+
+diff(log(dt_s01_v2_xts),lag = 35) %>% ggtsdisplay(main="")
+
+# ACF plot suggest that after 3 lag data is moslty neagativily auto correalted to zero mean. This suggest we can apply 
+# Negative ACF means that a positive value return for one observation increases the probability of having a negative value return for another observation (depending on the lag) and vice-versa. Or you can say (for a stationary time series) if one observation is above the average the other one (depending on the lag) is below average and vice-versa. Have a look at "Interpreting a negative autocorrelation".
+# A negative autocorrelation changes the direction of the influence. A negative autocorrelation implies that if a particular value is above average the next value (or for that matter the previous value) is more likely to be below average. If a particular value is below average, the next value is likely to be above average.
+#http://www.pmean.com/09/NegativeAutocorrelation.html
+
+ #We will use ndiffs() to find rest of the number of differenes.
+
+ndiffs(dt_s01_v2_xts)
+ndiffs(log(dt_s01_v2_xts))
+
+## Lets use auto.arima to validate our model and fir it.
+aa_fit_dt_s01_v2 <- auto.arima(dt_s01_v2_xts,seasonal=TRUE)
+summary(aa_fit_dt_s01_v2)
+
+aa_fit_dt_s01_v2 <- auto.arima(log(dt_s01_v2_xts))
+summary(aa_fit_dt_s01_v2)
+
+# AIC Score of Log tranfomed model is better so we will use it.
+
+# ACF plot of residuals 
+checkresiduals(aa_fit_dt_s01_v2)
+checkresiduals(aa_fit_dt_s01_v2,lag = 35)
+# Ressiduals are giving very distrubuted erros and mostly close to zero.
+# Pvalue is greater than 5% and hence we can't reject null hypothessis i.e. autocorrelations up to lag 8 equal 
+
+fc<-forecast(aa_fit_dt_s01_v2,h=140) 
+
+fc$mean<-exp(fc$mean)
+fc$upper<-exp(fc$upper)
+fc$lower<-exp(fc$lower)
+fc$x<-exp(fc$x)
+
+fc %>% autoplot()
+fc
+```
+```{r}
+
+
+
+```
+
+# FOR var 1 (EXTRA )
+
+```{r}
+# FOR var 1 
+# Fickey fuller test Before and after diff
+dt_s01_v1_xts %>% ur.df() %>% summary()
+#https://stats.stackexchange.com/questions/24072/interpreting-rs-ur-df-dickey-fuller-unit-root-test-results
+# Given that the test statistic 1.5234  is within the all 3 regions (1%, 5%, 10%) where we fail to reject the null, we should presume the data is a random walk, ie that a unit root is present. In this case, the tau1 refers to the gamma = 0 hypothesis, The "z.lag1" is the gamma term, the coefficient for the lag term (y(t-1)), which is p=0.128, which we fail to reject as significant, simply implying that gamma isn't statistically significant to this model.
+
+dt_s01_v1_xts %>% ur.df(type = "drift") %>% summary()
+# (where a0 is "a sub-zero" and refers to the constant, or drift term) Here is where the output interpretation gets trickier. "tau2" is still the ??=0 null hypothesis. In this case, where the first test statistic = -0.2594 is within the region of failing to reject the null, we should again presume a unit root, that ??=0 i.e. z.lag.1.
+# The phi1 term refers to the second hypothesis, which is a combined null hypothesis of a0 = gamma = 0. This means that BOTH of the values are tested to be 0 at the same time. If p<0.05, we reject the null, and presume that AT LEAST one of these is false--i.e. one or both of the terms a0 or gamma are not 0. Failing to reject this null implies that BOTH a0 AND gamma = 0, implying 1) that gamma=0 therefore a unit root is present, AND 2) a0=0, so there is no drift term. Here we can say p is significant hence Drift is present with , so ao is not zero .
+
+dt_s01_v1_xts %>% diff() %>% .[!is.na(.)] %>% ur.df(type = "drift") %>% summary()
+# here we can say that no unit root is present .ie. Gama and Constant are not zero after differencing .
+
+
+
+
+```
+
+
+```{r}
+log(dt_s01_v2_xts) %>% ggtsdisplay(main="")
+dt_s01_v2_xts %>% ur.df() %>% summary()
+
+dt_s01_v2_xts%>% diff() %>% ggtsdisplay(main="")
+log(dt_s01_v2_xts)%>% diff() %>% ggtsdisplay(main="")
+
+auto.arima(dt_s01_v2_xts)
+auto.arima(log(dt_s01_v2_xts))
+
+
+
+autoplot(ts(dt_s01_v2_xts,frequency=365), series="Data") +
+  autolayer(trendcycle(decompose(ts(dt_s01_v2_xts,frequency=365))), series="Trend") +
+  autolayer(seasadj(decompose(ts(dt_s01_v2_xts,frequency=365))), series="Seasonally Adjusted") +
+  xlab("Year") + ylab("Plastic Sale of Product A") +
+  ggtitle("Plastic Sale of Product A") +
+  scale_colour_manual(values=c("orange","blue","red"),
+             breaks=c("Data","Seasonally Adjusted","Trend"))
+
+```
+

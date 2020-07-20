@@ -1,0 +1,110 @@
+---
+title: "data_624_hw_1"
+author: "Jimmy Ng"
+date: "6/15/2020"
+output: html_document
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+packages <- c("tidyverse", "fpp2", "forecast", "kableExtra", "broom")
+pacman::p_load(char = packages)
+```
+
+## Hyndman 7.1 {.tabset .tabset-fade .tabset-pills}
+
+Consider the `pigs` series — the number of pigs slaughtered in Victoria each month.
+
+a. Use the `ses()` function in R to find the optimal values of $\alpha$ and $\ell_0$, and generate forecasts for the next four months.
+
+b. Compute a 95% prediction interval for the first forecast using $\hat{y}\pm1.96s$ where $s$ is the standard deviation of the residuals. Compare your interval with the interval produced by R.
+
+### a. ses() function
+```{r echo = TRUE, collapse = TRUE, fig.width = 8, fig.height = 10}
+# take a look of the ts object
+pigs <- read.csv("pigs.ts.csv") %>% ts()
+str(pigs)
+broom::glance(pigs %>% data.frame)
+pigs %>% forecast::autoplot()
+
+# forecast for the next 4 months
+pigs_forecast4 <- forecast::ses(pigs, h = 4)
+
+# tidy forecast summary
+broom::tidy(pigs_forecast4 %>% summary)
+
+# visualize output
+pigs_forecast4_fitted <- fitted(pigs_forecast4)
+pigs_forecast4 %>%
+        autoplot() +
+        autolayer(pigs_forecast4_fitted, series = "Fitted") +
+        theme_classic() +
+        theme(legend.position = "none") +
+        xlab("Year") +
+        ylab("Pigs Slaughtered")
+```
+
+### b. 95% prediction interval
+```{r echo = TRUE, collapse = TRUE, fig.width = 8, fig.height = 10}
+# 95% prediction interval by hand
+lo.interval <- pigs_forecast4$mean[1] - 1.96 * sd(pigs_forecast4$residuals)
+up.interval <- pigs_forecast4$mean[1] + 1.96 * sd(pigs_forecast4$residuals)
+
+# R model output
+lo.interval.model <- pigs_forecast4$lower[1, 2]
+up.interval.model <- pigs_forecast4$upper[1, 2]
+
+# comparison  
+type <- paste0(c("calculated by hand", "calculated by hand", "run by R", "run by R"))
+bound <- paste0(c("lower", "upper", "lower", "upper"))
+interval <- c(lo.interval, up.interval, lo.interval.model, up.interval.model)
+
+data.frame(type, bound, interval) %>%
+        tidyr::spread(., type, interval) %>%
+        dplyr::mutate(`diff (%)` = round((`calculated by hand` - `run by R`) / `calculated by hand` * 100, 2)) %>%
+        kable() %>%
+        kable_styling()
+```
+
+## Hyndman 7.3 {.tabset .tabset-fade .tabset-pills}
+
+Modify your function from the previous exercise to return the sum of squared errors rather than the forecast of the next observation. Then use the `optim()` function to find the optimal values of $\alpha$ and  $\ell_0$. Do you get the same values as the `ses()` function? 
+
+```{r echo = TRUE, collapse = TRUE}
+# custom function
+custom_fun <- function(fn, ts){
+        a = fn[1]
+        b = fn[2]
+        n = length(ts)
+        yhat = c(b, 0 * (2:n))
+        for (i in 1:(n-1)){
+                yhat[i +1] <- a * ts[i] + (1-a) * yhat[i]
+        }
+        res = ts - yhat
+        sse = sum(res^2) / (n-1)
+        
+        return(sse)
+}
+
+# output parameters
+parameters <- optim(par = c(0.1, 10000), fn = custom_fun, ts = pigs)
+a <- parameters$par[1]
+b <- parameters$par[2]
+
+# comparison
+model_a <- pigs_forecast4$model$fit$par[1]
+model_b <- pigs_forecast4$model$fit$par[2]
+
+# comparison  
+type <- paste0(c("calculated by hand", "calculated by hand", "run by R", "run by R"))
+parameter <- paste0(c("alpha", "level", "alpha", "level"))
+value <- c(a, b, model_a, model_b)
+
+data.frame(type, parameter, value) %>%
+        dplyr::mutate(value = round(value, 3)) %>%
+        tidyr::spread(., type, value) %>%
+        kable() %>%
+        kable_styling()
+```
+
+The result is almost identical. 

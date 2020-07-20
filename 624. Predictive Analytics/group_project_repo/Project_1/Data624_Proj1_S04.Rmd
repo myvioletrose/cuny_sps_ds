@@ -1,0 +1,290 @@
+---
+title: "Data 624 Project 1 S04"
+author: "Jeff Littlejohn"
+date: "6/23/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+# install.packages("imputeTS")
+library(imputeTS) # Imputing NA \
+library(xts)  # for TS object
+library(forecast) # for Forecas
+library(urca)
+library(MLmetrics)
+```
+
+
+
+```{r}
+full_data <- readxl::read_excel('Data Set for Class.xls')
+head(full_data)
+# For simplicity lets convert SeriesInd to date. by setting Origin of date to 1900 Jan 1st.
+print(paste("Start Of Data:",as.Date(min(full_data$SeriesInd) , origin = "1900-01-01")))
+print(paste("End Of Data:",as.Date(max(full_data$SeriesInd) , origin = "1900-01-01")))
+print(paste("Forecast from :",as.Date(max(full_data$SeriesInd)+1 , origin = "1900-01-01")," TO ",as.Date(max(full_data$SeriesInd)+140 , origin = "1900-01-01")))
+full_data$SeriesInd <- as.Date(full_data$SeriesInd, origin = "1900-01-01")
+head(full_data)
+```
+```{r}
+# Get the full date range for the data 
+allDates <- seq.Date(
+  min(full_data$SeriesInd),
+  max(full_data$SeriesInd),
+  "day")
+# creating NA for missing data entry in full data.
+full_data_na <- left_join(as.data.frame(allDates),full_data,by=c("allDates"= "SeriesInd"))
+# subset(full_data[,c(1,2,3)], group == "S01")%>% .[,c(1,3)]  %>% left_join(as.data.frame(allDates),.,by=c("allDates"= "SeriesInd"))
+# 
+# 
+# subset(full_data[,c(1,2,3)], group == "S02")%>% .[,c(1,3)]  %>% left_join(as.data.frame(allDates),.,by=c("allDates"= "SeriesInd"))
+# 
+# full_data_na %>% filter(.,group=="S01") %>% .[,c(1,3)] %>% plot()
+# 
+#   
+# #+geom_col(position="dodge", alpha=0.5) 
+# 
+# 
+# dt_s06_v1 %>% ggplot(aes(x=allDates, y= Var01))+  geom_line()
+# 
+# 
+# 
+# full_data_na[,c(1,3)]plot()
+```
+
++  Here we breaking data by each Group and variable
+- Keep Only Date and Variables value
+- Merge with Full Range of Dates to see if we have any NA in the data 
+```{r}
+# Creating a subset of date for each Group and Varible. 
+dt_s01_v1 = subset(full_data[,c(1,2,3)], group == "S01")%>% .[,c(1,3)]%>% left_join(as.data.frame(allDates),.,by=c("allDates"= "SeriesInd"))
+dt_s01_v2 = subset(full_data[,c(1,2,4)], group == "S01")%>% .[,c(1,3)]%>% left_join(as.data.frame(allDates),.,by=c("allDates"= "SeriesInd"))
+dt_s01_v3 = subset(full_data[,c(1,2,5)], group == "S01")%>% .[,c(1,3)]%>% left_join(as.data.frame(allDates),.,by=c("allDates"= "SeriesInd"))
+dt_s01_v5 = subset(full_data[,c(1,2,6)], group == "S01")%>% .[,c(1,3)]%>% left_join(as.data.frame(allDates),.,by=c("allDates"= "SeriesInd"))
+dt_s01_v7 = subset(full_data[,c(1,2,7)], group == "S01")%>% .[,c(1,3)]%>% left_join(as.data.frame(allDates),.,by=c("allDates"= "SeriesInd"))
+dt_s02_v1 = subset(full_data[,c(1,2,3)], group == "S02")%>% .[,c(1,3)]%>% left_join(as.data.frame(allDates),.,by=c("allDates"= "SeriesInd"))
+dt_s02_v2= subset(full_data[,c(1,2,4)], group == "S02")%>% .[,c(1,3)]%>% left_join(as.data.frame(allDates),.,by=c("allDates"= "SeriesInd"))
+dt_s02_v3= subset(full_data[,c(1,2,5)], group == "S02")%>% .[,c(1,3)]%>% left_join(as.data.frame(allDates),.,by=c("allDates"= "SeriesInd"))
+dt_s02_v5= subset(full_data[,c(1,2,6)], group == "S02")%>% .[,c(1,3)]%>% left_join(as.data.frame(allDates),.,by=c("allDates"= "SeriesInd"))
+dt_s02_v7= subset(full_data[,c(1,2,7)], group == "S02")%>% .[,c(1,3)]%>% left_join(as.data.frame(allDates),.,by=c("allDates"= "SeriesInd"))
+dt_s03_v1 = subset(full_data[,c(1,2,3)], group == "S03")%>% .[,c(1,3)]%>% left_join(as.data.frame(allDates),.,by=c("allDates"= "SeriesInd"))
+dt_s03_v2 = subset(full_data[,c(1,2,4)], group == "S03")%>% .[,c(1,3)]%>% left_join(as.data.frame(allDates),.,by=c("allDates"= "SeriesInd"))
+dt_s03_v3 = subset(full_data[,c(1,2,5)], group == "S03")%>% .[,c(1,3)]%>% left_join(as.data.frame(allDates),.,by=c("allDates"= "SeriesInd"))
+dt_s03_v5 = subset(full_data[,c(1,2,6)], group == "S03")%>% .[,c(1,3)]%>% left_join(as.data.frame(allDates),.,by=c("allDates"= "SeriesInd"))
+dt_s03_v7 = subset(full_data[,c(1,2,7)], group == "S03")%>% .[,c(1,3)]%>% left_join(as.data.frame(allDates),.,by=c("allDates"= "SeriesInd"))
+dt_s04_v1 = subset(full_data[,c(1,2,3)], group == "S04")%>% .[,c(1,3)]%>% left_join(as.data.frame(allDates),.,by=c("allDates"= "SeriesInd"))
+dt_s04_v2= subset(full_data[,c(1,2,4)], group == "S04")%>% .[,c(1,3)]%>% left_join(as.data.frame(allDates),.,by=c("allDates"= "SeriesInd"))
+dt_s04_v3= subset(full_data[,c(1,2,5)], group == "S04")%>% .[,c(1,3)]%>% left_join(as.data.frame(allDates),.,by=c("allDates"= "SeriesInd"))
+dt_s04_v5= subset(full_data[,c(1,2,6)], group == "S04")%>% .[,c(1,3)]%>% left_join(as.data.frame(allDates),.,by=c("allDates"= "SeriesInd"))
+dt_s04_v7= subset(full_data[,c(1,2,7)], group == "S04")%>% .[,c(1,3)]%>% left_join(as.data.frame(allDates),.,by=c("allDates"= "SeriesInd"))
+dt_s05_v1 = subset(full_data[,c(1,2,3)], group == "S04")%>% .[,c(1,3)]%>% left_join(as.data.frame(allDates),.,by=c("allDates"= "SeriesInd"))
+dt_s05_v2 = subset(full_data[,c(1,2,4)], group == "S05")%>% .[,c(1,3)]%>% left_join(as.data.frame(allDates),.,by=c("allDates"= "SeriesInd"))
+dt_s05_v3 = subset(full_data[,c(1,2,5)], group == "S05")%>% .[,c(1,3)]%>% left_join(as.data.frame(allDates),.,by=c("allDates"= "SeriesInd"))
+dt_s05_v5 = subset(full_data[,c(1,2,6)], group == "S05")%>% .[,c(1,3)]%>% left_join(as.data.frame(allDates),.,by=c("allDates"= "SeriesInd"))
+dt_s05_v7 = subset(full_data[,c(1,2,7)], group == "S05")%>% .[,c(1,3)]%>% left_join(as.data.frame(allDates),.,by=c("allDates"= "SeriesInd"))
+dt_s06_v1 = subset(full_data[,c(1,2,3)], group == "S06")%>% .[,c(1,3)]%>% left_join(as.data.frame(allDates),.,by=c("allDates"= "SeriesInd"))
+dt_s06_v2 = subset(full_data[,c(1,2,4)], group == "S06")%>% .[,c(1,3)]%>% left_join(as.data.frame(allDates),.,by=c("allDates"= "SeriesInd"))
+dt_s06_v3 = subset(full_data[,c(1,2,5)], group == "S06")%>% .[,c(1,3)]%>% left_join(as.data.frame(allDates),.,by=c("allDates"= "SeriesInd"))
+dt_s06_v5 = subset(full_data[,c(1,2,6)], group == "S06")%>% .[,c(1,3)]%>% left_join(as.data.frame(allDates),.,by=c("allDates"= "SeriesInd"))
+dt_s06_v7 = subset(full_data[,c(1,2,7)], group == "S06")%>% .[,c(1,3)]%>% left_join(as.data.frame(allDates),.,by=c("allDates"= "SeriesInd"))
+```
+
+## S04 - Forecast  Var01, Var02
+
+We usually see consecutive sequences of five SeriesInd entries followed by a two-integer (-days, based on our assumption) break, which might be indicative of weekdays. There are some additional breaks in the data beyond the five days on, two days off pattern. 
+
+Note that if it were confirmed that the SeriesInd values represented weekdays, it might be prudent to remove the weekend days from the sequence for forecasting purposes.
+
+## Exploratory Data Analysis
+
+```{r}
+summary(dt_s04_v1)
+summary(dt_s04_v2)
+```
+
+We see NA's as expected. The maximum value of Var02 looks like it could be a substantial outlier.
+
+Let's start with S04 Var01.
+
+```{r}
+plot(dt_s04_v1,main="S04 Var01")
+```
+
+There might be a seasonal drop near the end of each year, but it's not definitive. Business cycles could be present.
+
+
+```{r}
+plot(dt_s04_v2,main="S04 Var02")
+```
+
+There is no obvious trend or seasonality, but there are some outlier values - one clear outlier value is apparent in late 2015. It appears relatively stationary.
+
+Because we haven't confirmed the weekend hypothesis, we will go ahead and fill the missing SeriesInd values for both Var01 and Var02 with "N/A" entries for now. We won't remove the presumed SeriesInd weekend values from the dataset.
+
+Let's review some different methods of handling NA values in the data.
+
+```{r}
+# View of some differnet imputation methods and their values.  
+cbind("Value"=dt_s01_v1$Var01,
+      "na.interp"=na.interp(dt_s01_v1$Var01),
+      "na.approx"=na_seadec(dt_s01_v1$Var01),
+      "na.kalman"=na.kalman(dt_s01_v1$Var01),
+      "na.interpolation"=na_interpolation(dt_s01_v1$Var01)
+      
+      ) %>% 
+  head(.,20)
+```
+
+We will use the approx function.
+
+```{r}
+dt_s04_v1_xts <- xts(c(dt_s04_v1$Var01),  order.by=as.Date(dt_s04_v1$allDates))%>% na.approx()
+dt_s04_v2_xts <- xts(c(dt_s04_v2$Var02),  order.by=as.Date(dt_s04_v2$allDates))%>% na.approx()
+dt_s04_v1_stl <- c(dt_s04_v1$Var01,  order.by=as.Date(dt_s04_v1$allDates))%>% na.approx()
+dt_s04_v2_stl <- c(dt_s04_v2$Var02,  order.by=as.Date(dt_s04_v2$allDates))%>% na.approx()
+```
+
+We appear to have two disparate datasets, so we will address them separately. Let's find the right model to forecast S04 Var01.
+
+```{r}
+ggtsdisplay(dt_s04_v1_xts,main="S04 Var01",xlab="Date",ylab="Value")
+```
+
+```{r}
+dt_s04_v1_xts %>% ur.kpss() %>% summary()
+```
+
+We see clear autocorrelation between variables in the ACF. Let's take the first-order difference to see if our data can be made stationary for modeling.
+
+```{r}
+ggtsdisplay(diff(dt_s04_v1_xts),main="S04 Diff Var01",xlab="Date",ylab="Diff Value")
+```
+
+```{r}
+dt_s04_v1_xts %>% diff() %>% ur.kpss() %>% summary()
+```
+
+This test statistic looks better, so we conclude that the differences data are stationary. We verify with ndiffs.
+
+```{r}
+ndiffs(dt_s04_v1_xts)
+```
+
+The S04 Var01 plots seem to indicate that ARIMA would be a good fit for this model.
+
+```{r}
+aa_fit_dt_s04_v1 <- auto.arima(coredata(dt_s04_v1_xts,stepwise=FALSE,approximation = FALSE))
+summary(aa_fit_dt_s04_v1)
+```
+
+
+
+
+```{r}
+coef(aa_fit_dt_s04_v1)
+```
+
+Auto arima did not give us drift.
+
+```{r}
+checkresiduals(aa_fit_dt_s04_v1)
+```
+
+The residuals are independent, which is what we want.
+
+```{r}
+forecast(aa_fit_dt_s04_v1,h=140) %>% autoplot()
+```
+
+```{r}
+Fore_dt_s04_v1 <- forecast(aa_fit_dt_s04_v1,h=140)
+
+autoplot(aa_fit_dt_s04_v1)
+```
+
+```{r}
+Fore_dt_s04_v1
+```
+
+
+Now, let's find the right model to forecast S04 Var02.
+
+```{r}
+ggtsdisplay(dt_s04_v2_xts,main="S04 Var02",xlab="Date",ylab="Value")
+```
+
+```{r}
+dt_s04_v2_xts %>% ur.kpss() %>% summary()
+```
+
+We see clear autocorrelation between variables in the ACF. Let's take the first-order difference to see if our data can be made stationary for modeling.
+
+```{r}
+ggtsdisplay(diff(dt_s04_v2_xts),main="S04 Diff Var02",xlab="Date",ylab="Diff Value")
+```
+
+```{r}
+dt_s04_v2_xts %>% diff() %>% ur.kpss() %>% summary()
+```
+
+This test statistic looks better, so we conclude that the differences data are stationary. We verify with ndiffs.
+
+```{r}
+ndiffs(dt_s04_v2_xts)
+```
+
+The S04 Var02 plots seem to indicate that ARIMA would be a good fit for this model.
+
+```{r}
+aa_fit_dt_s04_v2 <- auto.arima(log(dt_s04_v2_xts))
+summary(aa_fit_dt_s04_v2)
+```
+
+```{r}
+coef(aa_fit_dt_s04_v2)
+```
+
+Auto arima did not give us drift.
+
+```{r}
+checkresiduals(aa_fit_dt_s04_v2)
+```
+
+The residuals are independent, which is what we want.
+
+```{r}
+forecast(aa_fit_dt_s04_v2,h=140) %>% autoplot()
+```
+
+```{r}
+Fore_dt_s04_v2 <- forecast(aa_fit_dt_s04_v2,h=140)
+
+autoplot(aa_fit_dt_s04_v2)
+```
+
+```{r}
+fc <- forecast(aa_fit_dt_s04_v2,h=140)
+fc$mean<-exp(fc$mean)
+fc$upper<-exp(fc$upper)
+fc$lower<-exp(fc$lower)
+fc$x<-exp(fc$x)
+```
+
+```{r}
+fc
+```
+
+
+```{r,warning=FALSE}
+print(paste0("MAPE for S04 Var01 is ", MLmetrics::MAPE(Fore_dt_s04_v1$fitted,dt_s04_v1_xts)))
+
+print(paste0("MAPE for S04 Var02 is ", MLmetrics::MAPE(exp(Fore_dt_s04_v2$fitted),dt_s04_v2_xts)))
+
+```
+
+```{r}
+write.csv(fc,"s04v02.csv")
+```
+

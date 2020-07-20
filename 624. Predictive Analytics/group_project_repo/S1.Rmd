@@ -1,0 +1,218 @@
+---
+title: "S1"
+author: "Rajwant Mishra"
+date: "July 4, 2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Question: A chemical manufacturing process for a pharmaceutical product was discussed in Sect. 1.4. In this problem, the objective is to understand the relationship between biological measurements of the raw materials (predictors), measurements of the manufacturing process (predictors), and the response of product yield. Biological predictors cannot be changed but can be used to assess the quality of the raw material before processing. On the other hand, manufacturing process predictors can be changed in the manufacturing process. Improving product yield by 1% will boost revenue by approximately one hundred thousand dollars per batch:
+
+a) The matrix processPredictors contains the 57 predictors (12 describing the input biological material and 45 describing the process predictors) for the 176 manufacturing runs. yield contains the percent yield for each run.
+
+```{r}
+ library(AppliedPredictiveModeling)
+library(VIM)
+library(caret)
+data(ChemicalManufacturingProcess)
+
+```
+
+(b) A small percentage of cells in the predictor set contain missing values. Use
+an imputation function to fill in these missing values (e.g., see Sect. 3.8).
+
+We wil user kNN imputation method to impute the missing values from VIM package.
+```{r}
+
+
+
+summary(ChemicalManufacturingProcess)
+impu_data <- kNN(ChemicalManufacturingProcess, imp_var = FALSE)
+
+
+summary((ChemicalManufacturingProcess$ManufacturingProcess02))
+summary(impu_data$ManufacturingProcess02)
+data.frame("OLD"=ChemicalManufacturingProcess$ManufacturingProcess02, 
+            "Imputed"=impu_data$ManufacturingProcess02)
+```
+
+
+(c) Split the data into a training and a test set, pre-process the data, and
+tune a model of your choice from this chapter. What is the optimal value
+of the performance metric?
+
+```{r}
+n <- nrow(impu_data)
+i.training <- sort(sample(n,round(n*0.8)))
+L.training <- impu_data[i.training,]
+L.test  <- impu_data[-i.training,]
+
+
+
+X_train <- L.training[,-1]
+Y_train <- L.training[,1]
+
+X_test <- L.test[,-1]
+Y_test <- L.test[,1]
+
+ctrl <- trainControl(method = "cv", number = 10)
+ model_lm <- lm(Yield~.,data=L.training )
+# model_lm <- train(x = X_train, y = Y_train,
+#                     method = "lm", 
+#                     trControl = ctrl)
+
+summary(model_lm)
+
+
+# # The train function generates a resampling estimate of performance. Because
+# the training set size is not small, 10-fold cross-validation should produce
+# reasonable estimates of model performance. The function trainControl specifies
+# the type of resampling:
+ctrl <- trainControl(method = "cv", number = 10)
+model_lm1 <- train(x = X_train, y = Y_train, method = "lm", trControl = ctrl)
+model_lm1
+
+xyplot(Y_train ~ predict(model_lm1),
+ ## plot the points (type = 'p') and a background grid ('g')
+ type = c("p", "g"),
+ xlab = "Predicted", ylab = "Observed")
+ xyplot(resid(model_lm1) ~ predict(model_lm1),
+ type = c("p", "g"),
+ xlab = "Predicted", ylab = "Residuals")
+
+ 
+ # To build a smaller model without predictors with extremely high correlations,
+ 
+corThresh <- .9
+tooHigh <- findCorrelation(cor(X_train), corThresh)
+print(paste0(names(X_train)[tooHigh]))
+corrPred <- names(X_train)[tooHigh]
+X_train_no_cor <- X_train[, -tooHigh]
+X_test_no_cor <- X_test[, -tooHigh]
+model_lm1_no_cor <- train(X_train_no_cor, Y_train, method = "lm",
+ trControl = ctrl)
+model_lm1_no_cor
+
+xyplot(Y_train ~ predict(model_lm1_no_cor),
+ ## plot the points (type = 'p') and a background grid ('g')
+ type = c("p", "g"),
+ xlab = "Predicted", ylab = "Observed")
+ xyplot(resid(model_lm1_no_cor) ~ predict(model_lm1_no_cor),
+ type = c("p", "g"),
+ xlab = "Predicted", ylab = "Residuals")
+ 
+ #PLS
+ # Useing train perform  to perfrom  pre-process and tuning together. The function first preprocess the training set by centering it and scaling it. Then the function uses 10-fold cross validation to try the number of components, i.e. latent variables, of the PLS model from 1 to 20.
+ model_pls_no_cor <- train(x=X_train_no_cor, y=Y_train,
+                     method = "pls",
+                     tuneLength = 20,
+                     metric='Rsquared',
+                     trControl = ctrl,
+                     preProc = c("center", "scale"))
+
+
+model_pls_no_cor
+summary(model_pls_no_cor)
+
+
+#enet
+# The optimal Lasso model had fraction = 0.25 and lambda = 0.1
+enetGrid <- expand.grid(.lambda = c(0, 0.01, .1),
+                        .fraction = seq(.05, 1, length = 20))
+
+model_ener_no_cor <- train(x=X_train_no_cor, y=Y_train,
+                      method = "enet",
+                      tuneGrid = enetGrid,
+                      trControl = ctrl,
+                      preProc = c("center", "scale"))
+model_ener_no_cor 
+
+test_model <- function(modelName,predData){
+options(warn=-1)      #turn off warnings
+predicted_result <- predict(modelName, predData)
+options(warn=1)  
+
+#We can collect the observed and predicted values into a data frame, then use
+# the caret function defaultSummary to estimate the test set performance
+DT_model_lm_pred <- data.frame(obs=Y_test,pred=predicted_result)
+return(defaultSummary(DT_model_lm_pred))
+}
+
+
+
+
+```
+
+
+(d) Predict the response for the test set. What is the value of the performance
+metric and how does this compare with the resampled performance metric
+on the training set?
+
+```{r}
+
+model_lm1$results[,2:4]
+test_model(model_lm1,X_test)
+
+model_lm1_no_cor$results[,2:4]
+test_model(model_lm1_no_cor,X_test)
+
+
+model_pls_no_cor$results[3,2:4]
+test_model(model_pls_no_cor,X_test_no_cor)
+
+
+
+model_ener_no_cor$results[2,2:4]
+test_model(model_ener_no_cor,X_test_no_cor)
+
+
+```
+
+(e) Which predictors are most important in the model you have trained? Do
+either the biological or process predictors dominate the list?
+```{r}
+model_pls_no_cor$finalModel$coefficients
+  
+# it appears that ManufacturingProcess are more important. Alternatively, varImp function can be used to rank the importance of predictors:
+varImp(model_ener_no_cor)
+varImp(model_pls_no_cor)
+```
+
+Looking at only 3 comps, The Manufacturing Process seems to have the most importance, as generally their scores are higher than the Biological Materials. ManufacturingProcess32 has the highest score at 0.3687089330.
+
+
+The evaluation on the test sets seems to suggest that the PLS model is best, with R^2 = 0.7202954 Here we noted that when we apply all the models on not correalted data then RMSE and Rsquared for bothe test and train PLS model is better compare to other model. 
+Train: RMSE : 1.666406	Rsquared :0.4722788
+TEST: RMSE : 1.0391511	Rsquared :0.7202954
+
+13 out of the 20 in the list are ManufacturingProcess predictors, which makes it more important than BiologicalMaterial.
+
+(f) Explore the relationships between each of the top predictors and the response.
+How could this information be helpful in improving yield in future
+runs of the manufacturing process?
+
+
+We can compare the non-zero coefficients, Elastic net is a linear regression model. The coefficients directly explain how the predictors affect the target. Positive coefficients improve the yield, while negative coefficients decrease the yield.
+
+```{r}
+
+
+coeffs <- elasticnet::predict.enet(model_ener_no_cor$finalModel, s=model_ener_no_cor$bestTune[1, "fraction"], type="coef", mode="fraction")$coefficients
+
+# We can compare the non-zero coefficients by taking their absolute value, and then sorting them:
+coeffs.sorted <- abs(coeffs) 
+coeffs.sorted <- coeffs.sorted[coeffs.sorted>0]
+(coeffs.sorted <- sort(coeffs.sorted, decreasing = T))
+
+
+coeffs.mp <-  coeffs[names(coeffs.sorted[grep('ManufacturingProcess', names(coeffs.sorted))])] 
+coeffs.mp[coeffs.mp>0]
+coeffs.mp[coeffs.mp<0]
+```
+For the ManufacturingProcess having the negative coefficients, we would change the process so that it would decrease the Yeald. Similarly ManufacturingProcess with surge in coefficients would help in increasitng the yeald.
+
+
+
