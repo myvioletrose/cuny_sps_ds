@@ -1,0 +1,5 @@
+# Solving linear systems with matrix equations
+https://www.khanacademy.org/math/precalculus-2018/precalc-matrices/solving-equations-with-inverse-matrices/v/solving-matrix-equation
+
+# Representing linear systems with matrix equations
+https://www.khanacademy.org/math/precalculus-2018/precalc-matrices/solving-equations-with-inverse-matrices/v/matrix-equations-systems

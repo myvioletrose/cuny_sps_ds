@@ -1,0 +1,8 @@
+# Example of finding matrix inverse
+https://www.khanacademy.org/math/linear-algebra/matrix-transformations/inverse-of-matrices/v/linear-algebra-example-of-finding-matrix-inverse
+
+# Upper triangular determinant
+https://www.khanacademy.org/math/linear-algebra/matrix-transformations/determinant-depth/v/linear-algebra-upper-triangular-determinant
+
+# LU Decomposition - Shortcut Method
+https://www.youtube.com/watch?v=UlWcofkUDDU

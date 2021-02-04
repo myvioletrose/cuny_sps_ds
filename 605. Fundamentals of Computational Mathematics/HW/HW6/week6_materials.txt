@@ -1,0 +1,13 @@
+# Introduction to combinatorics
+https://www.khanacademy.org/computing/pixar/crowds/crowds-1/v/intro-crowds
+
+# Example: Combinatorics and probability
+https://www.khanacademy.org/math/precalculus-2018/prob-comb/prob-combinatorics-precalc/v/probability-of-dependent-events-2
+
+# Counting and Combinatorics in Discrete Math Part 1
+https://www.youtube.com/watch?v=rcs7JA1vThs
+
+# Calculating conditional probability
+https://www.khanacademy.org/math/statistics-probability/probability-library/conditional-probability-independence/v/calculating-conditional-probability
+
+

@@ -1,0 +1,15 @@
+# Introduction to eigenvalues and eigenvectors
+https://www.khanacademy.org/math/linear-algebra/alternate-bases/eigen-everything/v/linear-algebra-introduction-to-eigenvalues-and-eigenvectors
+
+# Eigenvalues of a 3x3 matrix
+https://www.khanacademy.org/math/linear-algebra/alternate-bases/eigen-everything/v/linear-algebra-eigenvalues-of-a-3x3-matrix
+
+# Khan Academy Help
+Here are some excellent links from Khan Academy going over Eigenvectors and Eigenvalues. Please watch these videos prior to doing your homework assignments. They'll help you immensely as you work through the homework. 
+
+Khan Academy: Introduction to eigenvalues and eigenvectors
+Khan Academy: Proof of formula for determining eigenvalues
+Khan Academy: Example solving for the eigenvalues of a 2x2 matrix
+Khan Academy: Finding eigenvectors and eigenspaces example
+Khan Academy: Eigenvalues of a 3x3 matrix
+Khan Academy: Showing that an eigenbasis makes for good coordinate systems
