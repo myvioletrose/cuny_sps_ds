@@ -1,0 +1,257 @@
+---
+title: "data_622_hw_1"
+author: "Jimmy Ng"
+date: "2/18/2021"
+output: 
+        html_document: default
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## load packages, data
+
+```{r get_ready, collapse = TRUE}
+if(!require(pacman)){install.packages("pacman"); require(pacman)}
+packages <- c('nnet', 'glue', 'broom', 'MASS', 'caret', 'InformationValue', 'Hmisc', 'kableExtra', 'corrplot', 'tidyverse', 'ROCR', 'palmerpenguins', 'mice')
+pacman::p_load(char = packages)
+
+df = penguins
+
+df %>% head() %>% kableExtra::kable()
+```
+
+## data exploration : metadata
+
+```{r, metadata, collapse = TRUE}
+str(df)
+
+df %>% group_by(species, island) %>%
+    summarise(n = n())
+
+with(df, ftable(species, year) %>% prop.table(., margin = 1) %>% round(., 2))
+with(df, ftable(species, sex) %>% prop.table(., margin = 1) %>% round(., 2))
+
+metadata = data.frame(colName = names(df)) %>%
+    dplyr::mutate(dtype = sapply(df, class),
+                  missing = colSums(is.na(df)),
+                  unique = sapply(df, function(x) length(unique(x))))
+
+metadata %>% kableExtra::kable()
+```
+
+The categorical variables "sex" or "year" do not help to classify the penguins. There are 3 distinct species. Let's just focus on the four main physiological measures, i.e. "bill_length_mm", "bill_depth_mm", "flipper_length_mm", and "body_mass_g", and see how they differ. 
+
+## data exploration : physiological measures
+
+```{r, eda, collapse = TRUE}
+bodyVars = metadata %>% dplyr::filter(unique >3) %>% .$colName %>% as.character
+
+dfGather <- df %>%
+    dplyr::select(all_of(c("species", bodyVars))) %>%
+    dplyr::mutate(species = as.character(species)) %>%
+    tidyr::gather(key, value, -species)
+
+ggplot(dfGather, aes(value, color = species)) +
+    geom_density() +
+    theme(legend.position = "top") +
+    geom_vline(data = aggregate(value ~ species + key, dfGather, median), 
+               aes(xintercept = value,
+                   color = species),
+               linetype = "dashed") +
+    facet_wrap(~ key, nrow = 5, scales = "free")
+```
+
+## data cleanup : impute missing values, create binary target variable
+
+Since Adelie and Chinstrap display similarity to each other in terms of "bill_depth_mm", "body_mass_g" and "flipper_length_mm" (the dashed line displayed in above chart is the median), let's group them into one category (as "AC"). Besides, Chinstrap only resides in the "Dream" island, whereas Gentoo resides only in "Biscoe" while Adelie resides in all three islands. Grouping Adelie and Chinstrap into one will make it easier to classify the penguins, e.g. knowing a penguin comes from either "Torgersen" or "Dream" would easily classify it as an "AC" penguin. 
+
+Let's fix the missing values and come up with a new binary target variable. 
+```{r, data prep, collapse = TRUE}
+# impute missing values
+init = mice(df, maxit = 0) 
+meth = init$method
+predM = init$predictorMatrix
+meth[c("bill_length_mm", "bill_depth_mm", "flipper_length_mm", "body_mass_g")] = "norm" 
+meth[c("sex")] = "logreg" 
+
+set.seed(1234)
+imputed <- mice(df, method = meth, predictorMatrix = predM, m = 5)
+df2 <- complete(imputed) %>%
+    dplyr::mutate(target_flag = dplyr::case_when(species == "Adelie" | species == "Chinstrap" ~ 1, TRUE ~ 0),
+                  target_flag = dplyr::case_when(target_flag == 1 ~ "AC", TRUE ~ "G") %>% 
+                          factor(., levels = c("AC", "G"), labels = c("Adelie, Chinstrap", "Gentoo"))) %>%
+    dplyr::select(-species)
+
+# double check and make sure no more missing values
+colSums(is.na(df2))
+
+# df2 - ready to build model
+df2 %>% head()
+
+# let's take a look of the bodyVars after completing the whole data set
+df2 %>%
+        dplyr::select(bodyVars) %>%
+        cor() %>%
+        corrplot(method = "number", type = "upper", order = "hclust")
+```
+
+## logistic regression : build model
+
+Pre-process the data and then split it into train and test set.
+
+```{r split df, collapse = TRUE}
+preProcValues <- caret::preProcess(df2[, bodyVars], method = c("center", "scale"))
+df3 <- predict(preProcValues, df2)
+set.seed(1234)
+index = sample(nrow(df3), nrow(df3) * 0.7)
+dfTrain <- df3[index, ]
+dfTest <- df3[-index, ]
+dim(dfTrain); dim(dfTest)
+head(dfTrain)
+```
+
+```{r build_models, collapse = TRUE, message = FALSE, warning = FALSE}
+# full model
+fullModel <- glm(target_flag ~ ., data = dfTrain, family = binomial(link = "logit"))        
+summary(fullModel)
+
+# stepwise model (direction default to both)
+step <- MASS::stepAIC(fullModel, trace = FALSE)
+step$anova
+stepModel <- glm(target_flag ~ bill_depth_mm + body_mass_g, data = dfTrain, family = binomial(link = "logit"))
+summary(stepModel)
+
+# repeated, k-fold cross-validation
+set.seed(1234)
+train.control <- caret::trainControl(method = "repeatedcv", number = 10, repeats = 10)        
+kFoldModel <- caret::train(target_flag ~ bill_depth_mm + body_mass_g,
+                           data = dfTrain, method = "glm", trControl = train.control)        
+summary(kFoldModel)
+```
+We built 3 logistics regression models using different approaches. First, we built a full model using an entire data set. Subsequently, we applied stepwise approach and looked at both directions (forward, backward). Finally, after we came up with a final model from the stepwise approach, we applied it with kfold cross validation. We built a 10-fold, repeated (10 times) cross validation using the formula from the stepwise model (target_flag ~ bill_depth_mm + body_mass_g). We compared across the three models using Akaike Information Criterion (AIC). We acheived the lowest AIC of 6 (down from the full model of 18) and the result looks reasonable. For instance, knowing the bill_depth_mm or body_mass_g is enough for guessing whether it belongs to the AC or G type of penguins. For example, Adelie and Chinstrap have almost the same distribution of bill_depth_mm and body_mass_g, in which both of these measures are quite significantly different from Gentoo (please see above ggplot chart). Meanwhile, sex or year do not seem to have any significant predictive power.
+
+## logistic regression : evaluation
+
+```{r glm evaluation, collapse = TRUE}
+# prediction for each model
+predicted_1 <- predict(fullModel, dfTest, type = "response")
+predicted_2 <- predict(stepModel, dfTest, type = "response")
+predicted_3 <- predict(kFoldModel, dfTest, type = "raw")
+
+dfTest2 <- dfTest %>%
+    dplyr::mutate(predicted_1 = dplyr::case_when(predicted_1 <0.5 ~ "AC", TRUE ~ "G") %>%
+                     factor(., levels = c("AC", "G"), labels = c("Adelie, Chinstrap", "Gentoo")),
+                  predicted_2 = dplyr::case_when(predicted_2 <0.5 ~ "AC", TRUE ~ "G") %>%
+                      factor(., levels = c("AC", "G"), labels = c("Adelie, Chinstrap", "Gentoo")),
+                  predicted_3 = predicted_3)
+
+# diagnostic - Confusion Matrix, i.e. the columns are actuals, while rows are predicteds
+optCutOff = 0.5
+cm_1 <- InformationValue::confusionMatrix(dfTest2$target_flag, predicted = predicted_1, threshold = optCutOff)
+cm_2 <- InformationValue::confusionMatrix(dfTest2$target_flag, predicted = predicted_2, threshold = optCutOff)
+cm_3 <- ftable(predicted_3, dfTest2$target_flag)
+
+# print confusion matrix
+cm_1
+cm_2
+cm_3
+
+# print tidy output for model evaluation
+broom::tidy(caret::confusionMatrix(dfTest2$target_flag, dfTest2$predicted_2)) %>% dplyr::select(term, estimate)
+
+# print ROC Curve
+# ROC Curve
+par(mfrow = c(1, 2))
+pred <- prediction(predicted_1, dfTest2$target_flag)
+perf <- performance(pred, "tpr", "fpr")
+plot(perf, colorize = TRUE, main = "Full Model")
+
+pred <- prediction(predicted_2, dfTest2$target_flag)
+perf <- performance(pred, "tpr", "fpr")
+plot(perf, colorize = TRUE, main = "Step Model")
+
+# Final print of the stepModel
+tidy(stepModel)
+```
+Surprisingly, the full and stepwise models demonstrate perfect classification. We achieved 100% accuracy and the only concern is overfitting, i.e. whether our model can be applied to a different data set. For the sake of simplicity and parsimony, we should go with the simple model that is suggested by the stepwish approach. In this case, less is more. The two physiological measures are important enough to classify the penguins. 
+
+## logistic regression : print metrics
+
+```{r print metrics, collapse = TRUE}
+pred <- prediction(predicted_2, dfTest2$target_flag)
+auc = performance(pred, "auc") 
+auc = auc@y.values[[1]]
+
+cm <- InformationValue::confusionMatrix(dfTest2$target_flag, predicted_2)
+TN <- cm[1, 1]
+FN <- cm[1, 2]
+FP <- cm[2, 1]
+TP <- cm[2, 2]
+
+accuracy = (TP + TN) / (TN + FN + FP + TP)
+TPR = TP / (TP + FN)
+FPR = FP / (FP + TN)
+TNR = TN / (TN + FP)
+FNR = FN / (FN + TP)
+
+# print the metrics
+print(paste0("The AUC is ", auc * 100, "%"))
+print(paste0("The Accuracy is ", accuracy * 100, "%"))
+print(paste0("The TPR is ", TPR * 100, "%"))
+print(paste0("The FPR is ", FPR * 100, "%"))
+print(paste0("The TNR is ", TNR * 100, "%"))
+print(paste0("The FNR is ", FNR * 100, "%"))
+```
+
+## multinomial logistic regression : build model
+
+Let's set our baseline reference using "Adelie". We will make prediction comparison against this baseline category.
+```{r multinomial, collapse = TRUE}
+# use the original "species" column for target variable
+df4 <- cbind(species = df$species, df3 %>% dplyr::select(-target_flag))
+
+# split the data set again
+train <- df4[index, ]
+test <- df4[-index, ]
+
+# set reference
+train$species <- relevel(train$species, ref = "Adelie")
+
+# build a multinomial model
+multinom_model <- nnet::multinom(species ~ ., data = train)
+
+# checking the model
+summary(multinom_model)
+```
+
+```{r multinomial_output, collapse = TRUE}
+# convert the coefficients to odds by taking the exponential of the coefficients
+options(scipen=999)
+exp(coef(multinom_model)) %>% round(3)
+
+# take a look of the predicted probability, comparing it to the original label (or target)
+round(fitted(multinom_model), 2) %>% as.data.frame() %>% dplyr::mutate(species = train$species) %>%
+    dplyr::select(true_label = species, everything()) %>% 
+    head(10) %>%
+        kableExtra::kable()
+```
+
+We converted the coefficients (log likelihood) to odds by taking the exponential of the coefficients. Before conversion, a one-unit increase in the variable bill_length_mm is associated with the increase in the log odds of being a Chinstrap vs. Adelie in the amount of 87.85357. After conversion, keeping all other variables constant, the odds for a one-unit increase in the same variable is 1.42E+38. We can easily identify few key variables that help classify the penguins. For instance, the odds for a one-unit increase in flipper_length_mm is 3.28E+09 for being a Gentoo vs. Adelie penguin. Similarly, the odds for a one-unit increase in body_mass_g is 1.292 times for being a Gentoo vs. Adelie penguin. The results of this model picked out important physiological features that were displayed in above ggplot chart. 
+
+## multinomial logistic regression : evaluation
+
+```{r multinomial_eval, collapse = TRUE}
+# model evaluation using the test set 
+test$speciesPredicted <- predict(multinom_model, newdata = test, "class")
+
+# classification table
+tab <- table(test$species, test$speciesPredicted)
+tab
+
+# calculate accuracy - sum of diagonal elements divided by total obs
+print(paste0("The model accuracy is ", round((sum(diag(tab))/sum(tab))*100,2), "%"))
+```
+
+We built almost a perfect model achieving the accuracy of 99%. The best fit statistics for evaluating the model would be accuracy as it is simple and easy to calculate. The classification table is also important in telling us the performance of our model. Relative risks or odds ratio is also important in interpreting the coefficients to people with no statistical background, such as keeping all variables constant, if your X score increases by 1 unit, you are 0.85 times more likely to be in the Z category as compared to the ref group (the risk or odds is 15% lower). Last but not least, we can perform a chi-square goodness of fit test to compare across models.

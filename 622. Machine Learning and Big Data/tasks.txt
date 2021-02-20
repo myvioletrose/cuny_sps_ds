@@ -1,0 +1,67 @@
+### HW due Friday
+# HW1 due 2/19 
+# HW2 due 3/12
+# HW3 due 4/9
+# HW4 due 4/30
+# Final Project 5/23 (Sunday)
+
+### Discussion due Friday
+# + responses to 2 peers
+
+### Meet Up, every other week 
+# Wednesday@630pm, starts at Feb 10, 2021
+
+############################################################################################################# 
+
+### Weekly Materials
+
+#############################
+>> Week 1 (Jan 29 - Feb 4)
+- ISLR: Ch 1 and 2
+
+#############################
+>> Week 2 (Feb 5 - Feb 12)
+- ISLR: Ch 3.1, 3.2, 3.3, 4.1, 4.2, 4.3
+- ESL: Ch 4.4.1
+
+- Helpful videos: 
+
+Statistical learning and models: 
+https://www.youtube.com/watch?v=WjyuiK5taS8&list=PL5-da3qGB5IDvuFPNoSqheihPOQNJpzyy 
+
+Logistic Regression: 
+https://www.youtube.com/watch?v=WjyuiK5taS8&list=PL5-da3qGB5IDvuFPNoSqheihPOQNJpzyy
+
+Multivariate logistic regression:
+https://www.youtube.com/watch?v=MpX8rVv_u4E&list=PL5-da3qGB5IC4vaDba5ClatUmFppXLAhE
+
+#############################
+>> Week 3 (Feb 12 - Feb 19)
+
+- Homework #1 due on Feb 19. 
+
+- Discussion Board week #3 due Feb 19.
+
+- Reading materials:
+Elements of Statistical Learning: Ch: 4 (please note that we already covered 4.4, logistic regression). This is the rest of the readings on Discriminant Analysis
+Introduction to Statistical Analysis: Ch: 4 (we already covered 4.3, logistic regression). 
+
+- Helpful videos:
+Discriminant Analysis: https://youtu.be/RfrGiG1Hm3M
+Univariate LDA: https://youtu.be/QG0pVJXT6EU
+Multivariate LDA: https://youtu.be/X4VDZDp2vqw
+QDA and Naive Bayes: https://youtu.be/6FiNGTYAOAA
+R-lab for LDA: https://youtu.be/2cl7JiPzkBY;
+R-lab for kNN: https://youtu.be/9TVVF7CS3F4 (we are looking at kNN lab already. More detailed readings on this matter will be coming up). 
+
+
+
+
+
+
+
+
+
+
+
+
