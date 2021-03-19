@@ -1,0 +1,189 @@
+---
+title: "data_622_hw_2"
+author: "Jimmy Ng"
+date: "3/17/2021"
+output: 
+        html_document: default
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## load packages, data
+
+This was the second assignment from the class data 622. We would use the "penguin" data set and apply three distinct classification algorithms to predict for "species". 
+
+```{r get_ready, collapse = TRUE}
+if(!require(pacman)){install.packages("pacman"); require(pacman)}
+packages <- c('nnet', 'glue', 'broom', 'MASS', 'caret', 'InformationValue', 'Hmisc', 'kableExtra', 'corrplot', 'tidyverse', 'ROCR', 'palmerpenguins', 'mice', 'nortest', 'ellipse')
+pacman::p_load(char = packages)
+
+df = penguins
+
+df %>% head() %>% kableExtra::kable()
+```
+
+## data exploration : metadata
+
+We looked at the data type, number of missing and unique values for each variable. We would explore the data and also impute the data set before fitting the models.
+
+```{r, metadata, collapse = TRUE}
+str(df)
+
+metadata = data.frame(colName = names(df)) %>%
+    dplyr::mutate(dtype = sapply(df, class),
+                  missing = colSums(is.na(df)),
+                  unique = sapply(df, function(x) length(unique(x))))
+
+metadata %>% kableExtra::kable()
+```
+
+## data exploration : physiological measures
+
+We have 3 distinct species. Let's focus on the four main physiological measures, i.e. "bill_length_mm", "bill_depth_mm", "flipper_length_mm", and "body_mass_g", and see how they differ. 
+
+```{r, eda, collapse = TRUE, fig.height = 9, fig.width = 12, fig.align = "center"}
+bodyVars = metadata %>% dplyr::filter(unique >3) %>% .$colName %>% as.character
+
+dfGather <- df %>%
+    dplyr::select(all_of(c("species", bodyVars))) %>%
+    dplyr::mutate(species = as.character(species)) %>%
+    tidyr::gather(key, value, -species)
+
+ggplot(dfGather, aes(value, color = species)) +
+    geom_density() +
+    theme(legend.position = "top") +
+    geom_vline(data = aggregate(value ~ species + key, dfGather, median), 
+               aes(xintercept = value,
+                   color = species),
+               linetype = "dashed") +
+    facet_wrap(~ key, nrow = 5, scales = "free")
+```
+
+## data exploration : feature plot
+
+While the above ggplot displayed the distribution of each continuous variable for the three species (and we could see that Adelie and Chinstrap are highly similar to each other), below feature plot further demonstrated how these four physiological measures related to each other, and how these measures could classify the species, e.g. Adelie and Chinstrap were almost identical in most of these measures (as the circles overlapped with each other).
+
+```{r, featurePlot, collapse = TRUE, fig.height = 12, fig.width = 15, fig.align = "center"}
+dfTemp = df[complete.cases(df), ] %>% dplyr::select(species, bill_length_mm:body_mass_g)
+
+caret::featurePlot(x = dfTemp %>% dplyr::select(-species),
+                   y = dfTemp$species,
+                   plot = "ellipse",
+                   # add a key at the top
+                   auto.key = list(columns = 3))
+```
+
+## data cleanup : impute missing values, minus the variable "year"
+
+Next, we would have to impute the data set. We took out a useless variable "year" before modeling. Moreover, we would conduct a correlation matrix to see the correlation among the four physiological measures. 
+
+```{r, data clean, collapse = TRUE, fig.height = 6, fig.width = 9, fig.align = "center"}
+# impute missing values
+init = mice(df, maxit = 0) 
+meth = init$method
+predM = init$predictorMatrix
+meth[c("bill_length_mm", "bill_depth_mm", "flipper_length_mm", "body_mass_g")] = "norm" 
+meth[c("sex")] = "logreg" 
+
+set.seed(1234)
+imputed <- mice(df, method = meth, predictorMatrix = predM, m = 5)
+df2 <- complete(imputed) %>% dplyr::select(-year)
+
+# double check and make sure no more missing values
+colSums(is.na(df2))
+
+# df2 - ready to build model
+df2 %>% head()
+
+# let's take a look of the bodyVars after completing the whole data set
+df2 %>%
+        dplyr::select(bodyVars) %>%
+        cor() %>%
+        corrplot(method = "number", type = "upper", order = "hclust")
+```
+
+## data prep : scale data, Anderson Darling test for normality, split data
+
+We would scale the data, and then conduct the Anderson Darling test for normality. We would split the data and set up a train control before building models. The four physiological measures had from mild to high correlation to each other. The "body_mass_g" was probably the only variable that had an underlying normal distribution for the three species, but the other three measures were close enough to normality (judging from above ggplot). We would do a 70/30 split, i.e. 70% of our data for training purpose, while the remaining 30% would be used for testing. In addition, we applied a 10-fold cross-validation for our model training exercise. 
+
+```{r, data prep, collapse = TRUE}
+# scale data
+dfScaled <- df2 %>% dplyr::mutate_at(vars(bodyVars), scale)
+
+# Anderson Darling test for normality
+ad.test.list = lapply(1:length(bodyVars), function(i){
+    aggregate(eval(sym(bodyVars[i])) ~ species, data = dfScaled, FUN = function(x) ad.test(x)$p.value) %>%
+        as.data.frame() %>%
+        dplyr::mutate(var = bodyVars[i]) %>%
+        dplyr::select(var, species, ad.test.p.value = V1)
+})
+
+names(ad.test.list) = bodyVars
+
+ad.test.list %>% dplyr::bind_rows() %>%
+    dplyr::mutate(is_normal = dplyr::case_when(ad.test.p.value > .05 ~ 1, TRUE ~ 0))
+
+# split data
+set.seed(1234)
+index <- caret::createDataPartition(dfScaled$species, p = .7, list = FALSE)
+trainSet <- dfScaled[index, ]
+testSet <- dfScaled[-index, ]
+
+# trainSetControl
+trainSet.control <- caret::trainControl(method = "cv", number = 10, savePredictions = "final", classProbs = TRUE)
+```
+
+## Linear Discriminant Analysis
+
+We achieved 100% accuracy!
+
+```{r lda, collapse = TRUE, message = FALSE, warning = FALSE}
+fit_lda = caret::train(species~., data = trainSet, method = "lda", 
+                       trControl = trainSet.control, metric = "Accuracy")
+
+fit_lda$pred %>% head()
+
+pred_lda = predict(fit_lda, testSet)
+
+caret::confusionMatrix(testSet$species, pred_lda)
+```
+
+## Quadratic Discriminant Analysis
+
+We removed the "island" variable to resolve the rank deficiency problem and achieved 99% accuracy!
+
+```{r qda, collapse = TRUE, message = FALSE, warning = FALSE}
+fit_qda = caret::train(species~., data = trainSet %>% dplyr::select(-island), method = "qda", 
+                       trControl = trainSet.control, metric = "Accuracy")
+
+fit_qda$pred %>% head()
+
+pred_qda = predict(fit_qda, testSet)
+
+caret::confusionMatrix(testSet$species, pred_qda)
+```
+
+## Naïve Bayes
+
+We achieved 96% accuracy!
+
+```{r nb, collapse = TRUE, message = FALSE, warning = FALSE}
+fit_nb = caret::train(species~., data = trainSet, method = "nb", 
+                      trControl = trainSet.control, metric = "Accuracy")
+
+fit_nb$pred %>% head
+
+pred_nb = predict(fit_nb, testSet)
+
+caret::confusionMatrix(testSet$species, pred_nb)
+```
+
+## Conclusion
+
+Overall, the three models performed really well. The LDA achieved 100% accuracy, whereas the QDA had 99% and NB had 96%. 
+
+The LDA tended to perform better than logistic regression when the classes were well separated. If the predictors had an approximately normal distribution for each class (such as the "body_mass_g" but the other three were also very close to normal distribution), than LDA tended to be more stable and performed better than logistic regression. Besides, LDA was more frequently used when there were more than 2 response classes. Overall, the LDA assumed that the data drew from a multivariate Gaussian distribution, with a class specific mean vector and common covariance matrix. It produced linear separation boundaries. On the other hand, QDA would be recommended if the training set was large or if the assumption of a common covariance matrix was not realistic. Unlike LDA, QDA considered each class had its own variance or covariance matrix rather than to have a common one. In this QDA model, a variable "island" had to be removed for solving a rank deficiency problem. The QDA led to a quadratic decision surface and still performed really well without the "island" variable. Lastly, the NB assumed conditional independence and therefore it would not perform as well when the continuous variables were highly correlated. It assumed Gaussian or normal distribution for the continuous variables. Although the NB model performed the worst among the three algorithms presented here, it still performed really well with 96% accuracy. Overall, the misclassification found in QDA and NB always happened between Adelie and Chinstrap. Gentoo always achieved 100% sensitivity and 100% specificity in all three models. That was not hard to explain after we looked at the above ggplot and feature plot. Gentoo could always be clearly separated from the other two based on the measures.
+
+In reality, we always dealed with messy data and the response classes could not be so well separated or classified. The penguin data set was a very small data set which allowed us to explore various algorithms with all the variables. Since some of the physiological measures highly overlapped with some decision boundaries (which made it indistinguishable between Adelie and Chinstrap), we should avoid picking them. For example, we should just pick "body_mass_g" and "bill_length_mm" and ignore the other two. Nevertheless, including all variables still returned highly accurate results from these three classifiers.

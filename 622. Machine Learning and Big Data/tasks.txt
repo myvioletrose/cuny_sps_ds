@@ -54,14 +54,98 @@ QDA and Naive Bayes: https://youtu.be/6FiNGTYAOAA
 R-lab for LDA: https://youtu.be/2cl7JiPzkBY;
 R-lab for kNN: https://youtu.be/9TVVF7CS3F4 (we are looking at kNN lab already. More detailed readings on this matter will be coming up). 
 
+#############################
+>> Week 4 (Feb 19 - Feb 26)
 
+Weekly materials
+This week, our formal readings from the book will be a little lighter than some of the practical resources we will look at. The focus is to develop a solid understanding of KNN and Naive Bayes as far as conducting the analysis is concerned. We will be a little light on the theoretical readings. 
 
+Tasks: 
 
+1. Discussion board
 
+2. HW# 2 is assigned
 
+3. Reading and learning materials: 
 
+- KNN R resources: https://www.geeksforgeeks.org/k-nn-classifier-in-r-programming/
 
+- A practical guide on KNN https://www.listendata.com/2017/12/k-nearest-neighbor-step-by-step-tutorial.html
 
+- Naïve Bayes Classifier R resource. https://uc-r.github.io/naive_bayes
+
+- In order to have a good grasp of LDA, Naive Bayes and Logistic Regression in terms of how they all compare and contrast, this is a good set of lecture slides: https://mdav.ece.gatech.edu/ece-6254-spring2017/notes/05-logistic-regression.pdf 
+
+- Though it is a bit less academic, I like this video in terms of how clearly it explains the Naive Bayes ideas. https://www.youtube.com/watch?v=O2L2Uv9pdDA
+
+- From the same producer, the Gaussian Naive Bayes: https://youtu.be/H3EjCKtlVog
+
+- ESL: Chapter section 6.6, focus on Naïve Bayes Classifier (6.6.3)
+
+- ESL: Section 7.10 (Cross validation). This may be helpful for HW#3 when you look at the KNN problem. This is an important topic and we will revisit this topic a couple of times.
+
+- ISLR: Chapter 6 (optional). You probably know most of these in terms of variable selection. However, reading the section 6.2 will help the understanding of bias-variance tradeoff, the shrinkage/regularization methods, and variable selection.
+
+- (Optional) Discriminative and generative classifiers: how Logistic Regression differs from Naive Bayes https://papers.nips.cc/paper/2001/file/7b7a53e239400a13bd6be6c91c4f6c4e-Paper.pdf
+
+#############################
+>> Week 5 (Feb 26 - Mar 5)
+
+1. Discussion board
+
+2. HW# 2 is assigned
+
+3. Reading and learning materials:  
+
+          ESL: Ch: 9.1, 9.2;  ISLR: Ch: 8.1
+
+Lecture slides: https://web.stanford.edu/~hastie/MOOC-Slides/trees.pdf (These slides go into next week's materials as well. For this week, focus till      slide # 30)
+
+Videos:
+
+Decision Trees: https://www.youtube.com/watch?v=6ENTbK3yQUQ&list=PL5-da3qGB5IB23TLuA8ZgVGC8hV8ZAdGh
+
+Pruning a Decision Tree: https://www.youtube.com/watch?v=GfPR7Xhdokc&list=PL5-da3qGB5IB23TLuA8ZgVGC8hV8ZAdGh
+
+Classification Trees: https://www.youtube.com/watch?v=hPEJoITBbQ4&list=PL5-da3qGB5IB23TLuA8ZgVGC8hV8ZAdGh
+
+#############################
+>> Week 6 (Mar 5 - Mar 12)
+
+This week and the next, we will be digging into boosting and additive models. 
+
+Homework #2 due March 19.
+
+Discussion Board # 6
+
+ISLR: 8.2, 8.3. 
+ESL: 9.3 - 9.7
+
+Lecture slides: https://web.stanford.edu/~hastie/MOOC-Slides/trees.pdf (slide#31 onward)
+
+Video: Bagging and Random Forests
+Video: Boosting and Variable Importance
+Video: Decision Trees Lab
+Video: Random Forests and Boosting
+
+#############################
+>> Week 7 (Mar 12 - Mar 19)
+
+Boosting some more!
+This week, we dig into boosting and additive models even more. Next week, we will be looking at Support Vector Machine. 
+
+Discussion Board # 7
+Homework # 2 due on March 19
+Homework # 3 will be posted
+Reading: ESL: Chapter 10 (Boosting and Additive Trees)
+Helpful lectures :
+Not a formal academic source,  but I think these are helpful: AdaBoost explanation: I like the clarity behind this  video: https://www.youtube.com/watch?v=LsK-xG1cLYA
+Gradient Boosting:
+Part 1 (for regression; continuous outcome);
+Part 2 (more theoretical);
+Part 3 (more practical, classification problem; might be helpful for homework # 3);
+Part 4 (more theoretical).
+Quite long, especially if you go through all three lecture videos. But if you have the time, very much worth it. http://www.cs.cornell.edu/courses/cs4780/2018fa/lectures/lecturenote19.html
 
 
 
