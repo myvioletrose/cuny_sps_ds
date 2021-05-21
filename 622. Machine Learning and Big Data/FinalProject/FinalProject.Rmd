@@ -1,0 +1,1139 @@
+---
+title: "Group 4 Final Project"
+author: "Ajay Arora, Romerl Elizes, Jimmy Ng, Joshua Registe"
+date: "May 21, 2021"
+output:
+  rmdformats::readthedown:
+    self_contained: yes
+    thumbnails: yes
+    lightbox: yes
+    gallery: no
+    highlight: tango
+    code_folding: hide
+editor_options: 
+  chunk_output_type: console
+---
+
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE, 
+  warning = FALSE, 
+  message = FALSE,
+  cache = FALSE)
+packages <- c(
+  'tidyverse', 
+  'corrplot', 
+  'palmerpenguins',
+  'class',
+  'kableExtra',
+  'naniar',
+  'mice',
+  'DataExplorer',
+  'caret',
+  'tidymodels',
+  'rsample',
+  'themis',
+  'randomForest',
+  'car',
+  'xgboost',
+  'broom',
+  'DBI',
+  'RMySQL',
+  'RJDBC',
+  'lattice',
+  'ggplot2',
+  'e1071'
+)
+for (pkg in packages) {
+  suppressPackageStartupMessages(suppressWarnings(
+    library(
+      pkg, character.only = TRUE, 
+      warn.conflicts = FALSE, quietly = TRUE)
+  ))
+}
+
+# A ggplot2 function
+defaulttheme <- theme(
+  panel.background = element_blank(),
+  panel.border = element_rect(color = "black", fill = NA))
+```
+ 
+## (1) Introduction and Project Summary {.tabset .tabset-fade .tabset-pills} 
+
+#### Introduction
+
+After brainstorming the data sets available, Group 4 decided to use the New York City (NYC) 311 data found in the link: https://data.cityofnewyork.us/Social-Services/311-Service-Requests-from-2010-to-Present/erm2-nwe9. It is a very ambitious undertaking given that all Assignments covered in this course consisted of no more than 614 rows of records. The NYC data consists of 25+ million rows and 41 columns.
+The initial goal of the project was to develop a prediction algorithm from 3 possible models that would allow 311 operators to give an estimate of when the request will be resolved?  It's a simple statement, but a complicated problem.  If the 311 department wanted to give people estimates they'd have to balance: 1) being conservative and overestimating, but people get angry cause it's going to take a long time to get done, 2) underestimating to make people feel optimistic, but then always failing, 3) giving a range and having that range be so big that an estimate is worthless, or 4) giving an unbiased point estimate and always being wrong. It may be a huge undertaking, but Group 4 wanted to perform predictions based on not only a real data set but see if the algorithms provided by R can handle very large data sets.  
+
+#### Project Summary
+
+After initial research, data exploration, data cleaning, and model selections, Group 4 decided on the following project activities:
+
+- The final data stream used was the first 585,000 rows of records from the 25+ million rows. We had no respository that could house that data without significant cost to the Team. We found a free, but temporary conduit with Amazon Web Service that helped us store all 25+ million records. However, 585,000 rows were the extent of our data exploration as memory limitations of R-Studio and the RAM of the computer machine did not allow for execution of Random Forests completely. For example, Ajay and Romerl independently ran Random Forests with 1.8 million rows and both encountered R-Studio out-of-memory error message.
+
+- Of the 41 variables in the data set, we determined that 9 variables were the best possible variables for our model building. Many variables had a large amount of null data and it would not have been feasible to use them for our data set. Many of the categorical variables had over 100 categories and it would not make sense to incorporate them for model building. A detailed discussion of which variables were eliminated and why will be explained later in the project document.
+
+- Two categorical variables, **Complaint_Type** and **Location_Type**, while having greater than 100 categories, seemed feasible for our model building. We intentionally reduced the number of categories by combining like and similar categories within the variable to make it to 53 categories for each of those variables. The reason for this is that Random Forests cannot handle variables with greater than 53 categories.
+
+- The six models used for the Final Project are: 3 models of Random Forest (RF), 2 models of Support Vector Machine (SVM), and 1 model of Decision Tree.
+
+- The target variable selected, **Acceptable_Resolution_Status** was a derivation of two date variables, **Created_Date** and **Closed_Date**. **ResolutionTime** variable was the difference of **Created_Date** and **Closed_Date** in minutes. The mean for **ResolutionTime** is an unacceptabe 9772.2 minutes while the median is an unacceptable 92.3 minutes. These values were obtained at the 520,000 rows data set. We created the variable **Acceptable_Resolution_Status** with 'Y' for any value between 1 and 92.3 minutes and 'N' for 0 value or any value greater than 92.23 minutes.
+
+- This RMD file represents the final run for a data set with 585,000 rows of data. We conducted several tests from 400 to 585,000 rows of data and pooled all of our findings into one Excel spreadsheet that will highlight some key features of the runs at the end of this project document. It would not be possible to run all tests in this RMD file because at the 585,000 rows of data, the run time for the application was approximately 18 hours. We ran these tests through several days since mid-April.
+
+#### Conduct of Experiments and Results
+
+We conducted experiments from  400 to 585,000 rows of data several times. The data sets tested were 400, 800, 1600, 3200, 6400, 12800, 25600, 65000, 130000, 195000, 260000, 325000, 390000, 455000, 520000, and 585000. We ran these tests at the lower numbers first to make sure that the models could run against the data sizes without any errors prior to proceeding to the next data size threshhold. A snapshot of the results are highlighted:
+
+- **RF 1** - default model: mtry = 3, ntree = 500. Best accuracy of 96.5% at 800 rows. Average accuracy for all runs is 93.1%.
+
+- **RF 2** - optimized mtry = 9 according to the optimization routine, default ntree = 500. Best accuracy of 97.2% at 800 rows. Average accuracy for all runs is 94%.
+
+- **RF 3** - optimized mtry = 9, optimized ntree = 400 before it goes south. Best accuracy of 96.5% at 800 rows. Average accuracy for all runs is 94%.
+
+- **SVM 1** - linear kernel optimized at 0.005 gamma and cost = 6. At 585,000 rows it created 66 support vectors. Best accuracy of 75.3% at 1600 rows. Average accuracy for all runs is 57.2%.
+
+- **SVM 2** - radial kernel optimized at 0.005 gamma and cost = 1. At 585,000 rows it created 291,954 support vectors. Best accuracy of 97.4% at 400 rows. Average accuracy for all runs is 92.6%.
+
+- **DT 1** - default model. Best accuracy of 94.4% at 800 rows. Average accuracy for all runs is 91.4%.
+
+#### Performance of Models
+
+A summary of the performance of the models are highlighted:
+
+- All RF models ran from 0.06 minutes at 400 rows to 33.75 minutes at 585,000 rows. That means 0.02 minutes for one RF model at 400 rows and 11.25 minutes for one RF model at 585,000 rows.
+
+- Both SVM models ran from 0.02 minutes at 400 rows to a very unacceptable 1029 minutes at 585,000 rows. That's 17.15 hours! That means 0.01 minutes for one SVM model at 400 rows and 8.58 hours for one SVM model at 585,000 rows. Totally unacceptable!
+
+- The DT model ran from 0.01 minutes at 400 rows to a very impressive 1 minute at 585,000 rows. The accuracy slowly decreases, but still shows a strong 86.9% accuracy at 585,000 rows.
+
+In terms of accuracy, RF 2 and RF 3 have the best average accuracy for all data sets at 94%. While SVM 2 was accurate at 92.6% for all data sets, its performance was dismal. A runtime of 17.5 hours for both SVM models is unacceptable. DT's average accuracy for all data sets was 91.4%. Although, it was slightly lower than RF 2, RF 3, and SVM 2, it's performance time clearly won over these models. It's average performance for all data sets was an outstanding 0.29 minutes with 1 minute for 585,000 rows of data.
+
+## (2) Data Prep and Mitigation {.tabset .tabset-fade .tabset-pills} 
+
+This section highlights the detailed data preparation and cleaning for the project.
+
+#### Data Download and Project Preparation
+
+An initial problem with handling a data set with 25+ million rows is finding a repository within the time frame of the project that can meet the needs of the Group. There were two possible options: R-Studio Cloud Pro or Amazon Web Service. R-Studio Cloud Pro costs $25 per month at the student version but it could only handle up to 10 million rows of records. Romerl queried a sales representative from R-Studio Cloud Pro and got a quote of $300 plus a $50 per student cost for usage of such a large data set. which is unacceptable on a student budget for a one+ month project. Ajay found Amazon Web Service and it had four advantages: 1) it was free for one year, 2) it was able to house a table of 25+ million rows and more, 3) the data could be uploaded onto a mySQL database, and 4) Group 4 team members could download the data on their own machines with the proper mySQL credentials provided by Ajay.
+
+The next problem facing the Group is the initial downloading of the data. Ajay estimated a download time of 1.5 hours on R to mitigate the 25+ million rows. Ajay decided to split the massive table into 14 sub-tables of approximately 1.8 million rows each. The download time of data even at smaller queries was far more acceptable and allowed the Group to develop the Project further. However, downloading 1.8 million records from a machine with Wifi capability was not acceptable depending on the Wifi speed, computer RAM, and computer speed. If a machine was hard-wired to a computer network, the download time was significiantly less at less than 100 seconds for 1.8 million records.
+
+Due to Memory Limitations, Machine Limitations, and other factors, the maximum data tested is **585,000 rows of data minus N/A values = 416,849 rows of data total.**
+
+```{r}
+# placeholder for maxrows and totalrows
+# maxrows = 400
+#totalrows = maxrows * 1 
+maxrows = 65000 # max rows that mysql LIMIT can download
+totalrows = maxrows * 9 # max rows x9 that R-Studio can process without exceeding 7GB max for one vector
+#memory limitation - currently at 585K rows
+ntreecand = 400
+# Start the clock!
+ptm <- proc.time()
+cn <- dbConnect(drv      = RMySQL::MySQL(),
+                username = "data622",
+                password = "group4622",
+                host     = "data622.c3alv39zxnhk.us-east-2.rds.amazonaws.com",
+                port     = 3306,
+                dbname   = "")
+mainsqlstr <- paste("SELECT * FROM DATA622.data1;")
+#mainsqlstr <- paste("SELECT * FROM DATA622.data1 limit 0,",maxrows,";")
+data2 <- dbGetQuery(cn, mainsqlstr)
+str(data2)
+dbDisconnect(cn)
+```
+
+The total database query download time for the first 1.8 million rows was less than 100 seconds on average provided the computer was hard-wired to a computer network. As indicated earlier, a computer with Wifi access may experience longer download times for the data.
+
+```{r}
+# Stop the clock
+proc.time() - ptm
+```
+
+We performed some Data Type conversions in order to be able to execute preliminary Data Exploration activities. Several variables came in as character variables and it was best to convert them to their appropiate data types so that we could execute some meaningful analysis.
+
+```{r}
+# Start the clock!
+ptm <- proc.time()
+data2 <- head(data2,totalrows)
+data2$Incident_Zip <- as.numeric(as.character(data2$Incident_Zip))
+data2$BBL <- as.numeric(as.character(data2$BBL))
+data2$X_Coordinate_State_Plane <- as.numeric(as.character(data2$X_Coordinate_State_Plane))
+data2$Y_Coordinate_State_Plane <- as.numeric(as.character(data2$Y_Coordinate_State_Plane))
+data2$Latitude <- as.numeric(as.character(data2$Latitude))
+data2$Longitude <- as.numeric(as.character(data2$Longitude))
+#data2[['Created_Date']] <- strptime(data2[['Created_Date']], format='%Y.%m.%d')
+data2$Created_Date <- as.POSIXct(strptime(data2$Created_Date, "%Y-%m-%d %H:%M:%S"))
+data2$Closed_Date <- as.POSIXct(strptime(data2$Closed_Date, "%Y-%m-%d %H:%M:%S"))
+data2$Resolution_Action_Updated_Date <- as.POSIXct(strptime(data2$Resolution_Action_Updated_Date, "%Y-%m-%d %H:%M:%S"))
+data2$Due_Date <- as.POSIXct(strptime(data2$Due_Date, "%Y-%m-%d %H:%M:%S"))
+
+data2$ResolutionTime <- difftime(data2$Closed_Date,data2$Created_Date, units = "min")
+data2$ResolutionTime <- as.numeric(data2$ResolutionTime)
+# Make it NA if less than 0. Only 75 cases in 1.8 million rows in data1.
+data2$ResolutionTime[data2$ResolutionTime < 0] <- NA
+```
+
+#### Data Exploration
+
+For our first Data Exploration activity, we did a plot of the Top Complaint Types.
+
+```{r}
+#Top complaint types
+ggplot(subset(data2, data2$Complaint_Type %in% count(data2, data2$Complaint_Type, sort=T)[1:maxrows,]$Complaint_Type), 
+       aes(data2$Complaint_Type)) + 
+  geom_histogram(stat = "count",color="black", fill="blue") +
+  labs(x="Complaint Type", y="Service Requests") +
+  coord_flip() + theme_bw()
+```
+
+For our second Data Exploration activity, we executed a plot for the Top Borough.
+
+```{r}
+# Top Borough 
+ggplot(subset(data2, data2$Borough %in% count(data2, data2$Borough, sort=T)[1:maxrows,]$Borough), 
+       aes(data2$Borough)) + 
+  geom_histogram(stat = "count",color="black", fill="blue") +
+  labs(x="Borough", y="Service Requests") +
+  coord_flip() + theme_bw()
+```
+
+For our third Data Exploration activity, we executed a plot of the Top Complaint Types by Borough and Status.
+
+```{r}
+# Top complaint types by Borough and Status 
+ggplot(subset(data2, data2$Complaint_Type %in% count(data2, Complaint_Type, sort=T)[1:maxrows,]$Complaint_Type), aes(x=data2$Status, y = data2$Complaint_Type)) +
+  geom_point() +
+  geom_count(n=2, colour="black") + 
+  facet_wrap(~data2$Borough)
+```
+
+#### Variable Elimination
+
+We had to get rid of several variables as they were not needed for model building. For expediency, we got rid of all NAs instead of imputing them. Below is a list of variables that were eliminated from our Project and a short description why they were not needed.
+
+- **Unique_Key** - continuous variable - ID - not needed.
+
+- **Agency_Name** - full name of department or organization where 311 calls were made to. Agency is more appropriate.
+
+- **Incident_Address** - full street address - too much disparate information to make an appropriate model. Random Forest algorithm cannot handle this variable as it has over 53 categories.
+
+- **Street_Name** - Street name - too much disparate information to make an appropriate model. Random Forest algorithm cannot handle this variable as it has over 53 categories.
+
+- **Cross_Street_1** - cross street - too much disparate information to make an appropriate model. Random Forest algorithm cannot handle this variable as it has over 53 categories.
+
+- **Cross_Street_1** - cross street - too much disparate information to make an appropriate model. Random Forest algorithm cannot handle this variable as it has over 53 categories.
+
+- **Intersection_Street_1** - intersection street - too much disparate information to make an appropriate model. Random Forest algorithm cannot handle this variable as it has over 53 categories.
+
+- **Intersection_Street_2** - intersection street - too much disparate information to make an appropriate model. Random Forest algorithm cannot handle this variable as it has over 53 categories.
+.
+- **City** - Random Forest algorithm cannot handle this variable as it has over 53 categories. The borough of Queens has too many cities that go over the maximum 53 categories.
+
+- **Resolution_Description** - Random Forest algorithm cannot handle this variable as it has over 53 categories.
+
+- **Landmark** - Random Forest algorithm cannot handle this variable as it has over 53 categories.
+
+- **X_Coordinate_State_Plane** - x coordinate of approximate location - too much disparate information to make an appropriate model. Since the Team's focus was not spatial or map-based, this variable was not needed.
+
+- **Y_Coordinate_State_Plane** - y coordinate of approximate location - too much disparate information to make an appropriate model. Since the Team's focus was not spatial or map-based, this variable was not needed.
+
+- **Longitude** - longitude of approximate location - too much disparate information to make an appropriate model. Since the Team's focus was not spatial or map-based, this variable was not needed.
+
+- **Latitude** - latitude of approximate location - too much disparate information to make an appropriate model.  Since the Team's focus was not spatial or map-based, this variable was not needed.
+
+- **Location**  - set of latitude and longitude of approximate location - too much disparate information to make an appropriate model.  Since the Team's focus was not spatial or map-based, this variable was not needed.
+
+- **Vehicle_Type** - almost all values are NA. 
+
+- **Taxi_Company_Borough** - almost all values are NA. 
+
+- **Taxi_Pick_Up_Location** - almost all values are NA. 
+
+- **Bridge_Highway_Name** - almost all values are NA. 
+
+- **Bridge_Highway_Direction** - almost all values are NA. 
+
+- **Road_Ramp** - almost all values are NA. 
+
+- **Bridge_Highway_Segment** - almost all values are NA.
+
+- **Bridge_Highway_Segment** - almost all values are NA.
+
+- **Due_Date** - almost all values are NA.
+
+- **Facility_Type** - too many values are NA.
+
+- **Address_Type** - too many values are NA.
+
+- **Park_Borough** - this is the same as Borough.
+
+- **Park_Facility_Name** - Random Forest algorithm cannot handle this variable as it has over 53 categories.
+
+- **Community_Board** - Random Forest algorithm cannot handle this variable as it has over 53 categories.
+
+- **Descriptor** - Random Forest algorithm cannot handle this variable as it has over 53 categories.
+
+- **Closed_Date** - Variable is not needed because it is used to calculate ResolutionTime.
+
+- **Created_Date** - Variable is not needed because it is used to calculate ResolutionTime.
+
+```{r}
+data2cand <- data2 %>% 
+  select(-Unique_Key, -Agency_Name, -Incident_Address, -Cross_Street_1, -Cross_Street_2, -Intersection_Street_1, -Intersection_Street_2, -City, -Landmark, -Resolution_Description, -Street_Name, -X_Coordinate_State_Plane,  -Y_Coordinate_State_Plane, -Longitude, -Latitude, -Location, -Vehicle_Type, -Taxi_Company_Borough, -Taxi_Pick_Up_Location, -Bridge_Highway_Name, -Bridge_Highway_Direction, -Road_Ramp, -Bridge_Highway_Segment, -Due_Date, -Facility_Type, -Address_Type, -Park_Borough, -Park_Facility_Name, -Community_Board, -Descriptor, -Closed_Date, -Created_Date) %>% 
+  mutate_if(is.character, factor)
+data2cand <- na.omit(data2cand)
+summary(data2cand)
+```
+
+As a group, we chose not to impute the data. While the number of NAs accounted for 28.4% of all data sets experimented, it would not have been necessary to impute them as there were a sizable amount of data to test with. We chose to omit the rows containing NA values.
+
+```{r}
+nrow(data2cand)
+```
+
+#### Reduce Number of Categorical Variables to Less Than 53
+
+Certain Categorical variables have greater than 53 categories. A Random Forest cannot be executed against these variables because of this. A solution would be to reduce the number of categories by combining like categories together. We identified two variables in our data exploration phase that may be viable independent variables for our models. They are **Complaint_Type** and **Location_Type.** 
+
+**Complaint_Type**
+
+Based on our visual inspection of the categories in the **Complaint_Type** variable, we reduced similar categories to the following categories: Noise, Sanitation Condition, Tree Issue, Repair Issue, Street Sign Issue, Parking Violation, Homeless Issue, Animal Issue, Dining Establishment, Taxi Issue, Water Issue, Bike/Skate-related Issue, Abandoned Vehicle, Bus Shelter Issue, Environmental Issue, and Petty Crimes. We arrived at 45 categories that we could work with for our Random Forest models.
+
+```{r}
+data2cand$Complaint_Type <- as.character(data2cand$Complaint_Type)
+
+# Consolidate Noise categories
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Noise - Residential"] <- "Noise"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Noise - Helicopter"] <- "Noise"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Noise - Street/Sidewalk"] <- "Noise"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Noise - Commercial"] <- "Noise"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Noise - Vehicle"] <- "Noise"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Noise - Park"] <- "Noise"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Noise - House of Worship"] <- "Noise"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Collection Truck Noise"] <- "Noise"
+
+# Consolidate Sanitary Condition categories
+data2cand$Complaint_Type[data2cand$Complaint_Type == "UNSANITARY CONDITION"] <- "Sanitation Condition"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Unsanitary Animal Pvt Property"] <- "Sanitation Condition"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Indoor Sewage"] <- "Sanitation Condition"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Unsanitary Pigeon Condition"] <- "Sanitation Condition"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Dirty Conditions"] <- "Sanitation Condition"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Root/Sewer/Sidewalk Condition"] <- "Sanitation Condition"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Unsanitary Condition"] <- "Sanitation Condition"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Wood Pile Remaining"] <- "Sanitation Condition"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "DSNY Spillage"] <- "Sanitation Condition"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Sweeping/Missed"] <- "Sanitation Condition"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Sweeping/Inadequate"] <- "Sanitation Condition"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Request Large Bulky Item Collection"] <- "Sanitation Condition"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Overflowing Litter Baskets"] <- "Sanitation Condition"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Missed Collection (All Materials)"] <- "Sanitation Condition"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Litter Basket / Request"] <- "Sanitation Condition"
+
+# Consolidate Tree Issue categories
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Damaged Tree"] <- "Tree Issue"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Overgrown Tree/Branches"] <- "Tree Issue"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Dead/Dying Tree"] <- "Tree Issue"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Illegal Tree Damage"] <- "Tree Issue"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Uprooted Stump"] <- "Tree Issue"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "New Tree Request"] <- "Tree Issue"
+
+# Consolidate Street Sign Issue categories
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Street Sign - Damaged"] <- "Street Sign Issue"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Street Sign - Missing"] <- "Street Sign Issue"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Street Sign - Dangling"] <- "Street Sign Issue"
+
+# Consolidate Repair Issue categories
+data2cand$Complaint_Type[data2cand$Complaint_Type == "PAINT/PLASTER"] <- "Repair Issue"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "PLUMBING"] <- "Repair Issue"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "ELECTRIC"] <- "Repair Issue"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "APPLIANCE"] <- "Repair Issue"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "HEAT/HOT WATER"] <- "Repair Issue"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "WATER LEAK"] <- "Repair Issue"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "FLOORING/STAIRS"] <- "Repair Issue"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "DOOR/WINDOW"] <- "Repair Issue"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "ELEVATOR"] <- "Repair Issue"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "GENERAL"] <- "Repair Issue"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "OUTSIDE BUILDING"] <- "Repair Issue"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Outside Building"] <- "Repair Issue"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "SAFETY"] <- "Repair Issue"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "HEATING"] <- "Repair Issue"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Appliance"] <- "Repair Issue"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "General"] <- "Repair Issue"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Safety"] <- "Repair Issue"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Plumbing"] <- "Repair Issue"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Peeling Paint"] <- "Repair Issue"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Mold"] <- "Repair Issue"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Window Guard"] <- "Repair Issue"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Non-Residential Heat"] <- "Repair Issue"
+
+# Consolidate Parking Violation categories
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Blocked Driveway"] <- "Parking Violation"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Illegal Parking"] <- "Parking Violation"
+
+# Consolidate Homeless Issue categories
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Homeless Encampment"] <- "Homeless Issue"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Homeless Person Assistance"] <- "Homeless Issue"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Homeless Street Condition"] <- "Homeless Issue"
+
+# Consolidate Animal Issue categories
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Animal-Abuse"] <- "Animal Issue"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Animal in a Park"] <- "Animal Issue"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Unleashed Dog"] <- "Animal Issue"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Rodent"] <- "Animal Issue"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Mosquitoes"] <- "Animal Issue"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Illegal Animal Kept as Pet"] <- "Animal Issue"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Pet Shop"] <- "Animal Issue"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Animal Facility - No Permit"] <- "Animal Issue"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Unsanitary Animal Facility"] <- "Animal Issue"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Illegal Animal Sold"] <- "Animal Issue"
+
+# Consolidate Dining Establishment categories
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Food Establishment"] <- "Dining Establishment"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Outdoor Dining"] <- "Dining Establishment"
+
+# Consolidate Taxi Issue categories
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Taxi Compliment"] <- "Taxi Issue"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Taxi Complaint"] <- "Taxi Issue"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "For Hire Vehicle Complaint"] <- "Taxi Issue"
+
+# Consolidate Water Issue categories
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Drinking Water"] <- "Water Issue"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Bottled Water"] <- "Water Issue"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Standing Water"] <- "Water Issue"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Cooling Tower"] <- "Water Issue"
+
+# Consolidate Bike/Skate-related Issue categories
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Bike/Roller/Skate Chronic"] <- "Bike/Skate-related Issue"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Derelict Bicycle"] <- "Bike/Skate-related Issue"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Bike Rack Condition"] <- "Bike/Skate-related Issue"
+
+# Consolidate Abandoned Vehicle categories
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Derelict Vehicles"] <- "Abandoned Vehicle"
+
+# Consolidate Bus Stop Shelter Issue categories
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Bus Stop Shelter Complaint"] <- "Bus Stop Shelter Issue"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Bus Stop Shelter Placement"] <- "Bus Stop Shelter Issue"
+
+# Consolidate Environmental Issue categories
+data2cand$Complaint_Type[data2cand$Complaint_Type == "DEP Street Condition"] <- "Environmental Issue"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "DEP Sidewalk Condition"] <- "Environmental Issue"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Radioactive Material"] <- "Environmental Issue"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Asbestos"] <- "Environmental Issue"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "X-Ray Machine/Equipment"] <- "Environmental Issue"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Indoor Air Quality"] <- "Environmental Issue"
+
+# Consolidate Petty Crimes categories
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Urinating in Public"] <- "Petty Crimes"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Squeegee"] <- "Petty Crimes"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Panhandling"] <- "Petty Crimes"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Employee Behavior"] <- "Petty Crimes"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Calorie Labeling"] <- "Petty Crimes"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Illegal Fireworks"] <- "Petty Crimes"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Violation of Park Rules"] <- "Petty Crimes"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Recycling Enforcement"] <- "Petty Crimes"
+data2cand$Complaint_Type[data2cand$Complaint_Type == "Disorderly Youth"] <- "Petty Crimes"
+
+data2cand$Complaint_Type <- as.factor(data2cand$Complaint_Type)    
+unique(data2cand$Complaint_Type)
+```
+
+**Location_Type**
+
+Based on our visual inspection of the categories in the **Location_Type** variable, we reduced similar categories to the following categories: Residential Property, 3+Family Dwelling, 1-3 Family Dwelling, 1-2 Family Dwelling, School, Street/Sidewalk, Vacant Property, Commerical Property, Parking Lot/Garage, Park/Garden, Other, Pool/Spa/Beach, Medical/Dental Practice, Access Area, Street Vendor, Store, Building, Animal-based Business, Restaurant/Bar/Deli/Bakery, and Subway. We arrived at 43 categories that we could work with for our Random Forest models.
+
+```{r}
+# Consolidate Residential categories
+data2cand$Location_Type <- as.character(data2cand$Location_Type)
+data2cand$Location_Type[data2cand$Location_Type == "RESIDENTIAL BUILDING"] <- "Residential Property"
+data2cand$Location_Type[data2cand$Location_Type == "Residential Building/House"] <- "Residential Property"
+data2cand$Location_Type[data2cand$Location_Type == "Residential Building"] <- "Residential Property"
+data2cand$Location_Type[data2cand$Location_Type == "Residential"] <- "Residential Property"
+data2cand$Location_Type[data2cand$Location_Type == "Residence"] <- "Residential Property"
+data2cand$Location_Type[data2cand$Location_Type == "Private House"] <- "Residential Property"
+data2cand$Location_Type[data2cand$Location_Type == "Private Residence"] <- "Residential Property"
+
+# Consolidate 3+Family Dwelling categories
+data2cand$Location_Type[data2cand$Location_Type == "3+ Family Apart"] <- "3+Family Dwelling"
+data2cand$Location_Type[data2cand$Location_Type == "3+ Family Apt."] <- "3+Family Dwelling"
+data2cand$Location_Type[data2cand$Location_Type == "3+Family Apt."] <- "3+Family Dwelling"
+data2cand$Location_Type[data2cand$Location_Type == "3+ Family Apt. Building"] <- "3+Family Dwelling"
+data2cand$Location_Type[data2cand$Location_Type == "3+ Family Apartment Building"] <- "3+Family Dwelling"
+data2cand$Location_Type[data2cand$Location_Type == "3+ Family Mixed Use Building"] <- "3+Family Dwelling"
+data2cand$Location_Type[data2cand$Location_Type == "3+ Family Mixed"] <- "3+Family Dwelling"
+data2cand$Location_Type[data2cand$Location_Type == "3+ Family"] <- "3+Family Dwelling"
+
+# Consolidate 1-3 Family Dwelling categories
+data2cand$Location_Type[data2cand$Location_Type == "1-3 Family Mixed Use Building"] <- "1-3 Family Dwelling"
+data2cand$Location_Type[data2cand$Location_Type == "1-, 2- and 3- Family Home"] <- "1-3 Family Dwelling"
+
+# Consolidate 1-2 Family Dwelling categories
+data2cand$Location_Type[data2cand$Location_Type == "1-2 FamilyDwelling"] <- "1-2 Family Dwelling"
+data2cand$Location_Type[data2cand$Location_Type == "1-2 Family Mixed Use Building"] <- "1-2 Family Dwelling"
+
+# Consolidate School categories
+data2cand$Location_Type[data2cand$Location_Type == "School/Pre-School"] <- "School"
+data2cand$Location_Type[data2cand$Location_Type == "Public School"] <- "School"
+data2cand$Location_Type[data2cand$Location_Type == "Private School"] <- "School"
+data2cand$Location_Type[data2cand$Location_Type == "School - K-12 Private"] <- "School"
+data2cand$Location_Type[data2cand$Location_Type == "Cafeteria - Public School"] <- "School"
+data2cand$Location_Type[data2cand$Location_Type == "Cafeteria - Private School"] <- "School"
+data2cand$Location_Type[data2cand$Location_Type == "School Safety Zone"] <- "School"
+
+# Consolidate Street/Sidewalk categories
+data2cand$Location_Type[data2cand$Location_Type == "Sidewalk"] <- "Street/Sidewalk"
+data2cand$Location_Type[data2cand$Location_Type == "Street"] <- "Street/Sidewalk"
+data2cand$Location_Type[data2cand$Location_Type == "Street/Curbside"] <- "Street/Sidewalk"
+data2cand$Location_Type[data2cand$Location_Type == "Street Area"] <- "Street/Sidewalk"
+data2cand$Location_Type[data2cand$Location_Type == "Curb"] <- "Street/Sidewalk"
+
+# Consolidate Vacant Property categories
+data2cand$Location_Type[data2cand$Location_Type == "Vacant Lot/Property"] <- "Vacant Property"
+data2cand$Location_Type[data2cand$Location_Type == "Vacant Lot"] <- "Vacant Property"
+data2cand$Location_Type[data2cand$Location_Type == "Vacant Building"] <- "Vacant Property"
+data2cand$Location_Type[data2cand$Location_Type == "Abandoned Building"] <- "Vacant Property"
+
+# Consolidate Commercial Property categories
+data2cand$Location_Type[data2cand$Location_Type == "Commercial"] <- "Commercial Property"
+data2cand$Location_Type[data2cand$Location_Type == "Comercial"] <- "Commercial Property"
+data2cand$Location_Type[data2cand$Location_Type == "Commercial Building"] <- "Commercial Property"
+data2cand$Location_Type[data2cand$Location_Type == "Store/Commercial"] <- "Commercial Property"
+
+# Consolidate Parking Lot/Garage categories
+data2cand$Location_Type[data2cand$Location_Type == "Parking Lot"] <- "Parking Lot/Garage"
+
+# Consolidate Park/Garden categories
+data2cand$Location_Type[data2cand$Location_Type == "Public Park/Garden"] <- "Park/Garden"
+data2cand$Location_Type[data2cand$Location_Type == "Public Garden/Park"] <- "Park/Garden"
+data2cand$Location_Type[data2cand$Location_Type == "Public Garden"] <- "Park/Garden"
+data2cand$Location_Type[data2cand$Location_Type == "Park"] <- "Park/Garden"
+
+# Consolidate Other categories
+data2cand$Location_Type[data2cand$Location_Type == "N/A"] <- "Other"
+data2cand$Location_Type[data2cand$Location_Type == "Other (Explain Below)"] <- "Other"
+data2cand$Location_Type[data2cand$Location_Type == "Other (explain in Complaint Details)"] <- "Other"
+data2cand$Location_Type[data2cand$Location_Type == "Property Address"] <- "Other"
+data2cand$Location_Type[data2cand$Location_Type == "Street Address"] <- "Other"
+data2cand$Location_Type[data2cand$Location_Type == "Above Address"] <- "Other"
+data2cand$Location_Type[data2cand$Location_Type == "Mixed Use"] <- "Other"
+
+# Consolidate Pool/Spa/Beach categories
+data2cand$Location_Type[data2cand$Location_Type == "Pool"] <- "Pool/Spa/Beach"
+data2cand$Location_Type[data2cand$Location_Type == "Beach"] <- "Pool/Spa/Beach"
+data2cand$Location_Type[data2cand$Location_Type == "Sauna"] <- "Pool/Spa/Beach"
+data2cand$Location_Type[data2cand$Location_Type == "Spa Pool"] <- "Pool/Spa/Beach"
+
+# Consolidate Medical/Dental Practice categories
+data2cand$Location_Type[data2cand$Location_Type == "Doctor's Office"] <- "Medical/Dental Practice"
+data2cand$Location_Type[data2cand$Location_Type == "Dentist's Office"] <- "Medical/Dental Practice"
+
+# Consolidate Access Area categories
+data2cand$Location_Type[data2cand$Location_Type == "Lobby"] <- "Access Area"
+data2cand$Location_Type[data2cand$Location_Type == "Common Area"] <- "Access Area"
+data2cand$Location_Type[data2cand$Location_Type == "Hallway"] <- "Access Area"
+data2cand$Location_Type[data2cand$Location_Type == "Stairwell"] <- "Access Area"
+data2cand$Location_Type[data2cand$Location_Type == "Public/Unfenced Area"] <- "Access Area"
+data2cand$Location_Type[data2cand$Location_Type == "Public Stairs"] <- "Access Area"
+data2cand$Location_Type[data2cand$Location_Type == "Public Plaza"] <- "Access Area"
+
+# Consolidate Street Vendor categories
+data2cand$Location_Type[data2cand$Location_Type == "Food Cart Vendor"] <- "Street Vendor"
+data2cand$Location_Type[data2cand$Location_Type == "Street Fair Vendor"] <- "Street Vendor"
+
+# Consolidate Store categories
+data2cand$Location_Type[data2cand$Location_Type == "House and Store"] <- "Store"
+data2cand$Location_Type[data2cand$Location_Type == "Retail Store"] <- "Store"
+data2cand$Location_Type[data2cand$Location_Type == "Grocery Store"] <- "Store"
+
+# Consolidate Building categories
+data2cand$Location_Type[data2cand$Location_Type == "Building (Non-Residential)"] <- "Building"
+data2cand$Location_Type[data2cand$Location_Type == "Government Building"] <- "Building"
+data2cand$Location_Type[data2cand$Location_Type == "Office Building"] <- "Building"
+
+# Consolidate Animal-based Business categories
+data2cand$Location_Type[data2cand$Location_Type == "Horse Stable"] <- "Animal-based Business"
+data2cand$Location_Type[data2cand$Location_Type == "Petting Zoo/Animal Exhibit"] <- "Animal-based Business"
+data2cand$Location_Type[data2cand$Location_Type == "Kennel/Animal Shelter"] <- "Animal-based Business"
+data2cand$Location_Type[data2cand$Location_Type == "Groomer"] <- "Animal-based Business"
+
+# Consolidate Restaurant/Bar/Deli/Bakery categories
+data2cand$Location_Type[data2cand$Location_Type == "Restaurant"] <- "Restaurant/Bar/Deli/Bakery"
+data2cand$Location_Type[data2cand$Location_Type == "Club/Bar/Restaurant"] <- "Restaurant/Bar/Deli/Bakery"
+
+# Consolidate 'One-Hit Wonder' categories
+data2cand$Location_Type[data2cand$Location_Type == "Subway Station"] <- "Subway"
+
+data2cand$Location_Type <- as.factor(data2cand$Location_Type)    
+unique(data2cand$Location_Type)
+```
+
+#### Created Variable Acceptable_Resolution_Status
+
+Upon executing the summary for **ResolutionTime**, we have a very wide set of values for **ResolutionTime**. At 520,000 rows, the mean for **ResolutionTime** is an unacceptabe 9772.2 minutes while the median is a still unacceptable 92.3 minutes. However, 92.3 minutes is more acceptable than 9772.2 minutes. We created a variable called **Acceptable_Resolution_Status** with 'Y' for any value between 1 and 92.3 minutes and 'N' for 0 value or any value greater than 92.23 minutes. Notice, we made 0 value as an 'N'. The logic for this is that it was either an unresolved or canceled 311 call.
+
+Note: The median and mean for the 1.8 million row data set are 196.3 minutes and 7368.5 minutes respectively. For 65000 records, the median and mean are 32.4 minutes and 7368.5 minutes respectively. We chose 92.3 minutes because at the time, we aimed at 520,000 rows for our final data set. This has changed since then.
+
+```{r}
+medianARS <- 92.3
+data2cand$Acceptable_Resolution_Status = case_when(data2cand$ResolutionTime == 0 ~ 'N', 
+                        (data2cand$ResolutionTime > 0 & data2cand$ResolutionTime <= medianARS) ~ 'Y', 
+                        data2cand$ResolutionTime > medianARS ~ 'N')
+summary(data2cand$ResolutionTime)
+data2cand$Acceptable_Resolution_Status <- as.factor(data2cand$Acceptable_Resolution_Status)
+summary(data2cand)
+```
+
+#### Split Data into Training and Test Data Sets
+
+Next we splitted the data into training and test data sets using the createDataPartition method.
+
+```{r}
+set.seed(100)
+inTrain1 <- createDataPartition(y = data2cand$Acceptable_Resolution_Status, p=0.75, list = FALSE)
+training1 <- data2cand[inTrain1,]
+testing1 <- data2cand[-inTrain1,]
+```
+
+## (3) Random Forest {.tabset .tabset-fade .tabset-pills} 
+
+The random forest algorithm works well with all sorts of data:
+numeric and categorical, un-scaled and scaled, full rank and highly correlative. We ran 3 models of Random Forest: 1) default model with no parameters, 2) model with optimized mtry, and 3) model with optimized mtry and ntree.
+
+#### RF 1 - Model 1 - Default (which has factor variables in single columns)
+
+
+```{r}
+set.seed(521)
+m1 <- randomForest(Acceptable_Resolution_Status ~ .- ResolutionTime, data = training1)
+print(m1)
+plot(m1)
+importance(m1)
+varImpPlot(m1)
+```
+
+We ran the random forest for the default model and we were very satisfied with the results. There is an error rate of 9.81%. We will find out later when we run the confusion matrix of the prediction values that RF 1 has an accuracy of 90.33%, a Kappa of 80.67%, and a Sensitivity of 86.56% at 585,000 rows of data. Moreover, a normal plot for a random forest should show a curve sloping down near the X and Y axes. There are 3 different curves almost parellel to each other. You will observe in the Variable Importance Plot and Summary that the 3 most important variables are Resolution_Action_Updated_Date, Agency, and Complaint_Type. They may show promise because they are variables from the original data set.  
+
+
+#### RF 2 - Model 2 - Default Model with tuning for optimized mtry
+
+Prior to running Model 2, we ran tuneRF function to find out what is the optimal **mtry** variable that will have the lowest error rate and hopefully increase accuracy.
+
+```{r}
+# names of features
+training1a <- training1 %>% 
+  select(-ResolutionTime)
+features <- setdiff(names(training1a), "Acceptable_Resolution_Status")
+
+set.seed(123)
+
+m3a <- tuneRF(
+  x          = training1a[features],
+  y          = training1a$Acceptable_Resolution_Status,
+  ntreeTry   = 500,
+  mtryStart  = 5,
+  stepFactor = 1.5,
+  improve    = 0.01,
+  trace      = FALSE      # to not show real-time progress 
+)
+best.m <- m3a[m3a[, 2] == min(m3a[, 2]), 1]
+print(m3a)
+print(best.m)
+bestmtry <- 9
+```
+
+It was determined that the optimal **mtry** parameter is 9. We reran the Random Forest to see if the accuracy improved.
+
+```{r}
+set.seed(521)
+m2 <- randomForest(Acceptable_Resolution_Status ~ . - ResolutionTime, data = training1, mtry = bestmtry)
+print(m2)
+plot(m2)
+importance(m2)
+varImpPlot(m2)
+```
+
+We ran the random forest for the default model with optimized mtry=9 and we were very satisfied with the results. There is an error rate of 7.99%. We will find out later when we run the confusion matrix of the prediction values that RF 2 has an accuracy of 92.22%, a Kappa of 84.46%, and a Sensitivity of 90.81% at 585,000 rows of data. Moreover, a normal plot for a random forest should show a curve sloping down near the X and Y axes. There are 3 different curves almost parellel to each other. You will observe in the Variable Importance Plot and Summary that the 3 most important variables are Resolution_Action_Updated_Date, Agency, and BBL. They may show promise because they are variables from the original data set.  
+
+#### RF 3 - Model 3 - Default Model with tuning for mtry=9 and ntree=400
+
+Because of the number of tests ranging from 400 to 585,000, it became impossible to find an optimal ntree. We chose ntree=400 because it had similar results to the RF 2 model at that level. If we reduced the ntree below 400, the accuracy would go down.
+
+```{r}
+set.seed(521)
+m3 <- randomForest(Acceptable_Resolution_Status ~ . - ResolutionTime, data = training1, mtry = bestmtry, ntree = ntreecand)
+print(m3)
+plot(m3)
+importance(m3)
+varImpPlot(m3)
+```
+
+We ran the random forest for the default model with optimized mtry=9 and ntree=400 and we were very satisfied with the results. There is an error rate of 7.99%. We will find out later when we run the confusion matrix of the prediction values that RF 3 has an accuracy of 92.25%, a Kappa of 84.50%, and a Sensitivity of 90.83% at 585,000 rows of data. Moreover, a normal plot for a random forest should show a curve sloping down near the X and Y axes. There are 3 different curves almost parellel to each other. You will observe in the Variable Importance Plot and Summary that the 3 most important variables are Resolution_Action_Updated_Date, Agency, and BBL. They may show promise because they are variables from the original data set.  
+
+It's instructive to know that the processing time for all 3 Random Forest models at 585,000 rows is 2024.97 seconds or 33.75 minutes. That is an average 11.25 minutes per model.
+
+
+```{r}
+# Stop the clock
+proc.time() - ptm
+```
+
+## (4) Support Vector Machine {.tabset .tabset-fade .tabset-pills} 
+
+Support Vector Machines (SVM's) seem like a good model to investigate because it can deal with high-dimensional data. The data we have not only has several variables, but it also has categorical variables with several levels for each. We will see if SVM can provide a suitable model to deal with this issue. 
+
+#### Removed ResolutionTime
+
+As indicated in the Random Forest exercise, we removed the **ResolutionTime** variable as it heavily influences **Acceptable_Resolution_Status** variable.
+
+```{r}
+# Start the clock!
+ptm <- proc.time()
+# names of features
+data2canda <- data2cand %>% 
+  select(-ResolutionTime)
+```
+
+#### Split Data into Training and Test Data Sets
+
+Next we splitted the data into training and test data sets.
+
+```{r}
+set.seed(100)
+roww <- nrow(data2canda)
+numTrain <- floor(0.75 * roww)
+numTest <- roww - numTrain
+training2 <- data2canda[sample(roww, numTrain), ]
+testing2 <- data2canda[sample(roww, numTest), ]
+```
+
+#### One-Hot Encoding of Categorical Variables
+
+SVM's do not like categorical variables. We had to use one hot-encoding to make dummy variables with numerical replacements.
+
+```{r}
+dummies <- dummyVars(~ ., data=training2[,-10])
+c2 <- predict(dummies, training2[,-10])
+d_training <- as.data.frame(cbind(training2$Acceptable_Resolution_Status,c2))
+
+dummies <- dummyVars(~ ., data=testing2[,-10])
+c2 <- predict(dummies, testing2[,-10])
+d_testing <- as.data.frame(cbind(testing2$Acceptable_Resolution_Status,c2))
+```
+
+An unfortunate side-effect on one-hot encoding is that it substantially increases the number of variables in a model.
+
+#### SVM 1 - SVM Model 1 - with Tuning Cost=6 and Gamma=0.005 using Linear Kernel
+
+Initially when executing the SVM model, we first used the tuning method called tune.svm to determine the optimal gamma and cost for the Linear SVM model. Unfortunately, we found that tuning was time prohibitive. At 400 rows, we found the optimal cost at 9 but it took the SVM tuning 16 minutes to run the tuning and the svm model. At 1600 rows, we found the optimal cost at 6 but it took 56 minutes to run the tuning and the svm model. This was unacceptable for our project. Afterwards, we did not include the svm tuning function. The svm tuning function is commented out in the source code below.
+
+```{r}
+#gammalist <- c(0.005,0.01,0.015,0.02,0.025,0.03,0.035,0.04,0.045,0.05)
+#tune.out <- tune.svm(as.factor(V1) ~., data=d_training, 
+#                 kernel='linear', cost=1:10, gamma = gammalist)
+#summary(tune.out)
+#svm1 <- tune.out$best.model
+svm1 <- svm(as.factor(V1) ~., data=d_training, kernel='linear', cost=6, gamma = 0.005)
+summary(svm1)
+```
+
+The number of support vectors for SVM 1 is 66 split into two levels: 30 and 36. These numbers were derived at the 585,000 data set. We will find out later when we run the confusion matrix of the prediction values that SVM 1 has an accuracy of 52.52%, a Kappa of 49.22%, and a Sensitivity of 58.05% at 585,000 rows of data. 
+
+#### SVM 2 - SVM Model 2 - with Tuning Cost=1 and Gamma=0.005 using Radial Kernel
+
+Initially when executing the SVM model, we first used the tuning method called tune.svm to determine the optimal gamma and cost for the Radial SVM model. Unfortunately, we found that tuning was time prohibitive. At 400 rows, we found the optimal cost at 1 but it took the SVM tuning 25 minutes to run the tuning and the svm model.This was unacceptable for our project. The svm tuning function is commented out in the source code below.
+
+```{r}
+#gammalist <- c(0.005,0.01,0.015,0.02,0.025,0.03,0.035,0.04,0.045,0.05)
+#tune.out <- tune.svm(as.factor(V1) ~., data=d_training, 
+#                 kernel='radial', cost=2^(-1:5), gamma = gammalist)
+#summary(tune.out)
+#svm2 <- tune.out$best.model
+svm2 <- svm(as.factor(V1) ~., data=d_training, kernel='radial', cost=1, gamma = 0.005)
+summary(svm2)
+```
+The number of support vectors for SVM 1 is 291,954 split into two levels: 141,702 and 150,252. These numbers were derived at the 585,000 data set. We will find out later when we run the confusion matrix of the prediction values that SVM 2 has an accuracy of 90.85%, a Kappa of 81.72%, and a Sensitivity of 81.95% at 585,000 rows of data. 
+
+#### SVM 3 - SVM Model 3 - with Tuning Cost 1-5 using Polynomial Kernel
+
+We hoped to execute a third SVM Model using the Polynomial Kernel but it was found to be too expensive to run even at 400 rows. The execution did not complete and we did not pursue further.
+
+```{r}
+# DOES NOT WORK!
+#svm3 <- svm(V1 ~., data=d_training, kernel='polynomial', cost=1, gamma = 0.005)
+#summary(svm3)
+```
+
+It's instructive to know that the processing time for all 2 Support Vector Machine models at 585,000 rows is 61748.06 seconds or 17.15 hours. That is an average 8.58 hours per model. This is unacceptable.
+
+```{r}
+# Stop the clock
+proc.time() - ptm
+```
+
+## (5) Decision Tree {.tabset .tabset-fade .tabset-pills} 
+
+Decision trees are a supervised machine learning method used for classification and regression problems. This method operates by segmentation and aims to reduce the entropy of a dataset by continually splitting the data in a tree like structure by the most informative variables
+
+#### Remove ResolutionTime
+
+As indicated in the other models, we removed the **ResolutionTime** variable as it heavily influences **Application_Resolution_Status** variable.
+
+```{r}
+# Start the clock!
+ptm <- proc.time()
+# names of features
+data2canda <- data2cand %>% 
+  select(-ResolutionTime)
+```
+
+#### Split Data into Training and Test Data Sets and Dummifying
+
+Next we used the split from the SVM processes in our model and we used one hot-encoding to make dummy variables with numerical replacements. We used the same export from the SVM dataset.
+
+```{r}
+dummies <- dummyVars(~ ., data=training2[,-10])
+c2 <- predict(dummies, training2[,-10]) %>% as.data.frame() %>% dplyr::select(-contains("Acceptable"))
+d_training2 <- as.data.frame(bind_cols(training2$Acceptable_Resolution_Status,c2)) %>% 
+  rename("Response"="...1")
+
+dummies <- dummyVars(~ ., data=testing2[,-10])
+c2 <- predict(dummies, testing2[,-10])%>% as.data.frame() %>% dplyr::select(-contains("Acceptable"))
+d_testing2 <- as.data.frame(bind_cols(testing2$Acceptable_Resolution_Status,c2)) %>% 
+  rename("Response"="...1")
+```
+
+#### DT 1 - Decision Tree - Default model
+
+```{r}
+dt1 <-rpart::rpart(Response ~., data=d_training2)
+summary(dt1)
+varImp(dt1) %>% as.data.frame() %>% 
+  rownames_to_column() %>% 
+  slice_max(Overall, n = 5) %>% 
+  ggplot(aes(x = fct_reorder(rowname,Overall), y = Overall))+
+    geom_col(fill = "skyblue")+
+  coord_flip()+
+  labs(title = "Variable importance for Decision Tree",
+       x = "Score",
+       y = "Feature")
+```
+
+Upon execution of the Decision Tree Model, you will notice that the Variable Importance is a lot different than that of the Random Forest Models. Because we are dealing with one-hot encoded variables, the Decision Tree identified Agency.NYPD, Complaint_Type.Noise, and Agency.HPD as the most important variables in the model. We will find out later when we run the confusion matrix of the prediction values that DT 1 has an accuracy of 86.86%, a Kappa of 73.77%, and a Sensitivity of 76.96% at 585,000 rows of data. 
+
+It's instructive to know that the processing time for the Decision Tree model at 585,000 rows is 60.24 seconds or 1 minute. This a much better execution time than the RF and SVM models!
+
+```{r}
+# Stop the clock
+proc.time() - ptm
+```
+
+## (6) Model Performance and Analysis {.tabset .tabset-fade .tabset-pills}
+
+In this section we will do predictions on all six models and discuss comparisons between them.
+
+#### Prediction and Confusion Matrices for Models
+
+This sub-section will execute predictions and confusion matrices for all six models.
+
+**RF 1**
+
+```{r}
+rfpred1 <- predict(m1,newdata = testing1)
+rfpred1.cm <- confusionMatrix(rfpred1, testing1$Acceptable_Resolution_Status) 
+rfpred1.cm
+```
+
+**RF 2**
+
+```{r}
+rfpred2 <- predict(m2,newdata = testing1)
+rfpred2.cm <- confusionMatrix(rfpred2, testing1$Acceptable_Resolution_Status) 
+rfpred2.cm
+```
+
+**RF 3**
+
+```{r}
+rfpred3 <- predict(m3,newdata = testing1)
+rfpred3.cm <- confusionMatrix(rfpred3, testing1$Acceptable_Resolution_Status) 
+rfpred3.cm
+```
+
+**SVM 1**
+
+```{r}
+svmpred1 <- predict(svm1, d_testing[,-1])
+svmpred1.cm <- confusionMatrix(svmpred1, as.factor(d_testing$V1))
+svmpred1.cm
+```
+
+**SVM 2**
+
+```{r}
+svmpred2 <- predict(svm2, d_testing[,-1])
+svmpred2.cm <- confusionMatrix(svmpred2, as.factor(d_testing$V1))
+svmpred2.cm
+```
+
+**DT 1**
+
+```{r}
+dtpred1 <- predict(dt1, d_testing2[,-1], type = "class")
+dtpred1.cm <- confusionMatrix(dtpred1, d_testing2$Response)
+dtpred1.cm
+```
+
+#### Extraction of Confusion Matrix values for our Comparison Table
+
+Key confusion matrix values were extracted so that they can be displayed and discussed in the accompanying comparison table.
+
+```{r}
+# RF Model 1 Values
+rfpred1.accuracy <- rfpred1.cm$overall['Accuracy']
+rfpred1.kappa <- rfpred1.cm$overall['Kappa']
+rfpred1.sensitivity <- rfpred1.cm$byClass['Sensitivity']
+rfpred1.TN <- rfpred1.cm$table[1,1]
+rfpred1.FP <- rfpred1.cm$table[1,2]
+rfpred1.FN <- rfpred1.cm$table[2,1]
+rfpred1.TP <- rfpred1.cm$table[2,2]
+rfpred1.TPR <- rfpred1.TP /(rfpred1.TP + rfpred1.FN)
+rfpred1.TNR <- rfpred1.TN /(rfpred1.TN + rfpred1.FP)
+rfpred1.FPR <- rfpred1.FP /(rfpred1.TN + rfpred1.FP)
+rfpred1.FNR <- rfpred1.FN /(rfpred1.TP + rfpred1.FN)
+rfpred1.precision <- rfpred1.TP / (rfpred1.TP + rfpred1.FP)
+rfpred1.recall <- rfpred1.TP / (rfpred1.TP + rfpred1.FN)
+rfpred1.specificity <- rfpred1.TN / (rfpred1.TN + rfpred1.FP)
+rfpred1.f1score <- 2 * ((rfpred1.precision * rfpred1.recall) / (rfpred1.precision + rfpred1.recall))
+
+# RF Model 2 Values
+rfpred2.accuracy <- rfpred2.cm$overall['Accuracy']
+rfpred2.kappa <- rfpred2.cm$overall['Kappa']
+rfpred2.sensitivity <- rfpred2.cm$byClass['Sensitivity']
+rfpred2.TN <- rfpred2.cm$table[1,1]
+rfpred2.FP <- rfpred2.cm$table[1,2]
+rfpred2.FN <- rfpred2.cm$table[2,1]
+rfpred2.TP <- rfpred2.cm$table[2,2]
+rfpred2.TPR <- rfpred2.TP /(rfpred2.TP + rfpred2.FN)
+rfpred2.TNR <- rfpred2.TN /(rfpred2.TN + rfpred2.FP)
+rfpred2.FPR <- rfpred2.FP /(rfpred2.TN + rfpred2.FP)
+rfpred2.FNR <- rfpred2.FN /(rfpred2.TP + rfpred2.FN)
+rfpred2.precision <- rfpred2.TP / (rfpred2.TP + rfpred2.FP)
+rfpred2.recall <- rfpred2.TP / (rfpred2.TP + rfpred2.FN)
+rfpred2.specificity <- rfpred2.TN / (rfpred2.TN + rfpred2.FP)
+rfpred2.f1score <- 2 * ((rfpred2.precision * rfpred2.recall) / (rfpred2.precision + rfpred2.recall))
+
+# RF Model 3 Values
+rfpred3.accuracy <- rfpred3.cm$overall['Accuracy']
+rfpred3.kappa <- rfpred3.cm$overall['Kappa']
+rfpred3.sensitivity <- rfpred3.cm$byClass['Sensitivity']
+rfpred3.TN <- rfpred3.cm$table[1,1]
+rfpred3.FP <- rfpred3.cm$table[1,2]
+rfpred3.FN <- rfpred3.cm$table[2,1]
+rfpred3.TP <- rfpred3.cm$table[2,2]
+rfpred3.TPR <- rfpred3.TP /(rfpred3.TP + rfpred3.FN)
+rfpred3.TNR <- rfpred3.TN /(rfpred3.TN + rfpred3.FP)
+rfpred3.FPR <- rfpred3.FP /(rfpred3.TN + rfpred3.FP)
+rfpred3.FNR <- rfpred3.FN /(rfpred3.TP + rfpred3.FN)
+rfpred3.precision <- rfpred3.TP / (rfpred3.TP + rfpred3.FP)
+rfpred3.recall <- rfpred3.TP / (rfpred3.TP + rfpred3.FN)
+rfpred3.specificity <- rfpred3.TN / (rfpred3.TN + rfpred3.FP)
+rfpred3.f1score <- 2 * ((rfpred3.precision * rfpred3.recall) / (rfpred3.precision + rfpred3.recall))
+
+# SVM Model 1 Values
+svmpred1.accuracy <- svmpred1.cm$overall['Accuracy']
+svmpred1.kappa <- svmpred1.cm$overall['Kappa']
+svmpred1.sensitivity <- svmpred1.cm$byClass['Sensitivity']
+svmpred1.TN <- svmpred1.cm$table[1,1]
+svmpred1.FP <- svmpred1.cm$table[1,2]
+svmpred1.FN <- svmpred1.cm$table[2,1]
+svmpred1.TP <- svmpred1.cm$table[2,2]
+svmpred1.TPR <- svmpred1.TP /(svmpred1.TP + svmpred1.FN)
+svmpred1.TNR <- svmpred1.TN /(svmpred1.TN + svmpred1.FP)
+svmpred1.FPR <- svmpred1.FP /(svmpred1.TN + svmpred1.FP)
+svmpred1.FNR <- svmpred1.FN /(svmpred1.TP + svmpred1.FN)
+svmpred1.precision <- svmpred1.TP / (svmpred1.TP + svmpred1.FP)
+svmpred1.recall <- svmpred1.TP / (svmpred1.TP + svmpred1.FN)
+svmpred1.specificity <- svmpred1.TN / (svmpred1.TN + svmpred1.FP)
+svmpred1.f1score <- 2 * ((svmpred1.precision * svmpred1.recall) / (svmpred1.precision + svmpred1.recall))
+
+# SVM Model 2 Values
+svmpred2.accuracy <- svmpred2.cm$overall['Accuracy']
+svmpred2.kappa <- svmpred2.cm$overall['Kappa']
+svmpred2.sensitivity <- svmpred2.cm$byClass['Sensitivity']
+svmpred2.TN <- svmpred2.cm$table[1,1]
+svmpred2.FP <- svmpred2.cm$table[1,2]
+svmpred2.FN <- svmpred2.cm$table[2,1]
+svmpred2.TP <- svmpred2.cm$table[2,2]
+svmpred2.TPR <- svmpred2.TP /(svmpred2.TP + svmpred2.FN)
+svmpred2.TNR <- svmpred2.TN /(svmpred2.TN + svmpred2.FP)
+svmpred2.FPR <- svmpred2.FP /(svmpred2.TN + svmpred2.FP)
+svmpred2.FNR <- svmpred2.FN /(svmpred2.TP + svmpred2.FN)
+svmpred2.precision <- svmpred2.TP / (svmpred2.TP + svmpred2.FP)
+svmpred2.recall <- svmpred2.TP / (svmpred2.TP + svmpred2.FN)
+svmpred2.specificity <- svmpred2.TN / (svmpred2.TN + svmpred2.FP)
+svmpred2.f1score <- 2 * ((svmpred2.precision * svmpred2.recall) / (svmpred2.precision + svmpred2.recall))
+
+# DT Model 1 Values
+dtpred1.accuracy <- dtpred1.cm$overall['Accuracy']
+dtpred1.kappa <- dtpred1.cm$overall['Kappa']
+dtpred1.sensitivity <- dtpred1.cm$byClass['Sensitivity']
+dtpred1.TN <- dtpred1.cm$table[1,1]
+dtpred1.FP <- dtpred1.cm$table[1,2]
+dtpred1.FN <- dtpred1.cm$table[2,1]
+dtpred1.TP <- dtpred1.cm$table[2,2]
+dtpred1.TPR <- dtpred1.TP /(dtpred1.TP + dtpred1.FN)
+dtpred1.TNR <- dtpred1.TN /(dtpred1.TN + dtpred1.FP)
+dtpred1.FPR <- dtpred1.FP /(dtpred1.TN + dtpred1.FP)
+dtpred1.FNR <- dtpred1.FN /(dtpred1.TP + dtpred1.FN)
+dtpred1.precision <- dtpred1.TP / (dtpred1.TP + dtpred1.FP)
+dtpred1.recall <- dtpred1.TP / (dtpred1.TP + dtpred1.FN)
+dtpred1.specificity <- dtpred1.TN / (dtpred1.TN + dtpred1.FP)
+dtpred1.f1score <- 2 * ((dtpred1.precision * dtpred1.recall) / (dtpred1.precision + dtpred1.recall))
+```
+
+#### Comparison Table, Discussion, and Optimal Model Selection
+
+A very detailed comparison table is displayed below for the 585,000 row data set.
+
+```{r, echo=FALSE}
+Model <- c("RF 1","RF 2", "RF 3", "SVM 1", "SVM 2", "DT 1")
+Accuracy <- c(rfpred1.accuracy, rfpred2.accuracy, rfpred3.accuracy, svmpred1.accuracy, svmpred2.accuracy, dtpred1.accuracy)
+Kappa <- c(rfpred1.kappa, rfpred2.kappa, rfpred3.kappa, svmpred1.kappa, svmpred2.kappa, dtpred1.kappa)
+Sensitivity <- c(rfpred1.sensitivity, rfpred2.sensitivity, rfpred3.sensitivity, svmpred1.sensitivity, svmpred2.sensitivity, dtpred1.sensitivity)
+Recall <- c(rfpred1.recall, rfpred2.recall, rfpred3.recall,svmpred1.recall, svmpred2.recall, dtpred1.recall)
+Specificity <- c(rfpred1.specificity, rfpred2.specificity, rfpred3.specificity, svmpred1.specificity, svmpred2.specificity, dtpred1.sensitivity)
+Precision <- c(rfpred1.precision, rfpred2.precision, rfpred3.precision, svmpred1.precision, svmpred2.precision,dtpred1.precision)
+F1Score <- c(rfpred1.f1score, rfpred2.f1score, rfpred3.f1score, svmpred1.f1score, svmpred2.f1score,dtpred1.f1score)
+TPR <- c(rfpred1.TPR, rfpred2.TPR, rfpred3.TPR, svmpred1.TPR, svmpred2.TPR, dtpred1.TPR)
+TNR <- c(rfpred1.TNR, rfpred2.TNR, rfpred3.TNR, svmpred1.TNR, svmpred2.TNR, dtpred1.TNR)
+FPR <- c(rfpred1.FPR, rfpred2.FPR, rfpred3.FPR, svmpred1.FPR, svmpred2.FPR, dtpred1.FPR)
+FNR <- c(rfpred1.FNR, rfpred2.FNR, rfpred3.FNR, svmpred1.FNR, svmpred2.FNR, dtpred1.FNR)
+tableModel <- data.frame(Model,Accuracy,Kappa, Sensitivity, Recall,Specificity,Precision,F1Score)
+tableModel %>%
+  kable() %>%
+  kable_styling()
+```
+
+Some key findings:
+
+- This comparison table does not take into account the time it ran all of the tests. We will develop a score card table. Based on our previous discussions, the DT model has the best run time at 1 minute, the RF models have the next best run time at 33.75 minutes, and the SVM models had the worst run time at 17.15 hours.
+
+- In terms of all of the indices in the comparison table, RF 3 has the best values in all indices with the exception of Specificity and Precision.
+
+- The ranking of best to worst models in terms of indices Accuracy, Kappa, and F1-Score are RF 3, RF 2 (only slightly behind), SVM 2, RF 1, DT 1, and SVM 1.
+
+- The ranking of best to worst models in terms of indices Sensitivity and Recall are RF 3, RF 2(only slight behind again), RF 1, SVM 2, DT 1, and SVM 1.
+
+- The ranking of best to worst models in terms of Specifity are SVM 2, RF 1, RF 3, RF 2, DT 1, and SVM 1.
+
+- The ranking of best to worst models in terms of Precision are SVM 2, DT 1, RF 1, RF 3, RF 2, and SVM 1.
+
+- Based on all indices ranking, SVM 1 has the worst ranking.
+
+Based on the disparate rankings of the models across indices, one good estimate of the ideal model is using a Score Card to determine a winner. The ranking will be 1 being the best and 6 being the worst. 
+
+- Because Accuracy, Kappa, and F-Score have similar rankings for all models, we will use Accuracy to represent these indices.
+
+- Because Sensitivity and Recall have similar rankings for all models, we will use Sensitivity to represent these indices.
+
+- Running time will be added to the Score Card. DT 1 has the best running time, therefore, it will be given a score of 1. The RF models will be given a score of 20 and the SVM models will be given a score of 300. Why such a difference in values. The Running time for SVM is prohibitive at 17.15 hours total and the RF models only run at most 30 minutes total. It would make sense to weigh the running time score more heavily for the SVM and RF models.
+
+```{r, echo=FALSE}
+Model <- c("RF 1","RF 2", "RF 3", "SVM 1", "SVM 2", "DT 1")
+Accuracy    <- c( 4,  2,  1,   6,   3,  5)
+Sensitivity <- c( 3,  2,  1,   6,   4,  5)
+Specificity <- c( 2,  4,  3,   6,   1,  5)
+Precision   <- c( 3,  5,  4,   6,   1,  2)
+RunTime     <- c(20, 20, 20, 300, 300,  1)
+Total       <- c(32, 33, 29, 324, 309, 18)
+tableModel <- data.frame(Model, Accuracy, Sensitivity, Specificity, Precision, RunTime, Total)
+tableModel %>%
+  kable() %>%
+  kable_styling()
+```
+
+If we total all indices together, the DT 1 is the optimal model at 18. In general, 3 of its indices are the fifth best, but it's run time of 1 minute at 585,000 rows of data cannot be ignored. Bear in mind, that this is the default Decision Tree selected for this project. Given more time and research in optimizing the Decision Tree, we would probably come up with a more accurate model.
+
+#### Experiment Record Table of the Various Data Sets
+
+The run of all tests are highlighted in the following table.
+
+![Experiment Record](ExperimentRecord.png){#id .class width=90% height=90%}
+
+The information from this table was used to support all of our findings in this Project document.
+
+```{r, echo=FALSE}
+experiment_record <- read_csv("ExperimentRecord.csv")
+summary(experiment_record)
+```
+
+If we display a Line Chart showing all of the data sizes compared against the accuracies of all of the models, most of the models have pretty high accuracies close to the upper spectrum of the chart. As indicated in the table, SVM 1's accuracy is in the bottom part of the chart. DT 1 experiences fluctations in accuracy but it still is in the upper spectrum of the chart.
+
+```{r displayDocuments, eval=TRUE,fig.width = 30, fig.height = 20, message=FALSE, warning=FALSE}
+accuracydf <- experiment_record %>% 
+  select(-NAs, -PercentNAs, -TestSize, -RFTime,-SVMTime,-DTTime,-SVMVarSize) %>%
+  rename(
+    RF1 = RF1Accuracy,
+    RF2 = RF2Accuracy,
+    RF3 = RF3Accuracy,
+    SVM1 = SVM1Accuracy,
+    SVM2 = SVM2Accuracy,
+    DT1 = DT1Accuracy
+    )
+
+ggplot(accuracydf, aes(x=Size)) + 
+  geom_line(aes(y = RF1), color = "red") + 
+  geom_line(aes(y = RF2), color="blue") + 
+  geom_line(aes(y = RF3), color="green") + 
+  geom_line(aes(y = SVM1), color="purple") + 
+  geom_line(aes(y = SVM2), color="orange") + 
+  geom_line(aes(y = DT1), color="black") +
+  labs(x = "Data Size", y = "Accuracy") + 
+  scale_x_continuous(breaks = c(100000,200000,300000,400000,500000), label = c("100K","200K","300K","400K","500K")) +  
+  ggtitle("Accuracy vs Data Size")
+```
+
+If we display a Line Chart showing all of the data sizes compared against the running time of all of the models, it clearly shows that the running time of the Decision Tree model is superior to that of Random Forest and Support Vector Machine models. While visually the Random Forest is still in the lower quadrant of the chart almost in line with the Decision Tree line, the Support Vector Machine time goes up dramatically as the data size increases.
+
+```{r displayChart2, eval=TRUE,fig.width = 30, fig.height = 20, message=FALSE, warning=FALSE}
+timedf <- experiment_record %>% 
+  select(-NAs,-PercentNAs,-TestSize,-RF1Accuracy,-RF2Accuracy,-RF3Accuracy,-SVM1Accuracy,-SVM2Accuracy,-DT1Accuracy) %>%
+  rename(
+    RF = RFTime,
+    SVM = SVMTime,
+    DT = DTTime
+    )
+
+ggplot(timedf, aes(x=Size)) + 
+  geom_line(aes(y = RF), color = "red") + 
+  geom_line(aes(y = SVM), color="blue") + 
+  geom_line(aes(y = DT), color="green") + 
+  scale_x_continuous(breaks = c(100000,200000,300000,400000,500000), label = c("100K","200K","300K","400K","500K")) +  
+  ggtitle("Running Time vs Data Size")
+```
+
+#### Future Tasks and Research
+
+Group 4's Final Project was an exhaustive undertaking. We had to make snap judgements and develop strategies based on the limited time we had for this Project. We thought the development of the project was fruitful and taught us a lot about dealing with Big Data. However, there are some outages in the Final Project that we felt should have been investigated further. Some things that could have been investigated more are highlighted:
+
+- Joshua indicated that the variable **ResolutionTime** would have been more useful as a target variable than the **Acceptable_Resolution_Status** variable. It would force the models into a more regression prediction model rather than a classification model. A further investigation into the **ResolutionTime** variable would have opened up new opportunities in researching the NYC 311 data.
+
+- Joshua indicated he was not comfortable using **BBL** variable in running the models. **BBL** represents the Building-Block-Lot locations in New York City. Romerl thought that it may be important as a proliferation of 311 calls may originate from specific BBL locations. The Variable Importance Plots of the Random Forests appear to indicate that **BBL** may be an influencing variable. A further investigation into running the models without **BBL** may be useful in future research.
+
+- Ajay indicated that PCA would have been an interesting exercise in exposing the optimal variables for this data set. Moreover, he indicated that an investigation into Naive-Bayes modeling could probably provide interesting research results. 
+
+- Jimmy wanted to investigate other prediction models such as Knn-Clustering to see if the data set could expose more insightful information.
+
+- Romerl noticed at the end of the project the large amount of support vectors present in SVM 2. He felt that the time bottleneck may have occurred because of the large amount of support vectors. Further investigation into this may explain why the SVM models were experiencing such long run times as the number of rows went above 65,000.
+
+- All team members agreed that it would have been useful to investigate all 25+ million rows of data of the NYC 311 data set.
+
+- It was found throughout the project that what may be optimal at a certain number of rows may not be optimal at another set of rows. For example, at the 400-800 rows of data, the optimal **mtry** for Random Forests was at 6. However, as the number of rows increased to the one hundred thousands, the optimal **mtry** was at 9. Because we did not investigate the number of rows in the millions, we do not know the optimal **mtry**. This goes for all the parameters in the SVM models as well.
+
+- We ran only the default Decision Tree model for this project. It would have been interesting to find out what the Decision Tree model would produce once it was tuned with its optimal parameters. Despite the fact that the accuracy of the default Decision Tree slowly went down as the number of rows increased to 585,000, it still had the fastest run times compared to the Random Forest and Support Vector Machine models.
+
+- There should have been a more optimal way in reducing the number of categories to a maximum of 53 for the Random Forest models. We did this via visual inspection and gut-instinct human decision making. This is not very scientific. Is there a much better way to do this?
+
+There are perhaps more concerns that we may have not thought of. However, these issues are certainly catalysts for future project endeavors related to the NYC 311 Data Set.

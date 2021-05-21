@@ -1,0 +1,1238 @@
+---
+title: "Group 4 Assignment 3"
+author: "Ajay Arora, Romerl Elizes, Jimmy Ng, Joshua Registe, Adam Rich"
+date: "April 4, 2021"
+output:
+  rmdformats::readthedown:
+    self_contained: yes
+    thumbnails: yes
+    lightbox: yes
+    gallery: no
+    highlight: tango
+    code_folding: hide
+editor_options: 
+  chunk_output_type: console
+---
+
+
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE, 
+  warning = FALSE, 
+  message = FALSE)
+
+packages <- c(
+  'tidyverse', 
+  'corrplot', 
+  'palmerpenguins',
+  'class',
+  'kableExtra',
+  'naniar',
+  'DataExplorer',
+  'caret',
+  'tidymodels',
+  'rsample',
+  'themis'
+  # 'htmlTable', 
+  # 'gmodels', 
+  # 'car', 
+  # 'mice', 
+  # 'randomForest', 
+  # 'tidyselect', 
+  # 'skimr', 
+  # 'tidymodels', 
+  # 'broom', 
+  # 'dotwhisker', 
+  # 'vip', 
+  # 'parsnip', 
+  # 'workflows', 
+  # 'recipes', 
+  # 'tune', 
+  # 'yardstick'
+)
+
+for (pkg in packages) {
+  suppressPackageStartupMessages(suppressWarnings(
+    library(
+      pkg, character.only = TRUE, 
+      warn.conflicts = FALSE, quietly = TRUE)
+  ))
+}
+
+# A ggplot2 function
+defaulttheme <- theme(
+  panel.background = element_blank(),
+  panel.border = element_rect(color = "black", fill = NA))
+
+conflict_prefer("filter", "dplyr")
+
+```
+
+
+## (Q1) k-Nearest Neighbors {.tabset .tabset-fade .tabset-pills}
+
+
+> [Using] the Penguin dataset . . . please use [the] K-nearest neighbors algorithm to predict the species variable.
+
+The **KNN Algorithm** is a simple classification algorithm.
+It stores the training data and classifies
+new cases by a majority vote of the case's k-nearest neighbors.
+
+The algorithm is sensitive to the units of the chosen predictor variables.
+It is important that we transform all the values to a common scale.
+A frequently used practice is to normalize the data to the interval [0, 1].
+
+KNN works well when all predictor data has been converted to 
+numerics with the exception of the target variable `species`.
+
+*A note on data preparation:* this is the third time we've worked
+with the `palmerpenguins` data.  We've repeated some data preparation
+and EDA in the appendix.  The data prep we do here are items 
+**specific to the k-NN algorithm**.
+
+
+
+
+```{r}
+penguins_na_omit <- readr::read_rds('data/penguins_na_omit.Rds')
+
+normalize <- function(x) {
+  (x - min(x)) / (max(x) - min(x))
+}
+
+penguins_df_norm <- penguins_na_omit %>% 
+  select(-year) %>% 
+  mutate_if(is.factor, as.integer) %>% 
+  mutate_if(is.numeric, normalize) %>% 
+  mutate(species = penguins_na_omit$species)
+
+penguins_df_norm %>% head
+```
+
+
+
+
+
+
+### Create Training and Test sets
+
+The first is used to train the system, while the second is used to evaluate the learned or trained system. In practice, the division of your data set into a test and a training sets is disjoint: the most common splitting choice is to take 2/3 of your original data set as the training set, while the 1/3 that remains will compose the test set.
+
+
+```{r}
+# Create sample data for testing and training.
+set.seed(1234)
+ind <- sample(2, nrow(penguins_df_norm), replace=TRUE, prob=c(0.67, 0.33))
+
+# Training and test sets
+penguin.train <- penguins_df_norm %>% filter(ind == 1) %>% select(-species)
+penguin.test  <- penguins_df_norm %>% filter(ind == 2) %>% select(-species)
+
+# Training and test labels
+penguin.trainLabels <- penguins_df_norm$species[ind == 1]
+penguin.testLabels <- penguins_df_norm$species[ind == 2]
+```
+
+
+
+
+
+### Build KNN Classifier
+
+This step performs the actual classification.
+Note: the k parameter is often an odd number to avoid ties in the voting scores.
+A good starting point for k is the square root of the total number of observations.
+
+```{r}
+penguin_pred <- knn(
+  k = 19,
+  train = penguin.train, 
+  test = penguin.test, 
+  cl = penguin.trainLabels)
+
+caret::confusionMatrix(
+  penguin_pred, 
+  penguin.testLabels)
+```
+
+With k = 19 we have zero misclassifications!
+
+
+
+What are the accuracy measures for other values of k?
+
+```{r}
+k_search <- function(k) {
+  penguin_pred <- knn(
+    k = k,
+    train = penguin.train, 
+    test = penguin.test, 
+    cl = penguin.trainLabels)
+
+  cm <- caret::confusionMatrix(
+    penguin_pred, 
+    penguin.testLabels)
+  
+  data.frame(
+    k = k, 
+    Adelie = cm$byClass[1, 11],
+    Chinstrap = cm$byClass[2, 11],
+    Gentoo = cm$byClass[3, 11] )
+}
+
+res <- NULL
+for (i in seq(1, 21, 2)) {
+  res_i <- k_search(i)
+  if (is.null(res))
+    res <- res_i
+  else
+    res <- rbind(res, res_i)
+}
+
+print(res)
+```
+
+We see that k = 17 is the first value of k for which we have perfect accuracy.
+But, the accuracy is extremely good for all values of k.
+
+
+
+
+
+
+
+### What if we do not know `island`?
+
+From previous homework assignments, we found that `island`
+was an extremely helpful variable because not all species
+are found on each island.  If we wanted to build a model
+without `island` (for individuals we might find at sea, for example),
+how well would it perform?
+
+```{r}
+cols <- c(
+  "bill_length_mm", "bill_depth_mm", 
+  "flipper_length_mm", "body_mass_g", "sex")
+
+k_search <- function(k) {
+  penguin_pred <- knn(
+    k = k,
+    train = penguin.train[, cols], 
+    test = penguin.test[, cols], 
+    cl = penguin.trainLabels)
+
+  cm <- caret::confusionMatrix(
+    penguin_pred, 
+    penguin.testLabels)
+  
+  data.frame(
+    k = k, 
+    Adelie = cm$byClass[1, 11],
+    Chinstrap = cm$byClass[2, 11],
+    Gentoo = cm$byClass[3, 11] )
+}
+
+res <- NULL
+for (i in seq(1, 21, 2)) {
+  res_i <- k_search(i)
+  if (is.null(res))
+    res <- res_i
+  else
+    res <- rbind(res, res_i)
+}
+
+print(res)
+```
+
+At k = 3 we get a pretty good model without using `island`.
+However, we do not see perfect classification as we do when
+the variable is included.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## Loan approval dataset EDA and cleaning  {.tabset .tabset-fade .tabset-pills}
+
+We prepare a dataset here for use in questions 2, 3 and 4.
+
+
+
+
+### Basic summary
+
+Before conducting any modeling, we will explore our dataset. Below describes the `Loan_approval` dataset where we have 614 observations with 13 features used to describe these observations. eight of these variables are factors while the other five are numeric.
+
+```{r}
+url <- "https://raw.githubusercontent.com/adamleerich/data622-group4/main/hw3/data/Loan_approval.csv"
+
+# We know Loan_ID is not useful and we remove it now
+loandata <- read_csv(url) %>% 
+  select(-Loan_ID)
+
+summary(loandata) %>%
+  kable() %>%   
+  kable_styling(
+      full_width = F, position="center", bootstrap_options = c("hover")) %>% 
+  scroll_box()
+```
+
+
+
+
+### Missing data
+
+We can visualize the amount of missing data that is observed in our dataset
+with the `vis_miss` function from the `naniar` package.
+Majority of the data is complete and approximate 1.9% of the dataset is missing.
+There are no observations with majority of features missing,
+and there are no features that are abnormally sparse.
+
+A threshold of 0.5 was set for observation completion,
+meaning if 50% of the features measure `NA` for any observation,
+we would remove that row from our dataset.
+No rows in the dataset triggered this threshold.
+
+The few pieces of missing information will need to be handled with imputation or removal.
+Of the categorical variables, this includes 
+`Gender`, `Married`, `Dependents`, `Self_Employed` and `Credit_History`.
+Of the numeric variables this includes 
+`Loan Amount`, `Loan_Amount_Terms`, and `Credit_History`.
+We explored several imputation methods: mean, mode, bagimpute, KNN, and median.
+We decided to use 360 for missing loan terms, mean for other numeric variables,
+and mode for categorical.
+
+
+```{r, fig.height = 9, fig.width = 12, fig.align = "center"}
+naniar::vis_miss(loandata)
+```
+
+```{r, eval=FALSE}
+# This code counts the number of observations with majority NAs
+limitmissing <- .5 * ncol(loandata)
+
+retain <- apply(
+  loandata, 
+  MARGIN = 1, 
+  function(y) sum(is.na(y)) < limitmissing)
+
+sum(!retain)
+```
+
+
+
+
+### Frequency
+
+A simple barplot shows the frequency
+of all categorical variables in the dataset.
+We also include histograms to show distribution
+of numeric features in the dataset.
+We remove `Gender`, which is skewed to `Male`,
+to avoid making loan approval predictions based on any gender biases.
+
+It appears the vast majority of this dataset is for 30-year mortgages.
+Many of the distributions skew right, however no transformations
+to normalize this dataset are necessary for tree-based classification models.
+
+The bar chart also depicts that there is class imbalance
+in the response variable `Loan_Status`.
+Knowing this, we may need to perform some over- or under-sampling
+to obtain better training sets.
+The table below shows this as 69% approved `Y` and 31% denied `N`.
+Guessing the majority class will provide a 69% accuracy and our models need to surpass this.
+
+
+
+```{r, fig.height = 9, fig.width = 12, fig.align = "center"}
+table(loandata$Loan_Amount_Term, useNA = 'always')
+
+plot_bar(loandata, theme_config = defaulttheme, ncol = 3)
+
+plot_histogram(loandata, theme_config = defaulttheme, ncol = 2)
+```
+
+
+
+
+
+### Visualization by potential predictor variables
+
+Next we look at the same categorical and numeric distributions,
+however we separate these by our predictor variable
+to assess any interesting or unusual patterns.
+We notice that the proportion of Y/N are distributed in our categorical variables
+such that there is no feature that decidingly determines our prediction
+(which would provide less incentive to build models).
+However, `Credit_Score` seems to be a major determing factor.
+
+```{r}
+plot_bar(loandata, by = "Loan_Status")
+plot_boxplot(
+  loandata, by = "Loan_Status", theme_config = defaulttheme, ncol = 2)
+```
+
+Tree-based models are not susceptible to the negative impacts of collinearity,
+however we can still check.  Highly correlated variables are candidates for removal
+to achieve a more parsimonious model.
+We do not observe multicollinearity in this dataset.
+
+```{r}
+loandata %>% 
+  select_if(is.numeric) %>% 
+  na.omit() %>% 
+  cor(.) %>% 
+  corrplot(., type = 'lower', diag = FALSE)
+```
+
+
+
+
+
+### Data preparation
+
+
+* Impute missing values
+    + `Loan_Amount_Term` with value 360
+    + Categorical variables and `Credit_History` using `mode`
+    + Remaining numeric variables with `mean`
+* Remove `Loan_ID` and `Gender`
+* Create a variable for `Total_Income` and remove `ApplicantIncome` and `CoapplicantIncome`
+* Add `IncomeLoanRatio`
+* Replace factor variables with dummy variables for *all levels* including the base level
+* Split the data into a training and test set
+* Save the prepared data for questions 2, 3, and 4
+
+
+```{r}
+# Helper functions
+mode <- function(x, ...) {
+  tx <- table(x)
+  which(tx == max(tx)) %>% sort %>% `[`(., 1) %>% names
+}
+impute <- function(x, fun) {
+  fval <- fun(x, na.rm = TRUE)
+  y <- ifelse(is.na(x), fval, x)
+  return(y)
+}
+
+# Prep statements
+loans <- loandata %>% 
+  select(-Gender) %>% 
+  mutate(
+    Loan_Amount_Term   = ifelse(is.na(Loan_Amount_Term), 360, Loan_Amount_Term),
+    Married            = impute(Married, mode),
+    Dependents         = impute(Dependents, mode),
+    Education          = impute(Education, mode),
+    Self_Employed      = impute(Self_Employed, mode),
+    ApplicantIncome    = impute(ApplicantIncome, mean),
+    CoapplicantIncome  = impute(CoapplicantIncome, mean),
+    LoanAmount         = impute(LoanAmount, mean),
+    Credit_History     = impute(Credit_History, mode),
+    Property_Area      = impute(Property_Area, mode),
+    Loan_Status        = impute(Loan_Status, mode)  ) %>% 
+  mutate(
+    Total_Income = ApplicantIncome + CoapplicantIncome) %>% 
+  select(-ApplicantIncome, -CoapplicantIncome) %>% 
+  mutate(IncomeLoanRatio = Total_Income / LoanAmount) %>% 
+  mutate_if(is.character, factor)
+?dummyVars()
+# Create dummyVars, *including* base levels!
+dv <- dummyVars(~ ., data = loans, fullRank = FALSE)
+loans_dv <- predict(dv, loans) %>% as.data.frame
+
+# Split data: L is a binary vector
+# so one can split loans or loans_dv the same way
+set.seed(3)
+S <- initial_split(loans, prop = .75, strata = Loan_Status)
+L <- (1:nrow(loans)) %in% S$in_id
+
+loans_train <- loans[L, ]
+loans_test <- loans[!L, ]
+loans_dv_train <- loans_dv[L, ]
+loans_dv_test <- loans_dv[!L, ]
+
+# loans_train %>% str
+# loans_test %>% str
+# loans_dv_train %>% str
+# loans_dv_test %>% str
+
+# Save Rds files for later use
+# Rds files are an easy way to save individual R objects
+# They are preferred over RData files
+#write_rds(loans_train, 'data/loans_train.Rds')
+#write_rds(loans_test, 'data/loans_test.Rds')
+write_rds(loans_dv_train, 'data/loans_dv_train.Rds')
+write_rds(loans_dv_test, 'data/loans_dv_test.Rds')
+```
+
+
+
+
+
+
+
+
+## (Q2) Decision Tree {.tabset .tabset-fade .tabset-pills}
+
+Several models will be tested across a 10-fold bootstrapped validation training set that will allow for robust predictions on the training set that are less susceptible to overfitting. The decision tree model will be tested using the `rpart` inside of the `tidymodels` framework. After testing various model setups along the validation sets, the best model will be tuned via the appropriate decision tree specifications and final predictions and accuracy will be shown on the training and testing sets which are split 75/25.
+
+
+**Note on `tidymodels`: the `tidymodels` framework is a wrapper
+around the various packages that one can use for the same
+modeling methods.  The specific functions of this package may
+be new to the reader, however we hope that the intent of the 
+following code is easy to follow even for the reader unfamiliar
+with `tidymodels`.  We do not use the `tidymodels` framework
+for all questions in this homework.
+
+```{r}
+Datatrain <- read_rds('data/loans_dv_train.Rds') %>% 
+  mutate(Loan_Status = ifelse(Loan_Status.Y, "Y", "N")) %>% 
+  select(-Loan_Status.N, -Loan_Status.Y)
+
+Datatest <- read_rds('data/loans_dv_test.Rds') %>% 
+  mutate(Loan_Status = ifelse(Loan_Status.Y, "Y", "N")) %>% 
+  select(-Loan_Status.N, -Loan_Status.Y)
+
+datacv <- vfold_cv(Datatrain, v = 10, strata = Loan_Status)
+
+tree_engine <-
+    decision_tree(mode = "classification") %>% 
+    parsnip::set_engine(engine = "rpart")
+
+dt_wf <-
+    workflow() %>% 
+    workflows::add_model(tree_engine)
+```
+
+
+### Candidate models
+
+#### 1st Model: **Baseline**
+
+Kappa is a metric used to measure accuracy that is normalized
+based on the class distribution and will be used to compare model performance.
+For Kappa, values of 0-0.20 as slight, 0.21-0.40 as fair, 0.41-0.60 as moderate, 0.61-0.80 as substantial, and 0.81-1 as almost perfect.
+
+The results this model tested among 10-folds of a training set is 80% accuracy and 48% KAP. Other performance metrics are presented below.
+
+```{r}
+#Baseline Model
+dt_recipe1 <-
+  recipe(Loan_Status ~ ., data = Datatrain)
+
+dt_recipe1 %>% prep()
+
+dt_wf1<-
+ dt_wf %>% 
+  add_recipe(dt_recipe1)
+
+wf1_results <- dt_wf1 %>% 
+  fit_resamples(
+    resamples= datacv, 
+    metrics = metric_set(
+      roc_auc, accuracy, sensitivity, specificity, kap),
+    control = control_resamples(save_pred = TRUE))
+
+
+wf1_results %>% collect_metrics(summarize = T)
+
+All_metrics <- data.frame()
+
+wf_res_function <-
+  function(wf_results, modelname) {
+    # this function returns 
+    # ROC_AUC, accuracy, and KAPPA of a cross validated model result
+    
+    All_metrics %>% bind_rows(
+      collect_metrics(wf_results, summarize = T) %>%
+      mutate(model = modelname))
+  }
+
+All_metrics <- wf_res_function(wf1_results, "Model 1")
+```
+
+#### 2nd Model: **Imputation** testing
+
+For this model, all steps that were applied to model 1 are also applied to model 2 except the imputation of the factor variables are done with k-nearest neighbors instead of mode imputations. The following describes the adjustments
+
+No change in the Accuracy or KAP was observed from model 1. Additionally bagimpute, removing missing data, and unknown classification were tested and performed either the same or worse than the baseline model.
+
+We do not include the results of this step in our report.
+
+
+
+
+
+#### 3rd Model: **Undersampling**
+
+All steps that were applied to model 1 are also applied to model 3 but down-sampling is added in order to test balance the majority and minority classes in our response variable. The down sampling was tested at a few ratios from 1:1 to 2. the optimal ratio is presented below at 1.8 with 35% `N` and 65% `Y` -- a 4% adjustment in the class balance. the following steps were made:
+
+This resulted in a lower accuracy and lower KAP likely because this dataset is not extensive enough to provide enough information when downsampling. Due to this, Downsampling will not be incorporated as part of the final model
+
+
+```{r}
+dt_recipe3 <-
+  dt_recipe1 %>% 
+  themis::step_downsample(Loan_Status, skip = FALSE, under_ratio = 1.8)
+
+table((bake(dt_recipe3 %>% prep(), new_data = Datatrain))$Loan_Status)
+
+dt_wf3<-
+ dt_wf %>% 
+  add_recipe(dt_recipe3)
+
+dt_recipe3 %>% prep()
+
+wf3_results <- dt_wf3 %>% 
+  fit_resamples(
+    resamples = datacv,  
+    metrics = metric_set(
+      roc_auc, accuracy, sensitivity, specificity, kap),
+    control = control_resamples(save_pred = TRUE))
+
+
+wf3_results %>% collect_metrics(summarize = TRUE)
+
+All_metrics <-
+  wf_res_function(wf3_results, "Model 3")
+```
+
+
+
+
+
+
+### 6th Model: **Discretization Testing**
+
+All steps that were applied to model 5 are also applied to model 6. Additionally, Data discretization for numeric features were tested. Binning features sometimes allows groupings to better predict our response variable. Binning was tested along various features and various bins, the feature that improved model accuracy most when binning was the engineered feature `Total_Income`. The following steps were done to model 6:
+
+```{r}
+dt_recipe6 <-
+  dt_recipe1 %>% 
+  step_discretize(Total_Income, num_breaks = 8)
+  
+dt_recipe6 %>% prep
+
+dt_wf6 <-
+ dt_wf %>% 
+  add_recipe(dt_recipe6)
+
+wf6_results <- dt_wf6 %>% 
+  fit_resamples(
+    resamples = datacv,
+    metrics = metric_set(
+      roc_auc, accuracy, sensitivity, specificity, kap),
+    control = control_resamples(save_pred = TRUE))
+
+
+wf6_results %>% collect_metrics(summarize = TRUE)
+
+All_metrics <- wf_res_function(wf6_results, "Model 6")
+```
+
+
+Binning our engineered feature `Total_Income` increased our model KAP from 52% to 53% and our accuracy from 82.1% to 82.4% so we will retain these steps. 
+
+
+
+
+
+
+```{r}
+All_metrics %>% filter(.metric == "kap") %>% kable() %>% 
+     kable_styling(
+      full_width = F, position="center", bootstrap_options = c("hover"))
+
+
+```
+
+
+
+### Model Tuning 
+
+After optimizing our model based on various transformations accross multiple validation datasets, the best model is selected and needs to be tuned. There are various specifications of a decision tree that can affect the performance. The ones that will be tuned in this section are:
+
+- `cost_complexity`: represents the amount of information gain required for a tree to continue splitting along a node
+
+- `tree_depth`: represents the maximum amount of branches a tree may extend before terminating
+
+- `min_n`: represents the minimum number of datapoints required at a node for a split to be made
+
+
+In order to test various values, a grid of these features are set up with various combinations of options as shown below. 
+
+```{r}
+tree_grid <- grid_regular(
+  cost_complexity(), tree_depth(), min_n(), levels = 4)
+tree_grid %>% 
+  kable %>% 
+  kable_styling(
+      full_width = F, position="center", bootstrap_options = c("hover")) %>%
+  scroll_box(height = "200px")
+```
+
+All of these values are testing on the 10-fold cross-validation set where the result of every combination along each 10 splits of the data are averaged. The results of this tuning exercise is plotted below. KAP is the metric used to select the best tree, where the minimum cost function, a tree depth of 5 and a minimal node size of 40 is shown to be optimal.
+
+```{r}
+
+
+tree_engine <-
+  decision_tree(
+    mode = "classification",
+    cost_complexity = tune(), # min improvement needed at each node
+    tree_depth = tune(), # max depth of the tree allowed
+    min_n(tune()) # min number of datapoints required 
+  ) %>% 
+  set_engine(engine = "rpart")
+doParallel::registerDoParallel()        
+set.seed(3)
+
+tree_rs <- tune_grid(
+  object =  tree_engine,
+  preprocessor = dt_recipe6,
+  resamples = datacv,
+  grid = tree_grid,
+  metrics = metric_set(accuracy, kap)
+)
+
+collect_metrics(tree_rs) %>% 
+  kable() %>% 
+  kable_styling(
+    full_width = F, position="center", bootstrap_options = c("hover")) %>% 
+  scroll_box(height = "200px")
+
+tree_rs %>% autoplot() + theme_light(base_family = "IBMPlexSans")
+
+```
+
+
+
+
+
+
+
+
+### Finalize decision
+
+We can finalize our decision and create our decision tree based on the following specification:
+
+```{r}
+show_best(tree_rs, "kap")
+
+final_tree <- finalize_model(tree_engine, select_best(tree_rs, "kap"))
+
+final_tree
+```
+
+A visual of our fitted model tree to the training dataset is shown below. The first value in the tree nodes indicate Y/N on whether there loan default would be predicted at that node, the second values shows the probability associated with `N` on the left and `Y` on the right. the third row in the node shows the percentage of the data contained in each node. The top most node depicts the most descriptive feature of our classification model, while following nodes depict secondary descriptive features. Due to the tree specifications (40 data points needed minimum at each node) only two main features are used to predict `LoanStatus` which are `Credit_History` and `IncomeLoanRatio`. 
+
+
+```{r}
+final_wf<-
+  workflow() %>% 
+  add_model(final_tree) %>% 
+  add_recipe(dt_recipe6)
+
+wf_final_results<-
+final_wf %>% fit_resamples(resamples= datacv, 
+                           metrics = metric_set(roc_auc, accuracy, sensitivity, specificity,kap),
+                           control = control_resamples(save_pred = T))
+
+
+#wf_final_results %>% collect_metrics(summarize = T)
+
+All_metrics<-
+wf_res_function(wf_final_results,"wf_final")
+
+dtmodel<-
+  final_wf %>% fit(data = Datatrain)
+
+#rpart.plot::rpart.plot(dtmodel$fit$fit$fit)
+rattle::fancyRpartPlot(dtmodel$fit$fit$fit,palettes="RdPu")
+
+```
+
+### Variable Importance Plot
+
+Additional information about the variable importance was extracted from the model and shown in the variable importance plot below. where `Credit_History` has an overwhelming weight of importance, followed by our engineered feature `IncomeLoanRatio`.
+
+```{r}
+#For plotting tree
+caret::varImp(dtmodel$fit$fit$fit) %>% mutate(Feature = rownames(.)) %>% 
+  ggplot(mapping = aes(x =fct_reorder(Feature,Overall), y = Overall))+
+  geom_col(fill ="skyblue3")+
+  coord_flip()+
+  defaulttheme+
+  labs(x = "Importance",
+       y = "Feature",
+       title = "Variable Importance")
+
+#traintransformed<-bake(dt_recipe6 %>% prep,Datatrain)
+#testtransformed<-bake(dt_recipe6 %>% prep,datatest)
+
+training_predictions<-
+predict(dtmodel,Datatrain, type = "class") %>% 
+  bind_cols(Datatrain$Loan_Status) %>% 
+  rename("Loan_Status"= "...2") %>% 
+  mutate(set = "Training") %>% 
+  mutate(Loan_Status = as.factor(Loan_Status))
+
+
+```
+
+### Confusion Matrix, Accuracy
+
+The confusion matrix and accuracy of our training set is shown below with an accuracy of 83.1% and kappa of 55.6%. The confusion matrix shows that the model is not very good at predicting the minority class of when an individual will not be approved for the loan.
+
+```{r}
+training_predictions %>% conf_mat(truth = Loan_Status, estimate=.pred_class)
+
+metrics(training_predictions, truth = Loan_Status,estimate = .pred_class)
+
+
+```
+
+Similarly, the confusion matrix and accuracy of our testing set is shown below with an accuracy of 79.7% and kappa of 46.6%. Similar to the training dataset, the confusion matrix shows that the model is not very good at predicting the minority class of when an individual will not be approved for the loan.
+
+```{r}
+
+testing_predictions<-
+predict(dtmodel,Datatest, type = "class") %>% 
+  bind_cols(Datatest$Loan_Status) %>% 
+  rename("Loan_Status"= "...2") %>% 
+  mutate(set = "Testing") %>% 
+  mutate(Loan_Status = as.factor(Loan_Status))
+
+testing_predictions %>% conf_mat(truth = Loan_Status, estimate=.pred_class)
+
+metrics(testing_predictions, truth = Loan_Status,estimate = .pred_class)
+dtmodel$fit$fit %>% class
+
+write_rds(dtmodel$fit$fit$fit, "C:/Users/REGISTEJH/OneDrive - CDM Smith/Documents/CUNY SPS/622/data622-group4/hw3/output/dt_model.Rds")
+write_rds(training_predictions, "C:/Users/REGISTEJH/OneDrive - CDM Smith/Documents/CUNY SPS/622/data622-group4/hw3/output/dt_training_predictions.Rds")
+write_rds(testing_predictions, "C:/Users/REGISTEJH/OneDrive - CDM Smith/Documents/CUNY SPS/622/data622-group4/hw3/output/dt_testing_Predictions.Rds")
+
+```
+
+
+
+
+
+
+
+
+## (Q3a) Random Forest - Data Prep {.tabset .tabset-fade .tabset-pills}
+
+### Import and Preparation
+
+In Step 1, I imported the data and initially decided to eliminate the Loan_ID variable from the data because it was a contiguous variable. The data set contained several empty values (not NAs) in the categorical variables, therefore, I decided to mitigate those empty values using random replacement. Afterwards, I decided to impute the rest of the numerical variables so that I had no NAs. The presence of NAs and empty categorical values were small in the data set, but I decided to cover them so that I would not have to worry about them while I performed Random Forest operations.
+
+```{r, message=FALSE, echo=FALSE}
+hw3data = read.csv(file = 'Loan_approval.csv')
+hw3temp <- as.data.frame(hw3data)
+hw3temp <- hw3temp[,!(names(hw3temp) %in% c("Loan_ID"))]
+summary(hw3temp)
+```
+
+### Handling of Empty Categorical Values
+
+Based on my initial study of the data, I identified **Gender**, **Married**, **Dependents**, and **Self_Employed** categorical variables that contained 13, 3, 15, and 32 empty values respectively. Imputation nor na.omit would work with mitigating these variables, therefore, I decided to use the sample method to randomly replace the empty values of these categorical variables.
+
+```{r, message=FALSE, echo=FALSE}
+hw3temp$Gender[hw3temp$Gender == ""] <- sample(c('Male', 'Female'), 13, replace=TRUE, prob=c(0.5, 0.5))
+hw3temp$Married[hw3temp$Married == ""] <- sample(c('Yes', 'No'), 3, replace=TRUE, prob=c(0.5, 0.5))
+hw3temp$Dependents[hw3temp$Dependents == ""] <- sample(c('0', '1','2','3+'), 15, replace=TRUE, prob=c(0.25, 0.25,0.25,0.25))
+hw3temp$Self_Employed[hw3temp$Self_Employed == ""] <- sample(c('Yes', 'No'), 32, replace=TRUE, prob=c(0.5, 0.5))
+hw3temp$Gender <- factor(as.character(hw3temp$Gender))
+hw3temp$Married <- factor(as.character(hw3temp$Married))
+hw3temp$Dependents <- factor(as.character(hw3temp$Dependents))
+hw3temp$Self_Employed <- factor(as.character(hw3temp$Self_Employed))
+summary(hw3temp)
+```
+
+### Imputing Missing Values
+
+The following variables had missing data and I used the MICE function to remediate the missing values. Perhaps, it would have been a lot easier to omit the missing data, but I felt that it would be a more truthful data set if we had imputed data values to play with. 
+
+1. LoanAmount
+
+2. Loan_Amount_Term
+
+3. Credit_History
+
+```{r, message=FALSE, echo=FALSE}
+hw3imputed <- mice(hw3temp, m=5, maxit = 5, method = 'pmm')
+hw3imputed <- complete(hw3imputed)
+summary(hw3imputed)
+```
+
+
+
+
+
+
+
+
+## (Q3b) Random Forest - Full Model (without Variable Selection) {.tabset .tabset-fade .tabset-pills}
+
+### Partition of Training/Test Data and Data Transformation
+
+Based on my literatue review of Random Forests, it appears that the both categorical and numerical variables can be used in default Random Forests. It appears that Random Forests can be executed with all variables in place. In this execution of Random Forest, I decided to test **Loan_Status** against all remaining variables in the data set.
+
+I used createDataPartition to develop the Training and Test data sets. I separated the training and test data set using 70/30 partition of the imputed data.
+
+```{r}
+set.seed(123)
+inTrain1 <- createDataPartition(y = hw3imputed$Loan_Status, p=0.70, list = FALSE)
+training1 <- hw3imputed[inTrain1,]
+testing1 <- hw3imputed[-inTrain1,]
+```
+
+### Execution of Random Forest
+
+I ran the random forest and I very disatifsfied with the results. There is an error rate of 22.51% which I need to address. This means that I may have to investigate if a reduction of variables is needed for the random forest creation. Moreover, a normal plot for a random forest should show a curve sloping down near the X and Y axes. There are 3 different curves almost parellel to each other.
+
+```{r, message=FALSE, echo=FALSE}
+set.seed(521)
+m1 <- randomForest(Loan_Status ~ ., data=training1, mtry=12, importance=TRUE)
+m1
+importance(m1)
+plot(m1)
+```
+
+
+
+
+
+
+
+
+## (Q3c) Random Forest - Model with 3 Most Important Variables {.tabset .tabset-fade .tabset-pills}
+
+### Features Highlight
+
+Upon execution of the **importance** method in the previous model, I noticed that the strongest variable candidates are: **Credit_History**, **ApplicantIncome**, and **LoanAmount** due to them having the highest Mean Decrease Gini Coeeficient. I ran a subsequent randomForest function using these variables only and saw that the error rate went up to 26.91%.
+
+```{r, message=FALSE, echo=FALSE}
+set.seed(121)
+m1a <- randomForest(Loan_Status ~ Credit_History + ApplicantIncome + LoanAmount, data=training1, mtry=3, importance=TRUE)
+m1a
+plot(m1a)
+```
+
+The plots for model and sub-model left me a little uneasy. Therefore, I decided to run another Random Forest model with the Categorical variables transformed into numerical variables and the dealing with multicollinear variables.
+
+
+
+
+
+
+
+
+
+## (Q3d) Random Forest - Variable Selection via Determining Highly-Correlated Variables {.tabset .tabset-fade .tabset-pills}
+
+### Determining Highly-Correlated Variables
+
+During my research into Random Forests, I have seen conflicting literature about the handling of multicollinear and numerical transformation of categorical variables. Some literature indicate it is unnecessary to numerically transform your categorical variables and others indicate otherwise. Moreover, the literature was not conclusive in determining if multicollinearity variable will affect the model. In this execution of the Random Forest model, I decided to explore both avenues to determine if I could find a model that would be satisfactory.
+
+To determine and eliminate a highly-correlated variable from the model, may improve the fitness of the models.
+
+Prior to executing the cor Pearson function, I had to transform the temporary categorical data variables into numerical equivalents. Category variables that needed to be transformed were **Loan_Status**, **Married**, **Self_Employed**, **Education**, **Gender**, **Dependents**, and **Property_Area** variables.
+
+```{r, message=FALSE, echo=FALSE}
+hw3temp = hw3imputed
+hw3temp$Loan_Status = case_when(hw3temp$Loan_Status == 'N' ~ 0, 
+                                         hw3temp$Loan_Status == 'Y' ~ 1)
+hw3temp$Married = case_when(hw3temp$Married == 'No' ~ 0, 
+                                         hw3temp$Married == 'Yes' ~ 1)
+hw3temp$Self_Employed = case_when(hw3temp$Self_Employed == 'No' ~ 0, 
+                                         hw3temp$Self_Employed == 'Yes' ~ 1)
+hw3temp$Education = case_when(hw3temp$Education == 'Not Graduate' ~ 0, 
+                                         hw3temp$Education == 'Graduate' ~ 1)
+hw3temp$Gender = case_when(hw3temp$Gender == 'Female' ~ 0, 
+                                         hw3temp$Gender == 'Male' ~ 1)
+hw3temp$Dependents = case_when(hw3temp$Dependents == '0' ~ 0,
+                                         hw3temp$Dependents == '1' ~ 1,
+                                         hw3temp$Dependents == '2' ~ 2,
+                                         hw3temp$Dependents == '3+' ~ 3)
+hw3temp$Property_Area = case_when(hw3temp$Property_Area == 'Rural' ~ 0,
+                                         hw3temp$Property_Area == 'Semiurban' ~ 1,
+                                         hw3temp$Property_Area == 'Urban' ~ 2)
+summary(hw3temp)
+```
+
+I conducted a cor function using the Pearson method to find out of any correlations in the data. It was determined that only **Credit_History** had high positive correlation in 0.56. However, this number is in the midpoint in the positive correlation and is not very close to 1. Being close to 1 after the 0.80 range would convince me that this is a multicollinear variable. 
+
+```{r, message=FALSE, echo=FALSE}
+relationship <- cor(hw3temp, method = "pearson", use = "complete.obs")
+kable(relationship, booktabs = 'T') %>% 
+  kable_styling(font_size = 8)
+corrplot(relationship, order = "original",tl.col = "black",method="circle")
+
+# correlations cont.
+temp1 <- as.data.frame(relationship) %>% dplyr::select(Loan_Status)
+
+# Looking for very highly correlated, arbitrarily set at > .5 or < -.5
+correlated_pos <- subset(temp1, temp1[,'Loan_Status'] > .5 & temp1[,'Loan_Status'] < 1)
+correlated_neg <- subset(temp1, temp1[,'Loan_Status'] < -.5 & temp1[,'Loan_Status'] > -1)
+```
+
+**Positive Correlated Variables** 
+
+```{r, message=FALSE, echo=FALSE}
+correlated_pos
+```
+
+**Negative Correlated Variables** 
+
+```{r, message=FALSE, echo=FALSE}
+correlated_neg
+```
+
+Based on a lecture from Professor Chris Mack, one way to determine which variable to eliminate from the model is to find the variables with high Variable Inflation Factor [MAC]. According to Professor Mack, if a variable has a high VIF, greater than 5, then we can determine that variable as a candidate of elimination due to its high inflation effect on other variables. His strategy involves an execution of a linear regression model against the data and use the vif method to determine which variables to eliminate.
+
+```{r, message=FALSE, echo=FALSE}
+lmmodel <- lm(Loan_Status~.,data=hw3temp)
+summary(lmmodel)
+vif(lmmodel)
+```
+
+Upon running the **vif** function, you will see that **ApplicantIncome** and **LoanAmount** have the highest inflation factor values at 1.65 and 1.74 respectively. Notice that **Credit_History** as in the lower threshhold of numbers to eliminate. Observe in the correlation map above, **ApplicantIncome** and **LoanAmount** are within a light blue color range indicating that they have multicollinearity but below the 0.5 mark. According to Professor Mack, he indicated that any VIF values greater than 5 should be candidate variables for elimination. Given these indications, I am not eliminating any variables from the Random Forest model.
+
+Again, I used createDataPartition to develop the Training and Test data sets. I separated the training and test data set using 70/30 partition of the imputed data.
+
+```{r}
+set.seed(123)
+inTrain2 <- createDataPartition(y = hw3temp$Loan_Status, p=0.70, list = FALSE)
+training2 <- hw3temp[inTrain2,]
+testing2 <- hw3temp[-inTrain2,]
+```
+
+### Execution of Random Forest
+
+I ran the random forest and I am still disatifsfied with the results. There is no error rate to be concerned with, but only 32.25% of the variance can be explained in the model. A percentage close to 100% would make me feel confident for the Random Forest model. The plot, however, follows the curve of ideal Random Forests [JAM].
+
+```{r}
+m2 <- randomForest(Loan_Status ~ ., data=training2, mtry=11, importance=TRUE)
+m2
+importance(m2)
+plot(m2)
+```
+
+### Model with 3 Most Important Variables Using Transformed Data
+
+Upon execution of the **importance** method in the previous model, I noticed that the strongest variable candidates AGAIN are: **Credit_History**, **ApplicantIncome**, and **LoanAmount** due to them having the highest Mean Decrease Gini Coeeficient (IncNodePurity). I ran a subsequent randomForest function using these variables only and saw that while there was no error rate observed, the percent of variance explained actually went down to the low 20s. As indicated earlier, a percentage close to 100% would make me feel confident for the Random Forest model. The plot, however, follows the curve of ideal Random Forests.
+
+```{r, message=FALSE, echo=FALSE}
+set.seed(123)
+m2a <- randomForest(Loan_Status ~ Credit_History + ApplicantIncome + LoanAmount, data=training2, mtry=3, importance=TRUE)
+m2a
+plot(m2a)
+```
+
+
+
+
+
+
+
+## (Q3e) Random Forest - Model Comparison {.tabset .tabset-fade .tabset-pills}
+
+In the final chore for this exercise, I will make predictions on all four generated random forest models and develop the confusion matrix for each. I will extract important values from these models and compare and discuss them.
+
+### Model 1
+
+```{r, message=FALSE, echo=FALSE}
+prediction1 <- predict(m1,newdata = testing1)
+prediction1.cm <- confusionMatrix(prediction1, testing1$Loan_Status) 
+prediction1.cm
+```
+
+### Model 1a
+
+```{r, message=FALSE, echo=FALSE}
+prediction1a <- predict(m1a,newdata = testing1)
+prediction1a.cm <- confusionMatrix(prediction1a, testing1$Loan_Status) 
+prediction1a.cm
+```
+
+### Model 2
+
+```{r, message=FALSE, echo=FALSE}
+prediction2 <- factor(round(predict(m2, testing2, type='response')), levels=c('0', '1'))
+prediction2.cm <- confusionMatrix(data=prediction2, reference=factor(testing2$Loan_Status, levels=c('0', '1'))) 
+prediction2.cm
+```
+
+### Model 2a
+
+```{r, message=FALSE, echo=FALSE}
+prediction2a <- factor(round(predict(m2a, testing2, type='response')), levels=c('0', '1'))
+prediction2a.cm <- confusionMatrix(data=prediction2a, reference=factor(testing2$Loan_Status, levels=c('0', '1'))) 
+prediction2a.cm
+```
+
+### Final Comparison
+
+- Regardless of variable selection or transformation of variables, the initial full Random Forest Model (Model 1) has the highest accuracy at 80% and F1-Score at 79%. Despite the high error rate indicated earlier, F1-Score and Accuracy seems to indicate that this Random Forest is an optimal model.
+
+- Manual selection of the optimal variables according to **vif** and multicollinear mitigation did not result in a better Random Forest model. 
+
+- Despite the numerical transformation of the categorical variables, the initial full Random Forest Model was (Model 1) was better than the full Random Forest Model with transformed data (Model 2).
+
+- By visual inspection of the confusion matrices, the p-value of the initial full Random Forest Model is signficantly less than 0.05 at 0.0001763. Model 2's p-value is 0.02. These indicate that both models are valid models. Models 1a and 2a have p-values of 0.086 and 0.41 respectively indicating that there is evidence that they are not valid models since their p-values are greater than 0.05.
+
+```{r, message=FALSE, echo=FALSE}
+# Model 1 Values
+prediction1.accuracy <- prediction1.cm$overall['Accuracy']
+prediction1.TN <- prediction1.cm$table[1,1]
+prediction1.FP <- prediction1.cm$table[1,2]
+prediction1.FN <- prediction1.cm$table[2,1]
+prediction1.TP <- prediction1.cm$table[2,2]
+prediction1.TPR <- prediction1.TP /(prediction1.TP + prediction1.FN)
+prediction1.TNR <- prediction1.TN /(prediction1.TN + prediction1.FP)
+prediction1.FPR <- prediction1.FP /(prediction1.TN + prediction1.FP)
+prediction1.FNR <- prediction1.FN /(prediction1.TP + prediction1.FN)
+prediction1.precision <- prediction1.TP / (prediction1.TP + prediction1.FP)
+prediction1.recall <- prediction1.TP / (prediction1.TP + prediction1.FN)
+prediction1.specificity <- prediction1.TN / (prediction1.TN + prediction1.FP)
+prediction1.f1score <- 2 * ((prediction1.precision * prediction1.recall) / (prediction1.precision + prediction1.recall))
+```
+
+```{r, message=FALSE, echo=FALSE}
+# Model 1a Values
+prediction1a.accuracy <- prediction1a.cm$overall['Accuracy']
+prediction1a.TN <- prediction1a.cm$table[1,1]
+prediction1a.FP <- prediction1a.cm$table[1,2]
+prediction1a.FN <- prediction1a.cm$table[2,1]
+prediction1a.TP <- prediction1a.cm$table[2,2]
+prediction1a.TPR <- prediction1a.TP /(prediction1a.TP + prediction1a.FN)
+prediction1a.TNR <- prediction1a.TN /(prediction1a.TN + prediction1a.FP)
+prediction1a.FPR <- prediction1a.FP /(prediction1a.TN + prediction1a.FP)
+prediction1a.FNR <- prediction1a.FN /(prediction1a.TP + prediction1a.FN)
+prediction1a.precision <- prediction1a.TP / (prediction1a.TP + prediction1a.FP)
+prediction1a.recall <- prediction1a.TP / (prediction1a.TP + prediction1a.FN)
+prediction1a.specificity <- prediction1a.TN / (prediction1a.TN + prediction1a.FP)
+prediction1a.f1score <- 2 * ((prediction1a.precision * prediction1a.recall) / (prediction1a.precision + prediction1a.recall))
+```
+
+```{r, message=FALSE, echo=FALSE}
+# Model 2 Values
+prediction2.accuracy <- prediction2.cm$overall['Accuracy']
+prediction2.TN <- prediction2.cm$table[1,1]
+prediction2.FP <- prediction2.cm$table[1,2]
+prediction2.FN <- prediction2.cm$table[2,1]
+prediction2.TP <- prediction2.cm$table[2,2]
+prediction2.TPR <- prediction2.TP /(prediction2.TP + prediction2.FN)
+prediction2.TNR <- prediction2.TN /(prediction2.TN + prediction2.FP)
+prediction2.FPR <- prediction2.FP /(prediction2.TN + prediction2.FP)
+prediction2.FNR <- prediction2.FN /(prediction2.TP + prediction2.FN)
+prediction2.precision <- prediction2.TP / (prediction2.TP + prediction2.FP)
+prediction2.recall <- prediction2.TP / (prediction2.TP + prediction2.FN)
+prediction2.specificity <- prediction2.TN / (prediction2.TN + prediction2.FP)
+prediction2.f1score <- 2 * ((prediction2.precision * prediction2.recall) / (prediction2.precision + prediction2.recall))
+```
+
+```{r, message=FALSE, echo=FALSE}
+# Model 2a Values
+prediction2a.accuracy <- prediction2a.cm$overall['Accuracy']
+prediction2a.TN <- prediction2a.cm$table[1,1]
+prediction2a.FP <- prediction2a.cm$table[1,2]
+prediction2a.FN <- prediction2a.cm$table[2,1]
+prediction2a.TP <- prediction2a.cm$table[2,2]
+prediction2a.TPR <- prediction2a.TP /(prediction2a.TP + prediction2a.FN)
+prediction2a.TNR <- prediction2a.TN /(prediction2a.TN + prediction2a.FP)
+prediction2a.FPR <- prediction2a.FP /(prediction2a.TN + prediction2a.FP)
+prediction2a.FNR <- prediction2a.FN /(prediction2a.TP + prediction2a.FN)
+prediction2a.precision <- prediction2a.TP / (prediction2a.TP + prediction2a.FP)
+prediction2a.recall <- prediction2a.TP / (prediction2a.TP + prediction2a.FN)
+prediction2a.specificity <- prediction2a.TN / (prediction2a.TN + prediction2a.FP)
+prediction2a.f1score <- 2 * ((prediction2a.precision * prediction2a.recall) / (prediction2a.precision + prediction2a.recall))
+```
+
+```{r, echo=FALSE}
+Model <- c("RF1","RF1A", "RF2", "RF2A")
+Accuracy <- c(prediction1.accuracy, prediction1a.accuracy, prediction2.accuracy,prediction2a.accuracy)
+Recall <- c(prediction1.recall, prediction1a.accuracy, prediction2.recall,prediction2a.recall)
+Specificity <- c(prediction1.specificity, prediction1a.specificity, prediction2.specificity,prediction2a.specificity)
+Precision <- c(prediction1.precision, prediction1a.precision, prediction2.precision,prediction2a.precision)
+F1Score <- c(prediction1.f1score, prediction1a.f1score, prediction2.f1score,prediction2a.f1score)
+TPR <- c(prediction1.TPR, prediction1a.TPR, prediction2.TPR, prediction2a.TPR)
+TNR <- c(prediction1.TNR, prediction1a.TNR, prediction2.TNR, prediction2a.TNR)
+FPR <- c(prediction1.FPR, prediction1a.FPR, prediction2.FPR, prediction2a.FPR)
+FNR <- c(prediction1.FNR, prediction1a.FNR, prediction2.FNR, prediction2a.FNR)
+
+tableModel <- data.frame(Model,Accuracy,Recall,Specificity,Precision,F1Score,TPR,TNR,FPR,FNR)
+tableModel %>%
+  kable() %>%
+  kable_styling()
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### References
+
+[JAM] G. James, D. Witten, T. Hastie, R. Tibshirani. An Introduction to Statistical Learning : with Applications in R. New York: Springer, 2013.
+
+[MAC] C. Mack. Lecture52 (Data2Decision) Detecting Multicollinearity in R. Retrieved from website: https://www.youtube.com/watch?v=QruEcbgfhzo
+
+[RAN] Random Forests. Retrieved from website: https://uc-r.github.io/random_forests
+
+[RRA] R Random Forest Tutorial with Example. Retrieved from website: https://www.guru99.com/r-random-forest-tutorial.html
+
+
+
+
+### References
+
+1. https://www.kdnuggets.com/2017/09/missing-data-imputation-using-r.html
+
+2. https://www.researchgate.net/post/What-are-the-correlation-values-with-respect-to-low-moderate-high-correlation-specially-in-medical-research#:~:text=Correlation%20coefficients%20whose%20magnitude%20are,can%20be%20considered%20highly%20correlated.
+
+3. https://rpubs.com/sediaz/Correlations
+
+4. https://towardsdatascience.com/k-nearest-neighbors-algorithm-with-examples-in-r-simply-explained-KNN-1f2c88da405c
+
+5. https://www.datacamp.com/community/tutorials/machine-learning-in-r#normalization
+
+6. http://r-statistics.co/Missing-Value-Treatment-With-R.html
+
+
+
+
+

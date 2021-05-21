@@ -1,0 +1,19 @@
+
+```{r}
+library(DBI)
+ 
+```
+ 
+```{r} 
+cn <- dbConnect(
+  drv = RMySQL::MySQL(), 
+  username = "data622", 
+  password = "group4622", 
+  host     = "data622.c3alv39zxnhk.us-east-2.rds.amazonaws.com", 
+  port     = 3306, 
+  dbname   = "")
+ 
+data2 <- dbGetQuery(cn, "SELECT * FROM DATA622.ny311 limit 0,30; ")
+data2
+```
+ 

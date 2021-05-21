@@ -1,0 +1,1455 @@
+---
+title: "Group 4 Assignment 3"
+author: "Ajay Arora, Romerl Elizes, Jimmy Ng, Joshua Registe, Adam Rich"
+date: "April 11, 2021"
+output:
+  rmdformats::readthedown:
+    self_contained: yes
+    thumbnails: yes
+    lightbox: yes
+    gallery: no
+    highlight: tango
+    code_folding: hide
+editor_options: 
+  chunk_output_type: console
+---
+
+
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE, 
+  warning = FALSE, 
+  message = FALSE,
+  cache = TRUE)
+
+packages <- c(
+  'tidyverse', 
+  'corrplot', 
+  'palmerpenguins',
+  'class',
+  'kableExtra',
+  'naniar',
+  'DataExplorer',
+  'caret',
+  'tidymodels',
+  'rsample',
+  'themis',
+  'randomForest',
+  'car',
+  'xgboost',
+  'broom'
+)
+
+for (pkg in packages) {
+  suppressPackageStartupMessages(suppressWarnings(
+    library(
+      pkg, character.only = TRUE, 
+      warn.conflicts = FALSE, quietly = TRUE)
+  ))
+}
+
+# A ggplot2 function
+defaulttheme <- theme(
+  panel.background = element_blank(),
+  panel.border = element_rect(color = "black", fill = NA))
+```
+
+
+
+
+## (Q1) k-Nearest Neighbors {.tabset .tabset-fade .tabset-pills} 
+
+
+> [Using] the Penguin dataset . . . please use [the] K-nearest neighbors algorithm to predict the species variable.
+
+The **KNN Algorithm** is a simple classification algorithm.
+It stores the training data and classifies
+new cases by a majority vote of the case's k-nearest neighbors.
+
+The algorithm is sensitive to the units of the chosen predictor variables.
+It is important that we transform all the values to a common scale.
+A frequently used practice is to normalize the data to the interval [0, 1].
+
+KNN works well when all predictor data has been converted to 
+numerics with the exception of the target variable `species`.
+
+*A note on data preparation:* this is the third time we've worked
+with the `palmerpenguins` data.  We've repeated some data preparation
+and EDA in the appendix.  The data prep we do here are items 
+**specific to the k-NN algorithm**.
+
+
+
+
+```{r}
+penguins_na_omit <- readr::read_rds('data/penguins_na_omit.Rds')
+
+normalize <- function(x) {
+  (x - min(x)) / (max(x) - min(x))
+}
+
+penguins_df_norm <- penguins_na_omit %>% 
+  select(-year) %>% 
+  mutate_if(is.factor, as.integer) %>% 
+  mutate_if(is.numeric, normalize) %>% 
+  mutate(species = penguins_na_omit$species)
+
+```
+
+
+
+
+
+
+### Create Training and Test sets
+
+The first is used to train the system, while the second is used to evaluate the learned or trained system.
+In practice, the division of your data set into a test and a training sets is disjoint:
+the most common splitting choice is to take 2/3 of your original data set as the training set, while the 1/3 that remains will compose the test set.
+
+
+```{r}
+# Create sample data for testing and training.
+set.seed(1234)
+ind <- sample(2, nrow(penguins_df_norm), replace=TRUE, prob=c(0.67, 0.33))
+
+# Training and test sets
+penguin.train <- penguins_df_norm %>% filter(ind == 1) %>% select(-species)
+penguin.test  <- penguins_df_norm %>% filter(ind == 2) %>% select(-species)
+
+# Training and test labels
+penguin.trainLabels <- penguins_df_norm$species[ind == 1]
+penguin.testLabels <- penguins_df_norm$species[ind == 2]
+```
+
+
+
+
+
+### Build KNN Classifier
+
+This step performs the actual classification.
+Note: the k parameter is often an odd number to avoid ties in the voting scores.
+A good starting point for k is the square root of the total number of observations.
+
+```{r}
+penguin_pred <- knn(
+  k = 19,
+  train = penguin.train, 
+  test = penguin.test, 
+  cl = penguin.trainLabels)
+
+caret::confusionMatrix(
+  penguin_pred, 
+  penguin.testLabels)
+```
+
+With k = 19 we have zero misclassifications!
+
+
+
+What are the accuracy measures for other values of k?
+
+```{r}
+k_search <- function(k) {
+  penguin_pred <- knn(
+    k = k,
+    train = penguin.train, 
+    test = penguin.test, 
+    cl = penguin.trainLabels)
+
+  cm <- caret::confusionMatrix(
+    penguin_pred, 
+    penguin.testLabels)
+  
+  data.frame(
+    k = k, 
+    Adelie = cm$byClass[1, 11],
+    Chinstrap = cm$byClass[2, 11],
+    Gentoo = cm$byClass[3, 11] )
+}
+
+res <- NULL
+for (i in seq(1, 21, 2)) {
+  res_i <- k_search(i)
+  if (is.null(res))
+    res <- res_i
+  else
+    res <- rbind(res, res_i)
+}
+
+print(res)
+```
+
+We see that k = 17 is the first value of k for which we have perfect accuracy.
+But, the accuracy is extremely good for all values of k.
+
+
+
+
+
+
+
+### What if we do not know `island`?
+
+From previous homework assignments, we found that `island`
+was an extremely helpful variable because not all species
+are found on each island.  If we wanted to build a model
+without `island` (for individuals we might find at sea, for example),
+how well would it perform?
+
+```{r}
+cols <- c(
+  "bill_length_mm", "bill_depth_mm", 
+  "flipper_length_mm", "body_mass_g", "sex")
+
+k_search <- function(k) {
+  penguin_pred <- knn(
+    k = k,
+    train = penguin.train[, cols], 
+    test = penguin.test[, cols], 
+    cl = penguin.trainLabels)
+
+  cm <- caret::confusionMatrix(
+    penguin_pred, 
+    penguin.testLabels)
+  
+  data.frame(
+    k = k, 
+    Adelie = cm$byClass[1, 11],
+    Chinstrap = cm$byClass[2, 11],
+    Gentoo = cm$byClass[3, 11] )
+}
+
+res <- NULL
+for (i in seq(1, 21, 2)) {
+  res_i <- k_search(i)
+  if (is.null(res))
+    res <- res_i
+  else
+    res <- rbind(res, res_i)
+}
+
+print(res)
+```
+
+With k as low as 3 we get a pretty good model without using `island`.
+However, we do not see perfect classification as we do when
+the variable is included.
+
+
+
+
+
+
+
+
+## Loan Data Exploration and Prep {.tabset .tabset-fade .tabset-pills}
+
+
+
+### Data Exploration
+
+
+```{r}
+# Load raw CSV file
+loans_raw <- readr::read_csv("data/Loan_approval.csv")
+```
+
+Before conducting any modeling, we will explore our dataset. Below describes the `Loan_approval` dataset where we have 614 observations with 13 features used to describe these observations. eight of these variables are factors while the other five are numeric.
+
+
+```{r}
+
+summary(loans_raw) %>% kable() %>%   
+  kable_styling(
+      full_width = FALSE, position = "center", bootstrap_options = c("hover")) %>% 
+  scroll_box() %>% 
+  kable_classic_2()
+```
+We can visualize the amount of missing data that is observed in our dataset with the `vis_miss` function from the `naniar` package. Majority of the data is complete and approximate 1.9% of the dataset is missing. There are no observations with majority of features missing, and there are no features that are abnormally sparse. A threshold of 0.5 was set for observation completion, meaning if 50% of the features measure NA for any observation, that row is removed from our dataset. For this case, no rows in the dataset triggered this threshold.
+The few pieces of missing information will need to be handled with imputation, removal. Of the categorical variables, this includes, `Gender`, `Married`, `Dependents`, `Self_Employed` and `Credit_History`. of the numeric variables this includes `Loan Amount`, `Loan_Amount_Terms`, and `Credit_History`. Imputation methods explored include, mean, mode, bagimpute, knn, and median.
+
+
+
+```{r}
+
+naniar::vis_miss(loans_raw)
+```
+```{r}
+
+# # Sample code for testing the "50% missing threshold"
+# limitmissing <- .5*ncol(loans_raw)
+# retain <- apply(loans_raw, MARGIN= 1, function(y) sum(length(which(is.na(y)))))<limitmissing
+# Dataset <- loans_raw[retain,]
+```
+
+Simple barplot is showing the frequency of all categorical variables in the dataset, as well as a histogram to show distribution of numeric features in the dataset. `Gender` comprised primarily of `Male` and this is a feature that is decidely removed from our dataset to avoid making loan approval predictions based on any gender biases. on the `Loan_Amount_Term`, most individuals go with the 30 year mortgage, while few select terms below or above that. Many of the distributions skew right, however no transformations to normalize this dataset are necessary for decision tree classification-based models.
+
+```{r}
+unique(loans_raw$Loan_Amount_Term)
+
+plot_bar(loans_raw, theme_config = defaulttheme, ncol = 3)
+plot_histogram(loans_raw,theme_config = defaulttheme, ncol = 2)
+
+
+```
+
+The bar chart also depicts that there is class imbalance of the our response variable `Loan_Status`. Knowing this, we may need to perform some over/undersampling techniques in order to obtain better training sets. The table below shows this as 69% approved `Y` and 31% denied `N`. With this, we know that at the very least, guessing the majority class will provide a 69% accuracy and our models need to surpass this. Kappa is a metric used to measure accuracy that is normalized based on the class distribution and will be used to compare model performance. For Kappa, values of 0-0.20 as slight, 0.21-0.40 as fair, 0.41-0.60 as moderate, 0.61-0.80 as substantial, and 0.81-1 as almost perfect.
+
+```{r}
+prop.table(table(loans_raw$Loan_Status)) %>% as.data.frame() %>% 
+  mutate(Freq=percent(Freq)) %>% 
+  rename("Class" = Var1, "Proportion" = "Freq") %>% 
+  mutate(Count =table(loans_raw$Loan_Status)) %>% kable() %>%   
+  kable_styling(
+      full_width = FALSE, position = "center", bootstrap_options = c("hover")) %>% 
+  kable_classic_2()
+```
+
+Next we look at the same categorical and numeric distributions, however we separate these by our predictor variable to assess any interesting or unusual patterns. We notice that the proportion of Y/N are distributed in our categorical variables such that there is no feature that determines our prediction (which would provide less incentive to build models). However, `Credit_Score` seems to be a major determining factor.
+
+```{r}
+plot_bar(loans_raw, by = "Loan_Status")
+plot_boxplot(loans_raw, by = "Loan_Status", theme_config = defaulttheme, ncol = 2)
+```
+
+Tree-based models are not susceptible to the negative impacts of colinearity, however we can still check for if there is any capacity for feature reduction by looking at our pairwise comparison of numeric features. if there are features that describe the data too similarly, they may not provide much additional benefit in the model. For this particular dataset, we do not observe heavy multicolinearity.
+
+```{r}
+plot_correlation(
+  loans_raw,
+  type = c("continuous"),
+  cor_args = list(use = "pairwise.complete.obs"))
+```
+
+
+
+
+### Data preparation
+
+While working through questions 2-5 we experimented with
+various data preparation and cleaning options.
+We've consolidated our selected steps here to make it convenient
+for the reader to follow along.
+
+We imputed missing values using the mode or the mean,
+depending on the variable.
+We also added two new variables: `Total_Income` and `IncomeLoanRatio`.
+
+
+
+```{r}
+# Helper functions
+mode <- function(x, ...) {
+  tx <- table(x)
+  which(tx == max(tx)) %>% sort %>% `[`(., 1) %>% names
+}
+impute <- function(x, fun) {
+  fval <- fun(x, na.rm = TRUE)
+  y <- ifelse(is.na(x), fval, x)
+  return(y)
+}
+
+# Prep statements
+loans <- loans_raw %>% 
+  select(-Loan_ID, -Gender) %>% 
+  mutate(
+    Married            = impute(Married, mode),
+    Dependents         = impute(Dependents, mode),
+    Education          = impute(Education, mode),
+    Self_Employed      = impute(Self_Employed, mode),
+    ApplicantIncome    = impute(ApplicantIncome, mean),
+    CoapplicantIncome  = impute(CoapplicantIncome, mean),
+    LoanAmount         = impute(LoanAmount, mean),
+    Loan_Amount_Term   = impute(Loan_Amount_Term, mean),
+    Credit_History     = impute(Credit_History, mode),
+    Property_Area      = impute(Property_Area, mode),
+    Loan_Status        = impute(Loan_Status, mode)  ) %>% 
+  mutate(
+    Total_Income = ApplicantIncome + CoapplicantIncome) %>% 
+  select(-ApplicantIncome, -CoapplicantIncome) %>% 
+  mutate(IncomeLoanRatio = Total_Income / LoanAmount) %>% 
+  mutate_if(is.character, factor)
+
+# Create dummyVars, *including* base levels!
+dv <- dummyVars(~ ., data = loans, fullRank = FALSE)
+loans_dv <- predict(dv, loans) %>% as.data.frame
+
+# Split data: L is a binary vector
+# so one can split loans or loans_dv the same way
+set.seed(3)
+S <- initial_split(loans, prop = .75, strata = Loan_Status)
+L <- (1:nrow(loans)) %in% S$in_id
+
+loans_train <- loans[L, ]
+loans_test <- loans[!L, ]
+loans_dv_train <- loans_dv[L, ]
+loans_dv_test <- loans_dv[!L, ]
+
+# Save Rds files for later use
+write_rds(loans_train, 'data/loans_train.Rds')
+write_rds(loans_test, 'data/loans_test.Rds')
+write_rds(loans_dv_train, 'data/loans_dv_train.Rds')
+write_rds(loans_dv_test, 'data/loans_dv_test.Rds')
+```
+
+
+
+
+
+
+
+
+
+
+## (Q2) Decision Tree {.tabset .tabset-fade .tabset-pills}
+
+Several models will be tested across a 10-fold bootstrapped validation training set that will allow for robust predictions on the training set that are less susceptible to overfitting. The decision tree model will be tested using the `rpart` inside of the `tidymodels` framework. After testing various model setups along the validation sets, the best model will be tuned via the appropriate decision tree specifications and final predictions and accuracy will be shown on the training and testing sets which are split 75/25.
+
+
+**Note on `tidymodels`: the `tidymodels` framework is a wrapper
+around the various packages that one can use for the same
+modeling methods.  The specific functions of this package may
+be new to the reader, however we hope that the intent of the 
+following code is easy to follow even for the reader unfamiliar
+with `tidymodels`.  We do not use the `tidymodels` framework
+for all questions in this homework.
+
+```{r}
+Datatrain <- read_rds('data/loans_dv_train.Rds') %>% 
+  mutate(Loan_Status = ifelse(Loan_Status.Y, "Y", "N")) %>% 
+  select(-Loan_Status.N, -Loan_Status.Y)
+
+Datatest <- read_rds('data/loans_dv_test.Rds') %>% 
+  mutate(Loan_Status = ifelse(Loan_Status.Y, "Y", "N")) %>% 
+  select(-Loan_Status.N, -Loan_Status.Y)
+
+datacv <- vfold_cv(Datatrain, v = 10, strata = Loan_Status)
+
+tree_engine <-
+    decision_tree(mode = "classification") %>% 
+    parsnip::set_engine(engine = "rpart")
+
+dt_wf <-
+    workflow() %>% 
+    workflows::add_model(tree_engine)
+```
+
+
+### Candidate models
+
+We ran several iterations of models to determine the best data
+preparation steps above.  We have not included each intermediate model.
+If the reader is interested in reading that code, the authors
+will make it available.
+
+
+
+#### Baseline model
+
+Kappa is a metric used to measure accuracy that is normalized
+based on the class distribution and will be used to compare model performance.
+For Kappa, values of 0-0.20 as slight, 0.21-0.40 as fair, 0.41-0.60 as moderate, 0.61-0.80 as substantial, and 0.81-1 as almost perfect.
+
+The results this model tested among 10-folds of a training set is 80% accuracy and 48% KAP. Other performance metrics are presented below.
+
+```{r}
+All_metrics <- data.frame()
+
+
+# Baseline Model = #1
+dt_recipe1 <-
+  recipe(Loan_Status ~ ., data = Datatrain)
+
+dt_recipe1 %>% prep()
+
+dt_wf1<-
+ dt_wf %>% 
+  add_recipe(dt_recipe1)
+
+wf1_results <- dt_wf1 %>% 
+  fit_resamples(
+    resamples= datacv, 
+    metrics = metric_set(
+      roc_auc, accuracy, sensitivity, specificity, kap),
+    control = control_resamples(save_pred = TRUE))
+
+wf1_results %>% collect_metrics(summarize = TRUE)
+
+
+wf_res_function <-
+  function(wf_results, modelname) {
+    # this function returns 
+    # ROC_AUC, accuracy, and KAPPA of a cross validated model result
+    
+    All_metrics %>% bind_rows(
+      collect_metrics(wf_results, summarize = TRUE) %>%
+      mutate(model = modelname))
+  }
+
+All_metrics <- wf_res_function(wf1_results, "Baseline")
+```
+
+
+
+#### Down-sampling test model
+
+This model starts with the baseline and adds down-sampling to balance our response variable. The down-sampling was tested at a few ratios from 1:1 to 1:2. the optimal ratio is presented below at 1.8 with 35% `N` and 65% `Y` -- a 4% adjustment in the class balance.
+
+This model has lower accuracy and KAP likely because our dataset is not large enough. We do not use down-sampling in our final model.
+
+```{r}
+# Down-sampling = #3
+set.seed(0)
+
+dt_recipe3 <-
+  dt_recipe1 %>% 
+  themis::step_downsample(Loan_Status, skip = TRUE, under_ratio = 1.8)
+
+table(juice(prep(dt_recipe3, training = Datatrain))$Loan_Status)
+
+dt_wf3<-
+ dt_wf %>% 
+  add_recipe(dt_recipe3)
+
+dt_recipe3 %>% prep()
+
+wf3_results <- dt_wf3 %>% 
+  fit_resamples(
+    resamples = datacv,  
+    metrics = metric_set(
+      roc_auc, accuracy, sensitivity, specificity, kap),
+    control = control_resamples(save_pred = TRUE))
+
+wf3_results %>% collect_metrics(summarize = TRUE)
+
+All_metrics <-
+  wf_res_function(wf3_results, "Downsample")
+```
+
+
+
+
+### Discretization Testing model
+
+In this model we bin `Total_Income`.  Binning features sometimes allows groupings to better predict our response variable. Binning was tested along various features and various bins, but the feature that improved model accuracy most when binning was the engineered feature `Total_Income`. 
+
+```{r}
+# Binned = #6
+dt_recipe6 <-
+  dt_recipe3 %>% 
+  step_discretize(Total_Income, num_breaks = 8)
+  
+dt_recipe6 %>% prep
+
+dt_wf6 <-
+ dt_wf %>% 
+  add_recipe(dt_recipe6)
+
+wf6_results <- dt_wf6 %>% 
+  fit_resamples(
+    resamples = datacv,
+    metrics = metric_set(
+      roc_auc, accuracy, sensitivity, specificity, kap),
+    control = control_resamples(save_pred = TRUE))
+
+wf6_results %>% collect_metrics(summarize = TRUE)
+
+All_metrics <- wf_res_function(wf6_results, "Binning")
+```
+
+Binning our engineered feature `Total_Income` increased our model KAP from 52% to 53% and our accuracy from 82.1% to 82.4% so we will retain these steps. 
+
+
+
+```{r}
+All_metrics %>% 
+  filter(.metric == "kap") %>% 
+  kable() %>% 
+  kable_styling(
+    full_width = FALSE, position = "center", bootstrap_options = c("hover"))
+```
+
+
+
+
+### Model Tuning 
+
+After optimizing our model based on various transformations across multiple validation datasets, the best model is selected and needs to be tuned. There are various specifications of a decision tree that can affect the performance. The ones that will be tuned in this section are:
+
+- `cost_complexity`: represents the amount of information gain required for a tree to continue splitting along a node
+
+- `tree_depth`: represents the maximum amount of branches a tree may extend before terminating
+
+- `min_n`: represents the minimum number of datapoints required at a node for a split to be made
+
+
+In order to test various values, a grid of these features are set up with various combinations of options as shown below. 
+
+```{r}
+tree_grid <- grid_regular(
+  cost_complexity(), tree_depth(), min_n(), levels = 4)
+tree_grid %>% 
+  kable %>% 
+  kable_styling(
+      full_width = FALSE, position="center", bootstrap_options = c("hover")) %>%
+  scroll_box(height = "200px")
+```
+
+All of these values are testing on the 10-fold cross-validation set where the result of every combination along each 10 splits of the data are averaged. The results of this tuning exercise is plotted below. KAP is the metric used to select the best tree, where the minimum cost function, a tree depth of 5 and a minimal node size of 40 is shown to be optimal.
+
+```{r}
+doParallel::registerDoParallel()
+
+tree_engine <-
+  decision_tree(
+    mode = "classification",
+    cost_complexity = tune(), # min improvement needed at each node
+    tree_depth = tune(), # max depth of the tree allowed
+    min_n(tune()) # min number of datapoints required 
+  ) %>% 
+  set_engine(engine = "rpart")
+
+# Loading cached object for document generation
+#
+# set.seed(3)
+# tree_rs <- tune_grid(
+#  object =  tree_engine,
+#  preprocessor = dt_recipe6,
+#  resamples = datacv,
+#  grid = tree_grid,
+#  metrics = metric_set(accuracy, kap)
+# )
+# readr::write_rds(tree_rs, 'output/q2_tree_rs.Rds')
+#
+tree_rs <- readr::read_rds('output/q2_tree_rs.Rds')
+
+collect_metrics(tree_rs) %>% 
+  kable() %>% 
+  kable_styling(
+    full_width = FALSE, position="center", bootstrap_options = c("hover")) %>% 
+  scroll_box(height = "200px")
+
+# tree_rs %>% autoplot() + theme_light(base_family = "IBMPlexSans")
+tree_rs %>% autoplot()
+```
+
+
+
+
+
+
+
+
+### Finalize decision
+
+We can finalize our decision and create our decision tree based on the following specification:
+
+```{r}
+show_best(tree_rs, "kap")
+
+final_tree <- finalize_model(tree_engine, select_best(tree_rs, "kap"))
+
+final_tree
+```
+
+A visual of our fitted model tree to the training dataset is shown below. The first value in the tree nodes indicate Y/N on whether there loan default would be predicted at that node, the second values shows the probability associated with `N` on the left and `Y` on the right. the third row in the node shows the percentage of the data contained in each node. The top most node depicts the most descriptive feature of our classification model, while following nodes depict secondary descriptive features. Due to the tree specifications (40 data points needed minimum at each node) only two main features are used to predict `LoanStatus` which are `Credit_History` and `IncomeLoanRatio`. 
+
+
+```{r}
+final_wf <-
+  workflow() %>% 
+  add_model(final_tree) %>% 
+  add_recipe(dt_recipe6)
+
+wf_final_results <- final_wf %>% 
+  fit_resamples(
+    resamples = datacv, 
+    metrics = metric_set(
+      roc_auc, accuracy, sensitivity, specificity, kap),
+    control = control_resamples(save_pred = TRUE))
+
+
+All_metrics <- wf_res_function(wf_final_results, "wf_final")
+
+dtmodel <- final_wf %>% fit(data = Datatrain)
+
+rattle::fancyRpartPlot(dtmodel$fit$fit$fit,palettes="RdPu")
+```
+
+### Variable Importance Plot
+
+Additional information about the variable importance was extracted from the model and shown in the variable importance plot below. where `Credit_History` has an overwhelming weight of importance, followed by our engineered feature `IncomeLoanRatio`.
+
+```{r}
+mod <- dtmodel$fit$fit$fit
+
+# For plotting tree
+caret::varImp(mod) %>% 
+  mutate(Feature = rownames(.)) %>% 
+  ggplot(
+    mapping = aes(x = fct_reorder(Feature, Overall), y = Overall)) + 
+  geom_col(fill ="skyblue3") +
+  coord_flip() +
+  defaulttheme +
+  labs(
+    x = "Importance",
+    y = "Feature",
+    title = "Variable Importance")
+
+training_predictions <- predict(
+  dtmodel, 
+  new_data = Datatrain, 
+  type = "class") %>% 
+  bind_cols(Datatrain$Loan_Status) %>% 
+  rename("Loan_Status" = "...2") %>% 
+  mutate(
+    set = "Training",
+    Loan_Status = factor(Loan_Status))
+```
+
+### Confusion Matrix, Accuracy
+
+The confusion matrix and accuracy of our training set is shown below with an accuracy of 83.1% and kappa of 55.6%. The confusion matrix shows that the model is not very good at predicting the minority class of when an individual will not be approved for the loan.
+
+```{r}
+training_predictions %>% conf_mat(truth = Loan_Status, estimate=.pred_class)
+
+metrics(
+  training_predictions, 
+  truth = Loan_Status,
+  estimate = .pred_class)
+
+```
+
+Similarly, the confusion matrix and accuracy of our testing set is shown below with an accuracy of 79.7% and kappa of 46.6%. Similar to the training dataset, the confusion matrix shows that the model is not very good at predicting the minority class of when an individual will not be approved for the loan.
+
+```{r}
+testing_predictions <- predict(
+  dtmodel,
+  new_data = Datatest, 
+  type = "class") %>% 
+  bind_cols(Datatest$Loan_Status) %>% 
+  rename("Loan_Status"= "...2") %>% 
+  mutate(
+    set = "Testing",
+    Loan_Status = factor(Loan_Status))
+
+testing_predictions %>% conf_mat(truth = Loan_Status, estimate=.pred_class)
+metrics(testing_predictions, truth = Loan_Status,estimate = .pred_class)
+```
+
+
+
+
+
+```{r eval = FALSE}
+readr::write_rds(xgb_final, 'output/xgb-final-model.Rds')
+pred_final <- predict(xgb_final, newdata = dtest)
+readr::write_rds(pred_final, 'output/xgb-final-predictions.Rds')
+```
+
+
+
+
+
+
+## (Q3) Random Forest {.tabset .tabset-fade .tabset-pills} 
+
+We used the training and test datasets we created above and
+the `randomForest` package for this section of the homework.
+The `randomForest` package requires we make a few additional changes:
+
+* column names in our "dummy value" objects must be valid R variable names
+* the function will attempt regression if our response variable is numeric,
+  so we change it back to being a factor
+
+```{r}
+loans_train <- readr::read_rds('data/loans_train.Rds')
+loans_test <- readr::read_rds('data/loans_test.Rds')
+loans_dv_train <- readr::read_rds('data/loans_dv_train.Rds') %>% 
+  rename(
+    Dependents.3 = `Dependents.3+`,
+    Education.NotGraduate = `Education.Not Graduate`) %>% 
+  mutate(Loan_Status = factor(ifelse(Loan_Status.Y, 'Y', 'N'))) %>% 
+  select(-Loan_Status.N, -Loan_Status.Y)
+  
+loans_dv_test <- readr::read_rds('data/loans_dv_test.Rds') %>% 
+  rename(
+    Dependents.3 = `Dependents.3+`,
+    Education.NotGraduate = `Education.Not Graduate`) %>% 
+  mutate(Loan_Status = factor(ifelse(Loan_Status.Y, 'Y', 'N'))) %>% 
+  select(-Loan_Status.N, -Loan_Status.Y)
+```
+
+The random forest algorithm works well with all sorts of data:
+numeric and categorical, un-scaled and scaled, full rank and highly correlative.
+So, we should get similar results if we use the `loans_train` object
+(which has factor variables in single columns) or the `loans_dv_train`
+object which splits factor variables into dummy columns
+**including columns for base levels**.
+
+#### Default model 1 (which has factor variables in single columns)
+
+```{r}
+set.seed(521)
+m1 <- randomForest(Loan_Status ~ ., data = loans_train)
+print(m1)
+```
+
+#### Default model 2 (which splits factor variables into dummy columns)
+
+```{r}
+set.seed(521)
+m1_dv <- randomForest(Loan_Status ~ ., data = loans_dv_train)
+print(m1_dv)
+```
+
+We ran the random forests for both default models and we were very disatisfied with the results. There is an error rate of 19.31%. We will find out later when we run the confusion matrix of the prediction values that Model 1 has an accuracy of 81.7%, a Kappa of 0.522, and a Sensitivity of 0.521. Moreover, a normal plot for a random forest should show a curve sloping down near the X and Y axes. There are 3 different curves almost parellel to each other. Considering the similarities between the default models, we decided to keep the **m1** model as Model 1 for comparisons with the other Random Forest models in this section.
+
+```{r}
+plot(m1)
+```
+
+
+### (Q3) Random Forest - Model based on Model 1 by Tuning Number of Trees (Model 2) 
+
+#### Features Highlight
+
+The error rate for the previous model may be unacceptable. The previous model used 500 trees. In the next execution of Random Forest, we try to see if we can reduce the error rate by manipulating the number of trees used. Other indices that we used to determine what could be the optimal model for this exercise are Accuracy, Error Rate, Kappa, and Sensitivity. We ran Model 2 multiple times using ntree parameter for 100, 200, 300, 400, 425, 450, and 475 random trees.
+
+```{r, echo=FALSE}
+ntree <- c("100","200","300","400","425","450","475")
+Accuracy <- c("81.70%","81.70%","81.05%","82.35%","83.00%","83.00%","83.00%")
+ErrorRate <- c("19.96%","20.39%","20.17%","19.75%","19.52%","19.96%","19.74%")
+Kappa <- c("0.533","0.533","0.513","0.547","0.566","0.566","0.566")
+Sensitivity <- c("0.542","0.542","0.521","0.542","0.563","0.563","0.563")
+tableModel <- data.frame(ntree,Accuracy,ErrorRate,Kappa,Sensitivity)
+tableModel %>%
+  kable() %>%
+  kable_styling()
+```
+
+The table summarizes the values derived from running Model 2. Based on this exercise, we determined that the optimal Model 2 would be one with ntree = 425 because the combination of indices Accuracy, Error Rate, Kappa, and Sensitivity. ntree = 425 has the highest Accuracy, lowest Error rate, highest Kappa, and highest Sensitivity if you take all indices together. Moreover, the Optimal Model 2 with ntree = 425 is slightly better than Model 1 in all indices with the exception of Error Rate.
+
+```{r}
+set.seed(121)
+ntreecand = 425
+m2 <- randomForest(Loan_Status ~ ., data = loans_train, ntree = ntreecand)
+print(m2)
+plot(m2)
+```
+
+### (Q3) Random Forest - Model based on Optimal Model 2 by Tuning Number of Variables (Model 3) 
+
+
+#### Execution of Random Forest
+
+Model 2 with ntree = 425 may be the optimal solution up to this point. However, we wanted to investigate further if the number of variables (mtry) will help increase the Accuracy of the model. In the next execution of Random Forest, we try to see if when can reduce the error rate while increasing Accuracy by manipulating the number of variables used. Other indices that we used to determine what could be the optimal model for this exercise are Accuracy, Error Rate, Kappa, and Sensitivity. We ran Model 3 multiple times using mtry parameter for 2, 3, 4, 5, 6, and 7 variables.
+
+```{r, echo=FALSE}
+mtry <- c("2","3","4","5","6","7")
+Accuracy <- c("80.39%","83.00%","80.39%","81.05%","80.39%","79.74%")
+ErrorRate <- c("19.09%","19.52%","19.96%","19.96%","19.74%","19.96%")
+Kappa <- c("0.487","0.566","0.512","0.511","0.525","0.515")
+Sensitivity <- c("0.479","0.563","0.563","0.563","0.563","0.563")
+tableModel <- data.frame(mtry,Accuracy,ErrorRate,Kappa,Sensitivity)
+tableModel %>%
+  kable() %>%
+  kable_styling()
+```
+
+The table summarizes the values derived from running Model 3. Based on this exercise, we determined that the optimal Model 3 would be one with mtry = 3 because the combination of indices Accuracy, Error Rate, Kappa, and Sensitivity. mtry = 3 has the highest Accuracy, lowest Error rate, highest Kappa, and highest Sensitivity if you take all indices together. Moreover, the Optimal Model 3 with mtry = 3 is slightly better than Model 1 in all indices with the exception of Error Rate. Coincidentally, the default mtry for Model 2 is 3: the same as the optimal version of Model 3.
+
+```{r}
+set.seed(121)
+mtrycand = 3
+m3 <- randomForest(Loan_Status ~ ., data = loans_train, ntree = ntreecand, mtry = mtrycand)
+print(m3)
+plot(m3)
+```
+
+
+### (Q3) Random Forest - Model Comparison 
+
+In the final chore for this exercise, we made predictions on all three generated random forest models and developed the confusion matrix for each. We extracted important values from these models and compared and discussed them.
+
+#### Model 1
+
+```{r}
+prediction1 <- predict(m1,newdata = loans_test)
+prediction1.cm <- confusionMatrix(prediction1, loans_test$Loan_Status) 
+prediction1.cm
+```
+
+#### Model 2
+
+```{r}
+prediction2 <- predict(m2,newdata = loans_test)
+prediction2.cm <- confusionMatrix(prediction2, loans_test$Loan_Status) 
+prediction2.cm
+```
+
+#### Model 3
+
+```{r}
+prediction3 <- predict(m3,newdata = loans_test)
+prediction3.cm <- confusionMatrix(prediction3, loans_test$Loan_Status) 
+prediction3.cm
+```
+
+
+#### Final Comparison
+
+- Random Forest Model 2 has the highest accuracy at 83.00% and F1-Score at 88.5%. Despite the high error rate indicated earlier, F1-Score and Accuracy seemed to indicate that this Random Forest is an optimal model.
+
+- By visual inspection of the confusion matrices, the p-value of Random Forest Model is signficantly less than 0.05 at 4.049e-05. Model 1's p-value at 0.0002 indicating that there is sufficient evidence that it is a viable model, but Model 2's p-value is significantly less than that of Model 2. Model 3's p-value is the same as that of Model 2 because both models have been found out to be the same with mtry = 3 and ntree = 425. The very low p-value indicates that their is sufficient evidence that Random Forest Model 2 is a viable model for further consideration.
+
+- Model 2 (**m2**) is the optimal Random Forest model in this exercise based on its favorable Accuracy, Kappa, F1-Score, and Sensitivity.
+
+```{r}
+# Model 1 Values
+prediction1.accuracy <- prediction1.cm$overall['Accuracy']
+prediction1.kappa <- prediction1.cm$overall['Kappa']
+prediction1.sensitivity <- prediction1.cm$byClass['Sensitivity']
+prediction1.TN <- prediction1.cm$table[1,1]
+prediction1.FP <- prediction1.cm$table[1,2]
+prediction1.FN <- prediction1.cm$table[2,1]
+prediction1.TP <- prediction1.cm$table[2,2]
+prediction1.TPR <- prediction1.TP /(prediction1.TP + prediction1.FN)
+prediction1.TNR <- prediction1.TN /(prediction1.TN + prediction1.FP)
+prediction1.FPR <- prediction1.FP /(prediction1.TN + prediction1.FP)
+prediction1.FNR <- prediction1.FN /(prediction1.TP + prediction1.FN)
+prediction1.precision <- prediction1.TP / (prediction1.TP + prediction1.FP)
+prediction1.recall <- prediction1.TP / (prediction1.TP + prediction1.FN)
+prediction1.specificity <- prediction1.TN / (prediction1.TN + prediction1.FP)
+prediction1.f1score <- 2 * ((prediction1.precision * prediction1.recall) / (prediction1.precision + prediction1.recall))
+```
+
+```{r}
+# Model 2 Values
+prediction2.accuracy <- prediction2.cm$overall['Accuracy']
+prediction2.kappa <- prediction2.cm$overall['Kappa']
+prediction2.sensitivity <- prediction2.cm$byClass['Sensitivity']
+prediction2.TN <- prediction2.cm$table[1,1]
+prediction2.FP <- prediction2.cm$table[1,2]
+prediction2.FN <- prediction2.cm$table[2,1]
+prediction2.TP <- prediction2.cm$table[2,2]
+prediction2.TPR <- prediction2.TP /(prediction2.TP + prediction2.FN)
+prediction2.TNR <- prediction2.TN /(prediction2.TN + prediction2.FP)
+prediction2.FPR <- prediction2.FP /(prediction2.TN + prediction2.FP)
+prediction2.FNR <- prediction2.FN /(prediction2.TP + prediction2.FN)
+prediction2.precision <- prediction2.TP / (prediction2.TP + prediction2.FP)
+prediction2.recall <- prediction2.TP / (prediction2.TP + prediction2.FN)
+prediction2.specificity <- prediction2.TN / (prediction2.TN + prediction2.FP)
+prediction2.f1score <- 2 * ((prediction2.precision * prediction2.recall) / (prediction2.precision + prediction2.recall))
+```
+
+```{r}
+# Model 3 Values
+prediction3.accuracy <- prediction3.cm$overall['Accuracy']
+prediction3.kappa <- prediction3.cm$overall['Kappa']
+prediction3.sensitivity <- prediction3.cm$byClass['Sensitivity']
+prediction3.TN <- prediction3.cm$table[1,1]
+prediction3.FP <- prediction3.cm$table[1,2]
+prediction3.FN <- prediction3.cm$table[2,1]
+prediction3.TP <- prediction3.cm$table[2,2]
+prediction3.TPR <- prediction3.TP /(prediction3.TP + prediction3.FN)
+prediction3.TNR <- prediction3.TN /(prediction3.TN + prediction3.FP)
+prediction3.FPR <- prediction3.FP /(prediction3.TN + prediction3.FP)
+prediction3.FNR <- prediction3.FN /(prediction3.TP + prediction3.FN)
+prediction3.precision <- prediction3.TP / (prediction3.TP + prediction3.FP)
+prediction3.recall <- prediction3.TP / (prediction3.TP + prediction3.FN)
+prediction3.specificity <- prediction3.TN / (prediction3.TN + prediction3.FP)
+prediction3.f1score <- 2 * ((prediction3.precision * prediction3.recall) / (prediction3.precision + prediction3.recall))
+```
+
+```{r, echo=FALSE}
+Model <- c("Model 1","Model 2", "Model 3")
+Accuracy <- c(prediction1.accuracy, prediction2.accuracy, prediction3.accuracy)
+Kappa <- c(prediction1.kappa, prediction2.kappa, prediction3.kappa)
+Sensitivity <- c(prediction1.sensitivity, prediction2.sensitivity, prediction3.sensitivity)
+Recall <- c(prediction1.recall, prediction2.recall, prediction3.recall)
+Specificity <- c(prediction1.specificity, prediction2.specificity, prediction3.specificity)
+Precision <- c(prediction1.precision, prediction2.precision, prediction3.precision)
+F1Score <- c(prediction1.f1score, prediction2.f1score, prediction3.f1score)
+TPR <- c(prediction1.TPR, prediction2.TPR, prediction3.TPR)
+TNR <- c(prediction1.TNR, prediction2.TNR, prediction3.TNR)
+FPR <- c(prediction1.FPR, prediction2.FPR, prediction3.FPR)
+FNR <- c(prediction1.FNR, prediction2.FNR, prediction3.FNR)
+tableModel <- data.frame(Model,Accuracy,Kappa, Sensitivity, Recall,Specificity,Precision,F1Score)
+tableModel %>%
+  kable() %>%
+  kable_styling()
+```
+
+
+```{r eval = FALSE}
+readr::write_rds(m2, 'output/rf-mod2-model.Rds')
+readr::write_rds(prediction2, 'output/rf-mod2-predictions.Rds')
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## (Q4) Gradient Boosting {.tabset .tabset-fade .tabset-pills}
+
+We are using the `xgboost` package to answer this question.
+The `xgboost` package is incredibly powerful and flexible.
+You can learn more about it and the underlying algorithms here:
+
+* [Rachael Tatman's tutorial on Kaggle](https://www.kaggle.com/rtatman/machine-learning-with-xgboost-in-r)
+* [`xgboost` page on readthedocs.io](https://xgboost.readthedocs.io/en/latest/index.html)
+
+We followed the general steps in the tutorial to answer this question
+as it is our first time using the `xgboost` package.
+
+1. Prepare the data
+2. Run a sample model
+3. Tune parameters to select a model with high accuracy and low chance of over-fitting
+
+
+
+
+
+
+### Prepare the data
+
+`xgboost` requires data to be in a particular format.
+The following code shows how to start with the output from the data prep
+section above and obtain the desired format for the algorithm.
+
+
+```{r}
+# Load Rds files from data prep section
+loans_train     <- readr::read_rds('data/loans_train.Rds')
+loans_test      <- readr::read_rds('data/loans_test.Rds')
+loans_dv_train  <- readr::read_rds('data/loans_dv_train.Rds')
+loans_dv_test   <- readr::read_rds('data/loans_dv_test.Rds')
+
+# xgboost wants predictors and response in separate objects
+train_labels <- loans_dv_train$Loan_Status.Y
+test_labels <- loans_dv_test$Loan_Status.Y
+
+# We will use this to tell the function to balance the Y/N values
+negative_cases <- sum(train_labels == 0)
+postive_cases <- sum(train_labels == 1)
+
+# xgboost can use a special xgb.DMatrix object
+dtrain <- loans_dv_train %>% 
+  select(-Loan_Status.N, -Loan_Status.Y) %>% 
+  as.matrix %>% 
+  xgb.DMatrix(
+    data = .,
+    label = loans_dv_train$Loan_Status.Y %>% as.matrix)
+
+# create the same for test data for the predict function
+dtest <- loans_dv_test %>% 
+  select(-Loan_Status.N, -Loan_Status.Y) %>% 
+  as.matrix %>% 
+  xgb.DMatrix(
+    data = .,
+    label = loans_dv_test$Loan_Status.Y %>% as.matrix)
+```
+
+
+
+
+
+
+
+### Create a single pre-tuning model
+
+It is always good when using a new method to start with a simple
+model to make sure everything is working properly.
+
+The following function call includes the smallest number of non-default
+parameters.  (In reality, `scale_pos_weight` is not required,
+but our labels are slightly imbalanced, so we include it as *mandatory*.)
+
+```{r}
+xgb1 <- xgboost(
+  data = dtrain,
+  objective = 'binary:logistic',
+  eval_metric = 'error',
+  scale_pos_weight = negative_cases/postive_cases,
+  nrounds = 10)
+```
+
+The training error will *always* decrease if we increase the number of iterations.
+However, the change in error tends to zero.
+The important question is what does the test error look like with each
+successive tree?
+
+```{r}
+# Some helper functions
+test_error <- function(model, n) {
+  pred <- predict(model, newdata = dtest, ntreelimit = n)
+  mean(as.numeric(pred > 0.5) != test_labels)
+}
+
+test_errors <- function(model) {
+  N <- model$niter
+  errors <- numeric(N)
+  for (i in 1:N) {
+    errors[i] <- test_error(model, i)
+  }
+  return(errors)
+}
+
+compare_errors <- function(model) {
+  df <- cbind(
+    model$evaluation_log %>% as.data.frame(),
+    test_errors(model))
+  names(df) <- c('iter', 'train_error', 'test_error')
+  return(df)
+}
+
+# xgb1 errors
+compare_errors(xgb1)
+```
+
+Even at iteration #1 we have evidence of over-fitting.
+And the test error increases on average as we
+add more trees.  This is most likely because the
+defaults of `xgboost` allow for a max tree depth of six!
+Our selected decision model only had a depth of two,
+so we probably have over-fitting after just one iteration.
+
+
+
+
+
+
+### Parameter tuning
+
+There are dozens of parameters one can pass to the `xgboost` function,
+and we will not attempt to address them all here.
+The most important for our first foray into `xgboost` are probably the following
+
+* `eta` the scaling factor applied to each iteration, default is 0.3
+* `max_depth` controls the maximum size of each tree, default is 6
+* `nround` is the number of iterations to run
+* `early_stopping_rounds` controls whether to stop before reaching `nrounds`
+* `gamma` is described best by the help page: "minimum loss reduction required to make a further partition on a leaf node of the tree. the larger, the more conservative the algorithm will be."
+
+
+Through experimentation not included in this write-up,
+we found that the small size of our data set means we do not need
+many boosting rounds to hit a plateau in the training accuracy.
+Therefore, `gamma` is probably not something we need to worry about.
+(`gamma` will help prevent too many iterations that have little overall impact.)
+The same argument applies to `early_stopping_rounds`.
+
+The two arguments that make the most sense for us to tune are
+
+* `max_depth` and
+* `nround`
+
+
+
+
+
+
+
+### Grid search
+
+We run a grid search for the best combination of `max_depth`
+and `nround` by letting `max_depth` range from 1 to 5 (we already know 6 is not good)
+and `nround` range from 1 to 20.
+In practice, we set `nround` to 20 and only run the algorithm 5 times:
+once we have a 20-iteration result, we can use a subset of those iterations
+to accomplish the search.
+
+```{r}
+error_comps <- NULL
+
+for (d in 1:5) {
+  
+  # verbose = 0 suppresses interactive output
+  mod_d <- xgboost(
+    data = dtrain,
+    objective = 'binary:logistic',
+    eval_metric = 'error',
+    scale_pos_weight = negative_cases/postive_cases,
+    nrounds = 20,
+    max_depth = d,
+    verbose = 0) 
+  
+  error_comps_d <- compare_errors(mod_d)
+  error_comps_d$max_depth <- d
+  
+  if (is.null(error_comps)) {
+    error_comps <- error_comps_d
+  } else {
+    error_comps <- rbind(error_comps, error_comps_d)
+  }
+}
+```
+
+For each value of `max_depth` the best test errors are shown here:
+
+```{r}
+error_comps %>% 
+  group_by(max_depth) %>% 
+  summarize(min_test_error = min(test_error))
+```
+
+At `max_depth` of three, here are the results:
+
+```{r}
+error_comps %>%
+  filter(max_depth == 3) %>% 
+  select(-max_depth) %>% 
+  mutate(
+    train_error_counts = round(train_error * nrow(dtrain), 0),
+    test_error_counts = round(test_error * nrow(dtest), 0))
+```
+
+It is natural for our errors to move in a choppy way
+with such a small data set in a classification problem.
+With a larger data set we would see smoother patterns
+and a more convincing *minimum* point for our test errors.
+What we do see with our model is that at iteration 17 we
+finally get three more observations classified correctly 
+and a low point for our test error.
+
+
+
+
+
+
+
+### Selected parameters
+
+The final model we selected is
+
+```{r}
+xgb_final <- xgboost(
+  data = dtrain,
+  objective = 'binary:logistic',
+  eval_metric = 'error',
+  scale_pos_weight = negative_cases/postive_cases,
+  nrounds = 17,
+  max_depth = 3,
+  verbose = 0)
+```
+
+Seventeen may seem lot a lot of iterations, but remember each successive
+tree's contribution to the whole is only 30%.
+The first tree carries the most weight by far.
+
+
+
+
+
+### Interpretation
+
+Boosted trees are not as easy to interpret as single trees,
+but there are still some things that are helpful.  Like a variable importance
+plot:
+
+```{r}
+importance_matrix <- xgb.importance(model = xgb_final)
+xgb.plot.importance(importance_matrix)
+```
+
+The rank of importance agrees with our single-tree analysis, as we'd expect.
+
+
+
+
+
+```{r eval = FALSE}
+readr::write_rds(xgb_final, 'output/xgb-final-model.Rds')
+pred_final <- predict(xgb_final, newdata = dtest)
+readr::write_rds(pred_final, 'output/xgb-final-predictions.Rds')
+```
+
+
+
+
+
+
+
+## (Q5) Model Performance and Selection {.tabset .tabset-fade .tabset-pills}
+
+
+
+### Load RDS
+
+```{r}
+# load rds into session
+rds_files = c(paste0("output/", list.files("output")), 
+              paste0("data/", list.files("data"))) %>%
+    grep(pattern = ".rds$", ., ignore.case = TRUE, value = TRUE)
+
+var_names = gsub(pattern = "(output/|data/|.[Rr]ds)", replacement = "", x = rds_files) %>%
+    gsub(pattern = "-", replacement = "_", .)
+
+sapply(1:length(rds_files), function(x) assign(var_names[x], readRDS(rds_files[x]), envir = .GlobalEnv)) %>% invisible()
+```
+
+### Tidy Models Output
+
+```{r}
+### look at prediction result
+
+# reorder level 
+loans_test_target <- relevel(loans_test$Loan_Status, ref = "Y")
+
+# decision tree
+dt_testing_predictions = relevel(dt_testing_Predictions$.pred_class, ref = "Y")
+dt_confusionMatrix = caret::confusionMatrix(dt_testing_predictions, loans_test_target)
+dt_confusionMatrix
+
+# random forest
+rf_mod2_predictions = relevel(rf_mod2_predictions, ref = "Y")
+rf_confusionMatrix = caret::confusionMatrix(rf_mod2_predictions, loans_test_target)
+rf_confusionMatrix
+
+# xgb boost
+xgb_pred = ifelse(xgb_final_predictions > .5, 'Y', 'N') %>% 
+    factor(., levels = c("Y", "N"), labels = c("Y", "N"))
+xgb_confusionMatrix = caret::confusionMatrix(xgb_pred, loans_test_target)
+xgb_confusionMatrix
+
+# tidy output
+dt_stat = broom::tidy(dt_confusionMatrix)
+rf_stat = broom::tidy(rf_confusionMatrix)
+xgb_stat = broom::tidy(xgb_confusionMatrix)
+
+model_stat_tidy = dplyr::inner_join(dt_stat %>% dplyr::select(term, `decision tree` = estimate),
+                                    rf_stat %>% dplyr::select(term, `random forest` = estimate), 
+                                    by = "term") %>%
+    dplyr::inner_join(., xgb_stat %>% dplyr::select(term, `gradient boosting` = estimate),
+                      by = "term")
+
+model_stat_tidy %>% dplyr::filter(term != "mcnemar")
+```
+
+There were six decision tree models built. They were built in sequential order, so that each was built upon an improvement of its predecessor. Accuracy was improved gradually with additional information thrown into the model, e.g. we generated the "Total_Income" variable based on the "ApplicantIncome" + "CoapplicantIncome". Subsequently, "IncomeLoanRatio" was created based on the Total_Income/LoanAmount, and finally we carried out discretization of the "Total_Income" into 6 bins. We also tried to remove features that had low variance. In addition, we tried undersampling in one of our models as an attempt to tackle the imbalanced data. We performed tuning for the best (the sixth) model, and we focused on cost complexity, tree depth and the min n (the minimum number of data points needed at a node for a split to occur). The result suggested that there were only two strong features (see above variable importance plot) that could predict the loan status, i.e. "Credit_History" and "IncomeLoanRatio". After many iteration and tuning exercise, the decision tree algorithm was able to achieve 80.4% accuracy and Kappa of 48.7%. 
+
+For random forest, we built three models for comparison, varying the number of variables at each split (mtree = 2, 3, 4, 5, 6, and 7) and the number of trees generated (ntree = 100, 200, 300, 400, 425, 450, and 475). The result suggested that the most optimal parameters in this data set based upon accuracy, error rate, Kappa, and sensitivity would be mtree = 3 and ntree = 425. The best model achieved 81.7% accuracy and Kappa of 53.8%. 
+
+For gradient boosting, we focused on tuning two parameters "max_depth" and "nround" for achieving best accuracy. Using a for loop to run for each combination of "max_depth" (1:5) and "nround" (1:20) in a grid search, we used a subset of those 20-iteration to accomplish the search for the best combination of these parameters. At iteration 17, we finally saw a low point in our test error rate. The final model produced a similar conclusion as the decision tree, i.e. pointing to the importance of the "Credit_History" and "IncomeLoanRatio". The gradient boosting model achieved the best performance among the three algorithms with 82.4% accuracy and Kappa of 56.3%. 
+
+The gradient boosting model was clearly the winner among the three based on various metrics. However, the result of decision tree is generally better in terms of interpretability and communication (visually) with various stakeholders. Decision tree algorithm can easily work with numerical and categorical features. It requires very little data preprocessing and it holds no assumptions about the shape of data (thus non-parametric and suitable for fitting various type of data). It also happens to be less affected by multicollinearity compared to other classifiers. However, it tends to be overfitting, and if the data is not well balanced, it can cause significant bias (such as the data set in this assignment, and we tried to resolve this issue by undersampling but with no significant improvement). When one's data set gets more complex with large number of features, random forest begins to shine and presented to be a better alternative. 
+
+Random forest also works easily with numerical and categorical features without much need in data preprocessing. Random forest implicitly performs feature selection and generate uncorrelated decision trees based on choosing a random set of features to build each decision tree. Thus, it is less susceptible by outliers and it can handle linear and non-linear relationships well. Essentially, random forest is to average the results across the multiple decision trees (based on a random subset of input variables) that it builds, thus it can generally provide high accuracy and balance the bias-variance trade-off very well. However, the down side of random forest is that it tends to be less visible or interpretable compared to decision tree. Random forest is not as straightforward as decision tree in communicating the output (such as highlighting specific set of important features) to the stakeholders. In addition, it can be computationally intensive for large data sets. 
+
+Similar to random forest, gradient boosting also works like a black box algorithm. Like any other ensemble machine learning procedure, models are built in sequential orders, where later models (or top layers) would correct preceding predictors (from base layers) to arrive at better prediction. Gradient boosting aims at fitting a new predictor in the residual errors committed by the preceding predictor. The errors from prior step are highlighted, and by combining one weak learner to the next learner, the error is reduced significantly over time. The algorithm is less susceptible to overfitting and the result tends to be easy for communication with highlighting important features. The disadvantage is that it can be over sensitive to outliers since every classifier attempts to fix the residual errors generated from prior step. Another disadvantage is the lack of scalability. As one can imagine, the implementation is based on correcting previous predictors, thus making the procedure difficult to streamline. It can be very challenging for large and complex data set. 
+
+Each of the machine learning algorithms discussed above shares different pros and cons. For this assignment, gradient boosting is the most preferrable algorithm for this small data set. It is the best classifier in this exercise as reflected by accuracy, Kappa, F1 score, precision, etc. For better result (such as enhancing accuracy and reducing overfitting), future attempts can focus more on feature engineering. For example, while "Credit_History" is obviously important, we come up with the second most important feature in our model, i.e. "IncomeLoanRatio" that holds strong predictive power and it is also highly intuitive.
+
+
+## Penguins data prep {.tabset .tabset-fade .tabset-pills} 
+
+
+```{r}
+library(tidyverse)
+library(corrplot)
+library(palmerpenguins)
+penguins <- palmerpenguins::penguins
+```
+
+This data has 344 rows of 8 variables:
+
+| variable           | definition                                                          |
+|--------------------|---------------------------------------------------------------------|
+| species            | a factor denoting penguin species (Adélie, Chinstrap and Gentoo)    |
+| island             | a factor denoting island in Palmer Archipelago, Antarctica (Biscoe, Dream or Torgersen)    |
+| bill_length_mm     | a number denoting bill length (millimeters)                         |
+| bill_depth_mm      | a number denoting bill depth (millimeters)                          |
+| flipper_length_mm  | an integer denoting flipper length (millimeters)                    |
+| body_mass_g        | an integer denoting body mass (grams)                               |
+| sex                | a factor denoting penguin sex (female, male)                        |
+| year               | an integer denoting the study year (2007, 2008, or 2009)            |
+
+
+```{r}
+summary(penguins)
+```
+
+While there are several methods for dealing with missing data,
+we have opted to simply remove rows with NAs.
+
+* imputing numerical variables with `mean` would decrease variance 
+* four variables `bill_length_mm`, `bill_depth_mm`, `flipper_length_mm`, and `body_mass_g` have the same number of NAs
+* removing rows with NAs treates this variables equally
+* variable `sex` has 11 missing data points
+* we removed these observations because our data is split evenly between male and female
+
+
+```{r}
+penguins_na_omit = na.omit(penguins)
+```
+
+There is some correlation in the numeric variables,
+as we have seen in our other assignments.
+
+```{r fig.height = 9, fig.width = 12, fig.align = "center"}
+penguins_numeric <- penguins_na_omit %>% 
+  select(-species, -sex, -island, -year)
+
+# Cor-relation between numerics
+corrplot(cor(penguins_numeric), type = 'lower', diag = FALSE)
+```
+
+Year is not a potential predictor for this problem so we have excluded it.
+There is a strong relationship between `body_mass_g` and `flipper_length_mm`.
+The pairs of measurement variables that have absolute correlations above 0.5
+we list here:
+
+```{r}
+corr_matrtix <- cor(penguins_numeric)
+
+corr_matrtix %>% 
+  as.data.frame %>% 
+  mutate(x = rownames(corr_matrtix)) %>% 
+  pivot_longer(
+    cols = -x,
+    names_to = 'y', 
+    values_to = 'corr') %>% 
+  filter(x < y) %>% 
+  filter(corr > 0.5 | corr < -0.5) %>% 
+  arrange(desc(abs(corr)))
+```
+
+We save the prepared data for use in Question #1.
+
+
+```{r echo=TRUE, eval=FALSE}
+readr::write_rds(penguins_na_omit, 'data/penguins_na_omit.Rds')
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

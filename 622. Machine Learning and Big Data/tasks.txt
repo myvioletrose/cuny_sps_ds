@@ -147,5 +147,131 @@ Part 3 (more practical, classification problem; might be helpful for homework # 
 Part 4 (more theoretical).
 Quite long, especially if you go through all three lecture videos. But if you have the time, very much worth it. http://www.cs.cornell.edu/courses/cs4780/2018fa/lectures/lecturenote19.html
 
+#############################
+>> Week 8 (Mar 19 - Mar 26)
 
+Support Vector Machine
+This week, we enter the world of Support Vector Machine. Here we approach the classification problem like a computer scientist!
 
+Next week: Spring Break!
+
+1. Discussion Board entry
+
+2. We have a meet up session this Wednesday
+
+3. Assignment # 3 has been assigned. It must be a group effort. It is due on April 9.
+
+4. Materials for this week:
+
+  --- ISLR: 9.1 thru 9.3
+
+  --- ESL: 12.1 thru 12.3
+
+  --- Helpful lecture slides from MIT: An Idiot's Guide to SVM
+
+  ---   Videos:
+
+         1. Maximal Margin Classifier. 
+
+         2. When you cannot separate the data well
+
+         3. Let's use feature expansion
+
+  --- Optional - it might not be a bad idea to skim over Chap 7 from ISL. We skipped it. But, this might enhance your understanding of feature expansion. 
+
+#############################
+>> Week 10 (Apr 5 - Apr 11)
+
+Homework #3 due
+
+Discussion Board #10
+
+Reading materials: 
+ISLR: 9.4 - 9.7
+ESL: 12.4 - 12.7
+
+Lecture slides: https://web.stanford.edu/~hastie/MOOC-Slides/svm.pdf
+
+Helpful videos:
+
+SVM vs Logistic Regression
+SVM with R
+Non-linear SVM with R
+
+#############################
+>> Week 11 (Apr 12 - Apr 18)
+
+Unsupervised Learning!
+We start unsupervised learning this week, with a particular focus on clustering. Next week, we want to focus on Principal Component Analysis, variable reduction, association rules, etc. 
+
+1. Discussion board
+
+2. HW # 4 will be posted this week
+
+3. Reading materials:
+
+   - ESL: Ch. 14.1, 14.3, 14.4
+
+   - ISL: Ch. 10.1, 10.3, 10.5 (Lab 2: Clustering)
+
+  4. Helpful videos: 
+
+   a. K-means clustering
+
+   b. Hierarchical clustering
+
+   c. An example of hierarchical clustering
+
+   d. K-means clustering in R
+
+   e. Hierarchical clustering in R
+
+#############################
+>> Week 12 (Apr 19 - Apr 25)   
+
+Principal Component Analysis
+Let's dig into PCA. 
+
+1. Discussion board
+
+2. HW # 4 due May 7
+
+3. Reading materials:
+
+   - ESL: Ch. 14.2, 14.5 - 14.10
+
+   - ISL: Ch. 10.2, 10.4, 10.6 (Lab 1 and 3: PCA)
+
+   - Lecture slides -- this also has materials on clustering. Good reinforcement. 
+
+4. Helpful videos: 
+
+a. PCA and more PCA
+
+b. PCA on R
+
+#############################
+>> Week 13 (Apr 26 - May 2)   
+
+1. Discussion board
+
+2. Homework # 4 is due on May 7
+
+3. Reading materials: ESL: Ch. 7; ISL: Ch. 5. 
+
+Optional: on a different but useful topic: Ch: 18 from ESL.
+
+#############################
+>> Week 14 (May 3 - May 9)  
+
+1. Discussion board
+
+2. HW # 4 due on May 7
+
+3. Reading materials:
+
+- Neural Network: ESL Chapter 11
+
+- Recognizing handwriting: http://neuralnetworksanddeeplearning.com/chap1.html
+
+- A related video: https://youtu.be/aircAruvnKk
