@@ -1,0 +1,5 @@
+# Random variables
+https://www.khanacademy.org/math/statistics-probability/random-variables-stats-library/random-variables-discrete/v/random-variables
+
+# Constructing a probability distribution for random variable
+https://www.khanacademy.org/math/ap-statistics/random-variables-ap/discrete-random-variables/v/discrete-probability-distribution

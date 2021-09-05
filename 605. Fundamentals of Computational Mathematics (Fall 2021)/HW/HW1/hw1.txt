@@ -1,0 +1,19 @@
+One of the most useful applications for linear algebra in data science is image manipulation.  We often need to compress, expand, warp, skew, etc. images.  To do so, we left multiply a transformation matrix by each of the point vectors.  
+
+For this assignment, build the first letters for both your first and last name using point plots in R.  For example, the following code builds an H.
+
+x=c(rep(0,500),seq(0,1,length.out=1000), rep(1,500))
+
+y=c(seq(-1,1,length.out=500),rep(0,1000), seq(-1,1,length.out=500))
+
+z=rbind(x,y)
+
+plot(y~x, xlim=c(-3,3), ylim=c(-3,3))
+
+Then, write R code that will left multiply (%>%) a square matrix (x) against each of the vectors of points (y). Initially, that square matrix will be the Identity matrix.  
+
+Use a loop that changes the transformation matrix incrementally to demonstrate 1) shear, 2) scaling, 3)  rotation , and 4) projection in animated fashion.  
+
+Hint:  Use x11() to open a new plotting window in R.
+
+Upload your document as a .RMD file.  I will know if your assignment is correct if the animation runs. correctly

@@ -1,0 +1,5 @@
+# Introduction to Simple Linear Regression
+https://www.youtube.com/watch?v=KsVBBJRb9TE
+
+# Simple Linear Regression: Checking Assumptions with Residual Plots
+https://www.youtube.com/watch?v=iMdtTCX2Q70
