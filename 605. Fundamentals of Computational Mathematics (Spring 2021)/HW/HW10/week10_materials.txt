@@ -1,5 +1,0 @@
-# Origin of Markov chains
-https://www.khanacademy.org/computing/computer-science/informationtheory/moderninfotheory/v/markov_chains
-
-# Simple Random Walk
-https://www.youtube.com/watch?v=ZZcne16szFM

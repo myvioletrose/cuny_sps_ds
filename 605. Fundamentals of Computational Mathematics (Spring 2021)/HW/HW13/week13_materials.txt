@@ -1,6 +1,0 @@
-# Multiple Regression with Categorical Variable
-https://www.youtube.com/watch?v=Yv681upodDI
-
-# How to Make Predictions from a Multiple Regression Analysis
-https://www.youtube.com/watch?v=E73AJ73-S6g
-
