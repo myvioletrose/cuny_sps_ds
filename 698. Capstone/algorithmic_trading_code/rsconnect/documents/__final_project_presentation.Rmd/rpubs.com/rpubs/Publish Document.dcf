@@ -1,0 +1,11 @@
+name: Publish Document
+title:
+username:
+account: rpubs
+server: rpubs.com
+hostUrl: rpubs.com
+appId: https://api.rpubs.com/api/v1/document/903006/602a0ffeb65b4034a89cde5473d3c136
+bundleId: https://api.rpubs.com/api/v1/document/903006/602a0ffeb65b4034a89cde5473d3c136
+url: http://rpubs.com/myvioletrose/903006
+when: 1652737524.20613
+lastSyncTime: 1652737524.20613

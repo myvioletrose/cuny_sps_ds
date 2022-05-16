@@ -1,0 +1,35 @@
+### tables ###
+# as of 5.16.2022
+
+# fact, dim
+stock_fact_v1::stock.stock_fact
+stock_dim::stock.stock_dim
+
+# indicator
+stock_indicator_v1::stock.stock_indicator
+
+# Heikin Ashi
+heikin_ashi_fact_v1::stock.heikin_ashi_fact
+
+# risk
+investment_risk_v1::stock.investment_risk
+
+# strategy
+strategy_part_a_v1::stock.strategy_final_project_df1
+strategy_part_b_v1::stock.strategy_final_project_df2
+strategy_part_b_v1::stock.strategy_final_project_df3
+
+# ML: random forest
+machine_learning_model_v1::stock.strategy_final_project_df4_cm
+machine_learning_model_v1::stock.strategy_final_project_df4
+
+# backtesting
+backtesting_v1::stock.strategy_final_project_df5_backtest_detail
+backtesting_v1::stock.strategy_final_project_df5_backtest_simplified
+
+# analysis
+final_project_analysis_v1::stock.strategy_final_project_df6_analysis
+
+
+
+
