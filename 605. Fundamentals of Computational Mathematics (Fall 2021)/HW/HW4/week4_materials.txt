@@ -1,5 +1,0 @@
-# Singular Value Decomposition
-https://www.youtube.com/watch?v=Nx0lRBaXoz4
-
-# Latent_semantic_indexing
-https://en.wikipedia.org/wiki/Latent_semantic_analysis#Latent_semantic_indexing

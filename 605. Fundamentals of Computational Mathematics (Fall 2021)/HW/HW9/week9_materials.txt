@@ -1,9 +1,0 @@
-# Central limit theorem
-https://www.khanacademy.org/math/statistics-probability/sampling-distributions-library/sample-means/v/central-limit-theorem
-
-# Moment Generating Functions Part 1
-https://www.youtube.com/watch?v=gcpSImAQjlk
-
-# Introduction to Moment Generating Functions
-https://www.youtube.com/watch?v=OKdjid9FeKk
-
