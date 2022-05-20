@@ -1,0 +1,537 @@
+---
+title: "data_698_presentation"
+author: "Jimmy Ng"
+date: "May 16, 2022"
+output:
+  rmdformats::readthedown:
+    self_contained: yes
+    thumbnails: yes
+    lightbox: yes
+    gallery: no
+    highlight: tango
+    code_folding: hide
+editor_options: 
+  chunk_output_type: console
+---
+
+**Research Questions**: 
+
+1) Can machine learning model trained on a variety of traditional technical indicators be used to reliably outperform the market?
+2) Can machine learning model reliably outperform the traditional technical analysis?
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+    echo = TRUE, 
+    warning = FALSE, 
+    message = FALSE,
+    cache = TRUE)
+```
+
+# (0) configuration
+
+## set-up {.tabset .tabset-fade .tabset-pills}
+
+### load packages, helper functions 
+
+```{r get_ready, collapse = TRUE}
+# load tictoc
+if(!require(pacman)){install.packages("pacman"); require(pacman)}
+pacman::p_load(tictoc)
+
+# set environment
+readRenviron("~/I/config/.env")
+
+# set local environment variables using global environment
+SP500_LIST_PATH <- Sys.getenv("SP500_LIST_PATH")
+PACKAGE_PATH <- Sys.getenv("PACKAGE_PATH")
+PROJECT_HOME_DIRECTORY <- Sys.getenv("PROJECT_HOME_DIRECTORY")
+STOCK_LIST_PATH <- Sys.getenv("STOCK_LIST_PATH")
+FUNCTION_DIRECTORY <- Sys.getenv("FUNCTION_DIRECTORY")
+ALPHA_VANTAGE_API <- Sys.getenv("ALPHA_VANTAGE_API")
+PLOT_PATH <- Sys.getenv("PLOT_PATH")
+VOTES_PATH = Sys.getenv("VOTES_PATH")
+TA_FOLDER <- Sys.getenv("TA_FOLDER")
+DIAGNOSTIC_FOLDER <- Sys.getenv("DIAGNOSTIC_FOLDER")
+DATA_DIRECTORY <- Sys.getenv("DATA_DIRECTORY")
+DECRYPT <- Sys.getenv("DECRYPT")
+SENDER <- Sys.getenv("SENDER") 
+USERNAME <- Sys.getenv("USERNAME")
+PASSWORD <- Sys.getenv("PASSWORD")
+INTRADAY = FALSE
+REAL_TIME = TRUE
+LONG_LIST = TRUE
+SP500 = TRUE
+if(!SP500){REGULAR = TRUE}
+
+# set project home directory
+setwd(PROJECT_HOME_DIRECTORY)
+
+# load packages
+packages <- read.csv(PACKAGE_PATH, header = FALSE)
+pacman::p_load(char = as.vector(packages$V1))
+
+# source all functions
+sapply(paste(FUNCTION_DIRECTORY, grep(pattern = "\\.[Rr]$", list.files(FUNCTION_DIRECTORY), value = TRUE), sep = "/"), function(x) source(x)) %>% invisible()
+```
+
+### connection to postgresql
+
+```{r postgresql, collapse = TRUE}
+db <- "algo_trade"
+schema <- "stock"
+host_db <- "localhost"
+db_port <- "8321"
+db_user <- "postgres"
+db_password <- Sys.getenv("DB_PASSWORD")
+con <- DBI::dbConnect(RPostgres::Postgres(), dbname = db, host = host_db, port = db_port, user = db_user, password = db_password)
+
+# disconnect db
+#dbDisconnect(con) 
+
+# tables
+tables = data.frame(
+    sf = "stock_fact",
+    sdim = "stock_dim",
+    sindi = "stock_indicator",
+    haf = "heikin_ashi_fact",
+    ir = "investment_risk",
+    df1 = "strategy_final_project_df1",
+    df2 = "strategy_final_project_df2",
+    df3 = "strategy_final_project_df3",
+    df4_cm = "strategy_final_project_df4_cm",
+    df4 = "strategy_final_project_df4",
+    df5_detail = "strategy_final_project_df5_backtest_detail",
+    df5_simplified = "strategy_final_project_df5_backtest_simplified",
+    df6 = "strategy_final_project_df6_analysis") %>%
+    tidyr::gather() %>%
+    dplyr::mutate(row = 1:nrow(.)) %>%
+    dplyr::select(row, key, table = value)
+
+tables %>%
+    kbl() %>%
+    kable_paper("hover", full_width = F)
+```
+
+### close connection
+
+```{r test connection, collapse = TRUE}
+# helper function
+psql <- function(query = "", connection = con){
+    dbGetQuery(connection, glue::glue(query))
+}
+
+# test connection
+# psql(query = "select * from {sf} limit 5") %>% 
+#     kbl() %>%
+#     kable_paper("hover", full_width = F)
+
+# disconnect db
+dbDisconnect(con) 
+
+# from this point forward, all demo data is extracted from an excel file
+# there are some issues connecting to postgresql and then outputting it in markdown
+# for instance, I cannot do scroll_box(width = "100%", height = "200px")
+
+# get demo data
+demo_path = "C:/development/school_of_professional_studies/698. Capstone/algorithmic_trading_code/__final_present_data_set.xlsx"
+# demo_var = readxl::excel_sheets(demo_path)
+# sapply(1:length(demo_var), function(x) assign(demo_var[x], value = readxl::read_excel(demo_path, sheet = demo_var[x]), envir = .GlobalEnv)) %>%
+#     invisible()
+```
+
+# (1) step 1: data extraction
+
+## extraction {.tabset .tabset-fade .tabset-pills}
+
+### stock_fact
+```{r, stock_fact, collapse = TRUE}
+sf <- readxl::read_excel(demo_path, sheet = "sf")
+sf %>% 
+    kbl() %>%
+    kable_paper("hover", full_width = F)
+
+meta <- readxl::read_excel(demo_path, sheet = "meta")
+meta %>%
+    kbl() %>%
+    kable_paper("hover", full_width = F)
+```
+
+### stock_dim
+```{r, stock_dim, collapse = TRUE}
+sdim <- readxl::read_excel(demo_path, sheet = "sdim")
+sdim %>%
+    kbl() %>%
+    kable_paper("hover", full_width = T) %>%
+    scroll_box(width = "100%", height = "500px")
+```
+
+### sector
+```{r, sector_count, collapse = TRUE}
+sqldf("select sector, count(1) as stocks from sdim group by sector order by sector") %>%
+    kbl() %>%
+    kable_paper("hover", full_width = T)
+```
+
+# (2) step 2: data transformation: indicator, risk
+
+## transformation {.tabset .tabset-fade .tabset-pills}
+
+### stock_indicator
+```{r, sindi, collapse = TRUE}
+sindi <- readxl::read_excel(demo_path, sheet = "sindi")
+sindi %>%
+    kbl() %>%
+    kable_paper("hover", full_width = T)
+
+names(sindi) %>% as.data.frame(fields = ".") %>%
+    kbl() %>%
+    kable_paper("hover", full_width = T)
+```
+
+### target_flag
+```{r, target_flag, collapse = TRUE}
+sindi %>%
+    dplyr::select(symbol, date, adjusted, sma_5, target_flag, target_var) %>%
+    kbl() %>%
+    kable_paper("hover", full_width = T)
+```
+
+### heikin_ashi_fact
+```{r, haf, collapse = TRUE}
+haf <- readxl::read_excel(demo_path, sheet = "haf")
+haf %>%
+    kbl() %>%
+    kable_paper("hover", full_width = T)
+```
+
+### investment_risk
+```{r, ir, collapse = TRUE}
+ir <- readxl::read_excel(demo_path, sheet = "ir")
+ir %>%
+    kbl() %>%
+    kable_paper("hover", full_width = T)
+
+names(ir) %>% as.data.frame(fields = ".") %>%
+    kbl() %>%
+    kable_paper("hover", full_width = T)
+```
+
+# (3) step 3: data transformation: strategy
+
+## technical analysis {.tabset .tabset-fade .tabset-pills}
+
+### technical analysis
+```{r, TA, collapse = TRUE, echo = FALSE, fig.cap = "SPY", out.width = '100%'}
+knitr::include_graphics("C:/development/school_of_professional_studies/698. Capstone/algorithmic_trading_code/SPY_2021_to_202205.png")
+```
+
+### technical analysis (HA)
+```{r, TA_HA, collapse = TRUE, echo = FALSE, fig.cap = "SPY - HA", out.width = '100%'}
+knitr::include_graphics("C:/development/school_of_professional_studies/698. Capstone/algorithmic_trading_code/SPY_2021_to_202205 (HA).png")
+```
+
+## wrangling {.tabset .tabset-fade .tabset-pills}
+
+### wrangling part 1
+```{r, df1, collapse = TRUE}
+df1 <- readxl::read_excel(demo_path, sheet = "df1")
+df1 %>%
+    kbl() %>%
+    kable_paper("hover", full_width = T)
+
+names(df1) %>% as.data.frame(fields = ".") %>%
+    kbl() %>%
+    kable_paper("hover", full_width = T)
+```
+
+### wrangling part 2
+```{r, df2, collapse = TRUE}
+df2 <- readxl::read_excel(demo_path, sheet = "df2")
+df2 %>%
+    kbl() %>%
+    kable_paper("hover", full_width = T)
+
+names(df2) %>% as.data.frame(fields = ".") %>%
+    kbl() %>%
+    kable_paper("hover", full_width = T)
+```
+
+### wrangling part 3
+```{r, df3, collapse = TRUE}
+df3 <- readxl::read_excel(demo_path, sheet = "df3")
+df3 %>%
+    kbl() %>%
+    kable_paper("hover", full_width = T)
+
+names(df3) %>% as.data.frame(fields = ".") %>%
+    kbl() %>%
+    kable_paper("hover", full_width = T)
+```
+
+# (4) step 4: ML - random forest
+
+## random forest {.tabset .tabset-fade .tabset-pills}
+
+### metrics
+```{r, cm, collapse = TRUE}
+df4_cm <- readxl::read_excel(demo_path, sheet = "df4_cm")
+df4_cm %>%
+    kbl() %>%
+    kable_paper("hover", full_width = T)
+```
+
+### prediction
+```{r, prediction, collapse = TRUE}
+df4 <- readxl::read_excel(demo_path, sheet = "df4")
+df4 %>%
+    kbl() %>%
+    kable_paper("hover", full_width = T)
+```
+
+# (5) step 5: backtesting
+
+## backtesting {.tabset .tabset-fade .tabset-pills}
+
+### detail
+```{r, bt_detail, collapse = TRUE}
+df5_detail <- readxl::read_excel(demo_path, sheet = "df5_detail")
+df5_detail %>%
+    tail(10) %>%
+    kbl() %>%
+    kable_paper("hover", full_width = F)
+
+names(df5_detail) %>% as.data.frame(fields = ".") %>%
+    kbl() %>%
+    kable_paper("hover", full_width = T)
+```
+
+### simplified
+```{r, bt_simplified, collapse = TRUE}
+df5_simplified <- readxl::read_excel(demo_path, sheet = "df5_simplified")
+df5_simplified %>%
+    kbl() %>%
+    kable_paper("hover", full_width = T)
+```
+
+# (6) step 6: analysis
+
+## analysis {.tabset .tabset-fade .tabset-pills}
+
+### data
+```{r, data, collapse = TRUE}
+df6 <- readxl::read_excel(demo_path, sheet = "df6") %>%
+    dplyr::filter(symbol != "SPY")
+
+df6 %>%
+    kbl() %>%
+    kable_paper("hover", full_width = T)
+
+names(df6) %>% as.data.frame(fields = ".") %>%
+    kbl() %>%
+    kable_paper("hover", full_width = T)
+
+dfGather2 <- df6 %>%
+    dplyr::select(contains("_return")) %>%
+    dplyr::select(-expected_return) %>%
+    tidyr::gather() %>%
+    dplyr::mutate(key = gsub("_return", "", key)) %>%
+    dplyr::select(strategy = key, return = value) 
+
+sectorGather2 <- df6 %>%
+    dplyr::select(sector, contains("_return")) %>%
+    dplyr::select(-expected_return) %>%
+    tidyr::gather(key, value, -sector) %>%
+    dplyr::mutate(key = gsub("_return", "", key)) %>%
+    dplyr::select(sector, strategy = key, return = value) 
+```
+
+### percent of stock outperform market
+```{r, performance, collapse = TRUE}
+performance <- df6 %>% dplyr::select(sector, contains("comparison")) %>%
+    tidyr::gather(key, value, -sector) %>%
+    dplyr::mutate(key = gsub("_comparison", "", key)) %>%
+    dplyr::select(sector, strategy = key, comparison = value) %>%
+    group_by(sector, strategy) %>%
+    summarise(count = n(),
+              out_perform = sum(comparison)) %>%
+    dplyr::mutate(pct = round(out_perform / count, 4))
+
+performance2 <- performance %>%
+    dplyr::select(sector, strategy, num_of_stock = count, pct) %>%
+    tidyr::spread(strategy, pct) %>%
+    ungroup()
+
+performance2 %>%
+    kbl() %>%
+    kable_paper("hover", full_width = T)
+```
+
+### return
+```{r agg_return, collapse = TRUE}
+# by strategy - return
+aggregate(return ~ strategy, dfGather2, mean) %>% arrange(desc(return)) %>%
+    kbl() %>%
+    kable_paper("hover", full_width = T)
+
+# by sector + strategy - return
+aggregate(return ~ sector + strategy, sectorGather2, mean) %>%
+    as.data.frame() %>%
+    tidyr::spread(strategy, return) %>%
+    kbl() %>%
+    kable_paper("hover", full_width = T)
+```
+
+### ANOVA
+```{r, ANOVA, collapse = TRUE}
+# mapper - only report these strategies
+strategy = c("cci", "macd", "rf_v1", "rsi")
+strategy_name = c("CCI", "MACD", "Random Forest", "RSI")
+mapper = data.frame(strategy, strategy_name) %>%
+    dplyr::mutate(strategy_name = factor(strategy_name, levels = c("CCI", "MACD", "RSI", "Random Forest")))
+
+# mapper2 - only report these strategies
+strategy2 = c("cci", "macd", "rf_v1", "rsi", "buy_and_hold")
+strategy_name2 = c("CCI", "MACD", "Random Forest", "RSI", "Buy-and-Hold")
+mapper2 = data.frame(strategy = strategy2, strategy_name = strategy_name2) %>%
+    dplyr::mutate(strategy_name = factor(strategy_name2, levels = c("CCI", "MACD", "RSI", "Random Forest", "Buy-and-Hold")))
+
+# one.way.return <- aov(return ~ strategy, data = dfGather2)
+# summary(one.way.return)
+# tukey.test.return <- TukeyHSD(one.way.return)
+# broom::tidy(tukey.test.return) %>%
+#     dplyr::select(-term, -null.value) %>%
+#     kbl() %>%
+#     kable_paper("hover", full_width = T)
+
+# ANOVA - strategy
+anova_strategy <- aov(return ~ strategy_name, data = dfGather2 %>% 
+                          dplyr::inner_join(., mapper2, by = "strategy"))
+summary(anova_strategy)
+postHoc_strategy <- TukeyHSD(anova_strategy)
+# anova result
+broom::tidy(postHoc_strategy) %>% select(-term, -null.value) %>% 
+    dplyr::mutate(sig_flag = dplyr::case_when(adj.p.value < .05 ~1, TRUE~0)) %>%
+    arrange(desc(sig_flag), desc(estimate)) %>%
+    kbl() %>%
+    kable_paper("hover", full_width = T)
+```
+
+### boxplot - strategy
+```{r, boxplot_strategy, collapse = TRUE, fig.height = 9, fig.width = 12, fig.align = "center"}
+dfGather2 %>%
+    dplyr::inner_join(., mapper2, by = "strategy") %>%
+    #dplyr::select(strategy, strategy_name) %>% distinct()
+    ggplot(aes(x = strategy_name, y = return, fill = strategy_name)) +
+    geom_boxplot(outlier.colour = "red", outlier.shape = 16,
+                 outlier.size = 2, notch = FALSE) +
+    geom_hline(yintercept = 0, linetype = "dashed", 
+               color = "red", size = 1) +
+    #coord_flip() +
+    theme_bw() +
+    theme(legend.position = "none") +
+    #ggtitle("Actual Return (%) by Strategy") +
+    xlab("") +
+    ylab("")
+```
+
+### boxplot - return by sector, strategy
+```{r, boxplot_return_by_sector, collapse = TRUE, fig.height = 9, fig.width = 12, fig.align = "center"}
+sectorGather2 %>%
+    dplyr::inner_join(., mapper2, by = "strategy") %>%
+    ggplot(aes(x = strategy_name, y = return, fill = strategy_name)) +
+    geom_boxplot(outlier.colour = "red", outlier.shape = 16,
+                 outlier.size = 1, notch = FALSE) +
+    geom_hline(yintercept = 0, linetype = "dashed", 
+               color = "red", size = 1) +
+    #coord_flip() +
+    #scale_x_discrete(limits = rev(levels(sectorGather$sector %>% as.factor))) +
+    #facet_wrap(~strategy_name, nrow = 1) +
+    facet_wrap(~sector, ncol = 11) +
+    theme_bw() +
+    theme(legend.position = "none", 
+          strip.text.x = element_text(size = 7.5),
+          #plot.title = element_text(hjust = 0.5),
+          axis.text.x = element_text(hjust = 1, angle = 45),
+          legend.background = element_rect(colour = "black"),
+          legend.title = element_blank()) +
+    #ggtitle("Actual Return (%) by Sector, Strategy") +
+    xlab("") +
+    ylab("")
+```
+
+## return {.tabset .tabset-fade .tabset-pills}
+
+### by sector
+```{r, return_by_sector, collapse = TRUE}
+actual_return_by_sector <- sectorGather2 %>%
+    dplyr::filter(strategy == "buy_and_hold") %>%
+    group_by(sector) %>%
+    summarise(n = n(),
+              mean = mean(return),
+              sd = sd(return),
+              se = sd / sqrt(n),
+              lower.bound = mean - 1.96*se,
+              upper.bound = mean + 1.96*se,
+              minimum = min(return),
+              maximum = max(return))%>%
+    ungroup()
+
+actual_return_by_sector %>% mutate_if(is.numeric, function(x) round(x, 2)) %>%
+    kbl() %>%
+    kable_paper("hover", full_width = T)  
+```
+
+### by strategy
+```{r, return_by_strategy, collapse = TRUE}
+# return by strategy [y]
+return_by_strategy <- sectorGather2 %>%
+    dplyr::inner_join(., mapper2, by = "strategy") %>%
+    dplyr::select(-strategy, -sector) %>%
+    group_by(strategy_name) %>%
+    summarise(n = n(),
+              mean = mean(return),
+              sd = sd(return),
+              se = sd / sqrt(n),
+              lower.bound = mean - 1.96*se,
+              upper.bound = mean + 1.96*se,
+              minimum = min(return),
+              maximum = max(return))%>%
+    ungroup()
+
+return_by_strategy %>% mutate_if(is.numeric, function(x) round(x, 2)) %>%
+    kbl() %>%
+    kable_paper("hover", full_width = T)  
+```
+
+### by sector, strategy
+```{r, return_by_sector_strategy, collapse = TRUE}
+return_by_strategy2 <- sectorGather2 %>%
+    dplyr::inner_join(., mapper2, by = "strategy") %>%
+    dplyr::select(-strategy) %>%
+    group_by(strategy_name, sector) %>%
+    summarise(n = n(),
+              mean = mean(return),
+              sd = sd(return),
+              se = sd / sqrt(n),
+              lower.bound = mean - 1.96*se,
+              upper.bound = mean + 1.96*se,
+              minimum = min(return),
+              maximum = max(return))%>%
+    ungroup()
+
+return_by_strategy2 %>% mutate_if(is.numeric, function(x) round(x, 2)) %>%
+    kbl() %>%
+    kable_paper("hover", full_width = T)
+```
+
+
+
+
+
+
+
+
+
+
+
+
